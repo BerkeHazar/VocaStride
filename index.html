@@ -766,22 +766,156 @@
 </div>
 
 <script>
-// ===== PWA =====
-const MANIFEST = {
-    name:"VocaStride",short_name:"VocaStride",description:"Kelime öğrenme uygulaması",
-    start_url:"./",display:"standalone",background_color:"#0b0a0f",theme_color:"#633bbc",
-    orientation:"portrait",
-    icons:[{src:"data:image/svg+xml,"+encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><rect width="512" height="512" rx="100" fill="#633bbc"/><text x="256" y="340" font-size="280" font-weight="900" font-style="italic" font-family="Arial" text-anchor="middle" fill="white">V</text></svg>'),sizes:"512x512",type:"image/svg+xml",purpose:"any maskable"}]
-};
-try{const mb=new Blob([JSON.stringify(MANIFEST)],{type:'application/json'});document.querySelector('link[rel="manifest"]').href=URL.createObjectURL(mb);}catch(e){}
+// ===== PWA: TEK DOSYA ÇÖZÜMÜ =====
 
-let deferredPrompt=null;
-window.addEventListener('beforeinstallprompt',e=>{e.preventDefault();deferredPrompt=e;if(!localStorage.getItem('pwaDismissed'))setTimeout(()=>{document.getElementById('pwaInstallBanner').style.display='block';},3000);});
-function pwaYukle(){if(deferredPrompt){deferredPrompt.prompt();deferredPrompt.userChoice.then(()=>{deferredPrompt=null;document.getElementById('pwaInstallBanner').style.display='none';});}}
-function pwaBannerKapat(){document.getElementById('pwaInstallBanner').style.display='none';localStorage.setItem('pwaDismissed',Date.now().toString());}
-window.addEventListener('online',()=>{document.getElementById('offlineBanner').style.display='none';});
-window.addEventListener('offline',()=>{document.getElementById('offlineBanner').style.display='block';});
-if(!navigator.onLine)document.getElementById('offlineBanner').style.display='block';
+// 1) Manifest oluştur (inline blob)
+const MANIFEST = {
+    name: "VocaStride",
+    short_name: "VocaStride",
+    description: "Kelime öğrenme uygulaması",
+    start_url: location.href.split('?')[0],
+    scope: location.href.substring(0, location.href.lastIndexOf('/') + 1),
+    display: "standalone",
+    background_color: "#0b0a0f",
+    theme_color: "#633bbc",
+    orientation: "portrait-primary",
+    icons: [
+        {
+            src: "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'%3E%3Crect width='512' height='512' rx='100' fill='%23633bbc'/%3E%3Ctext x='256' y='340' font-size='280' font-weight='900' font-style='italic' font-family='Arial' text-anchor='middle' fill='white'%3EV%3C/text%3E%3C/svg%3E",
+            sizes: "512x512",
+            type: "image/svg+xml",
+            purpose: "any"
+        },
+        {
+            src: "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'%3E%3Crect width='512' height='512' rx='100' fill='%23633bbc'/%3E%3Ctext x='256' y='340' font-size='280' font-weight='900' font-style='italic' font-family='Arial' text-anchor='middle' fill='white'%3EV%3C/text%3E%3C/svg%3E",
+            sizes: "512x512",
+            type: "image/svg+xml",
+            purpose: "maskable"
+        }
+    ]
+};
+
+try {
+    const manifestBlob = new Blob([JSON.stringify(MANIFEST)], { type: 'application/json' });
+    const manifestURL = URL.createObjectURL(manifestBlob);
+    const manifestLink = document.querySelector('link[rel="manifest"]');
+    if (manifestLink) manifestLink.href = manifestURL;
+} catch (e) {
+    console.log('Manifest hatası:', e);
+}
+
+// 2) Service Worker: index.html kendisi SW olarak da çalışır
+//    Sayfa ?sw parametresiyle çağrıldığında SW moduna geçer
+if (new URLSearchParams(location.search).has('sw')) {
+    // Bu blok hiç çalışmaz çünkü SW ayrı thread'de çalışır
+    // Ama aşağıdaki register kısmı bu URL'i kullanır
+}
+
+// SW kodunu ayrı bir JS dosyası gibi serve et
+const SW_CODE = `
+const CACHE_NAME = 'vocastride-v4';
+
+self.addEventListener('install', e => {
+    self.skipWaiting();
+});
+
+self.addEventListener('activate', e => {
+    e.waitUntil(
+        caches.keys().then(keys =>
+            Promise.all(keys.filter(k => k !== CACHE_NAME).map(k => caches.delete(k)))
+        )
+    );
+    self.clients.claim();
+});
+
+self.addEventListener('fetch', e => {
+    if (e.request.mode === 'navigate') {
+        e.respondWith(
+            fetch(e.request).catch(() => caches.match(e.request))
+        );
+        return;
+    }
+    e.respondWith(
+        caches.open(CACHE_NAME).then(cache =>
+            cache.match(e.request).then(cached => {
+                const fetched = fetch(e.request).then(response => {
+                    if (response && response.status === 200 && response.type !== 'opaque') {
+                        cache.put(e.request, response.clone());
+                    }
+                    return response;
+                }).catch(() => cached);
+                return cached || fetched;
+            })
+        )
+    );
+});
+`;
+
+// 3) SW'yi kaydet
+if ('serviceWorker' in navigator && location.protocol === 'https:') {
+    window.addEventListener('load', async () => {
+        try {
+            // Önce normal dosya olarak dene (eğer sw.js varsa)
+            const reg = await navigator.serviceWorker.register('./sw.js', {
+                scope: './'
+            }).catch(async () => {
+                // sw.js yoksa blob olarak dene
+                const swBlob = new Blob([SW_CODE], { type: 'application/javascript' });
+                const swURL = URL.createObjectURL(swBlob);
+                return navigator.serviceWorker.register(swURL);
+            });
+            console.log('✅ SW kayıtlı:', reg.scope);
+        } catch (err) {
+            console.log('SW kaydedilemedi:', err.message);
+        }
+    });
+}
+
+// 4) PWA Install
+let deferredPrompt = null;
+
+window.addEventListener('beforeinstallprompt', e => {
+    e.preventDefault();
+    deferredPrompt = e;
+    console.log('✅ PWA yüklenebilir!');
+    if (!localStorage.getItem('pwaDismissed')) {
+        setTimeout(() => {
+            document.getElementById('pwaInstallBanner').style.display = 'block';
+        }, 2000);
+    }
+});
+
+window.addEventListener('appinstalled', () => {
+    console.log('✅ PWA yüklendi!');
+    document.getElementById('pwaInstallBanner').style.display = 'none';
+    deferredPrompt = null;
+});
+
+function pwaYukle() {
+    if (deferredPrompt) {
+        deferredPrompt.prompt();
+        deferredPrompt.userChoice.then(() => {
+            deferredPrompt = null;
+            document.getElementById('pwaInstallBanner').style.display = 'none';
+        });
+    }
+}
+
+function pwaBannerKapat() {
+    document.getElementById('pwaInstallBanner').style.display = 'none';
+    localStorage.setItem('pwaDismissed', Date.now().toString());
+}
+
+// 5) Online/Offline
+window.addEventListener('online', () => {
+    document.getElementById('offlineBanner').style.display = 'none';
+});
+window.addEventListener('offline', () => {
+    document.getElementById('offlineBanner').style.display = 'block';
+});
+if (!navigator.onLine) {
+    document.getElementById('offlineBanner').style.display = 'block';
+}
 
 // ===== STREAK =====
 function bugunStr(){const d=new Date();return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');}
