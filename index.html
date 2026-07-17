@@ -1,0 +1,1327 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>VocaStride</title>
+    
+    <meta name="theme-color" content="#0b0a0f" media="(prefers-color-scheme: dark)">
+    <meta name="theme-color" content="#f4f4f7" media="(prefers-color-scheme: light)">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="VocaStride">
+    <meta name="description" content="Kelime öğrenme uygulaması">
+    <link rel="manifest" href="data:application/json;base64,">
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        :root {
+            --bg-color: #0b0a0f;
+            --card-bg: #15141c;
+            --panel-bg: #1e1d26;
+            --text-color: #e1e1e6;
+            --primary: #633bbc;
+            --primary-light: #a370f7;
+            --success: #04d361;
+            --danger: #f75a68;
+            --warning: #ff9f43;
+            --timer-color: #00b37e;
+            --border-color: #282733;
+            --title-color: #ffffff;
+            --sub-text: #a8a8b3;
+            --shadow: rgba(0, 0, 0, 0.7);
+        }
+        @media (prefers-color-scheme: light) {
+            :root {
+                --bg-color: #f4f4f7; --card-bg: #ffffff; --panel-bg: #f0eff5;
+                --text-color: #1c1b22; --primary: #633bbc; --primary-light: #8b5cf6;
+                --success: #1a8a4f; --danger: #db3a49; --warning: #e8890c;
+                --timer-color: #0d8a63; --border-color: #d1cfdc; --title-color: #121118;
+                --sub-text: #62616a; --shadow: rgba(0, 0, 0, 0.08);
+            }
+        }
+        [data-theme="dark"] {
+            --bg-color: #0b0a0f; --card-bg: #15141c; --panel-bg: #1e1d26;
+            --text-color: #e1e1e6; --primary: #633bbc; --primary-light: #a370f7;
+            --success: #04d361; --danger: #f75a68; --warning: #ff9f43;
+            --timer-color: #00b37e; --border-color: #282733; --title-color: #ffffff;
+            --sub-text: #a8a8b3; --shadow: rgba(0, 0, 0, 0.7);
+        }
+        [data-theme="light"] {
+            --bg-color: #f4f4f7; --card-bg: #ffffff; --panel-bg: #f0eff5;
+            --text-color: #1c1b22; --primary: #633bbc; --primary-light: #8b5cf6;
+            --success: #1a8a4f; --danger: #db3a49; --warning: #e8890c;
+            --timer-color: #0d8a63; --border-color: #d1cfdc; --title-color: #121118;
+            --sub-text: #62616a; --shadow: rgba(0, 0, 0, 0.08);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+        html {
+            overflow-x: hidden;
+            -webkit-text-size-adjust: 100%;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-start;
+            min-height: 100vh;
+            min-height: -webkit-fill-available;
+            margin: 0;
+            padding: 20px 16px;
+            padding-top: max(20px, env(safe-area-inset-top));
+            padding-bottom: max(20px, env(safe-area-inset-bottom));
+            padding-left: max(16px, env(safe-area-inset-left));
+            padding-right: max(16px, env(safe-area-inset-right));
+            overflow-x: hidden;
+            transition: background-color 0.3s, color 0.3s;
+            -webkit-user-select: none;
+            user-select: none;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        /* Masaüstü için daha geniş padding */
+        @media (min-width: 768px) {
+            body { padding: 40px 20px; }
+        }
+
+        /* ===== OFFLINE & PWA BANNER ===== */
+        .offline-banner {
+            display: none; position: fixed; top: 0; left: 0; right: 0;
+            background: var(--warning); color: #000; text-align: center;
+            padding: 8px; padding-top: max(8px, env(safe-area-inset-top));
+            font-size: 0.75rem; font-weight: 700; z-index: 201;
+        }
+        .pwa-install-banner {
+            display: none; position: fixed; bottom: 20px;
+            bottom: max(20px, env(safe-area-inset-bottom));
+            left: 50%; transform: translateX(-50%);
+            background: var(--card-bg); border: 1px solid var(--primary);
+            border-radius: 16px; padding: 14px 16px;
+            box-shadow: 0 15px 40px var(--shadow); z-index: 200;
+            width: calc(100% - 32px); max-width: 400px;
+            animation: slideUp 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .pwa-install-banner .pwa-row { display: flex; align-items: center; gap: 12px; }
+        .pwa-install-banner .pwa-icon {
+            width: 44px; height: 44px; min-width: 44px;
+            background: linear-gradient(135deg, var(--primary), var(--primary-light));
+            border-radius: 12px; display: flex; align-items: center;
+            justify-content: center; font-size: 1.2rem; color: #fff;
+        }
+        .pwa-install-banner .pwa-text h4 { font-size: 0.9rem; font-weight: 800; color: var(--title-color); margin-bottom: 2px; }
+        .pwa-install-banner .pwa-text p { font-size: 0.7rem; color: var(--sub-text); }
+        .pwa-install-banner .pwa-actions { display: flex; gap: 8px; margin-top: 12px; }
+        .pwa-install-banner .pwa-btn-install {
+            flex: 1; background: var(--primary); color: #fff; border: none;
+            padding: 10px; border-radius: 8px; font-family: 'Inter', sans-serif;
+            font-weight: 700; font-size: 0.85rem; cursor: pointer;
+            min-height: 44px;
+        }
+        .pwa-install-banner .pwa-btn-dismiss {
+            background: var(--panel-bg); color: var(--sub-text);
+            border: 1px solid var(--border-color); padding: 10px 14px;
+            border-radius: 8px; font-family: 'Inter', sans-serif;
+            font-weight: 600; font-size: 0.85rem; cursor: pointer;
+            min-height: 44px;
+        }
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateX(-50%) translateY(100px); }
+            to { opacity: 1; transform: translateX(-50%) translateY(0); }
+        }
+
+        /* ===== MENÜ ===== */
+        .menu-container {
+            text-align: center; background: var(--card-bg);
+            padding: 28px 20px; border-radius: 20px;
+            border: 1px solid var(--border-color);
+            box-shadow: 0 20px 40px var(--shadow);
+            width: 100%; max-width: 460px;
+            animation: cardIn 0.5s ease;
+        }
+        @media (min-width: 768px) {
+            .menu-container { padding: 40px 35px; }
+        }
+        .menu-baslik {
+            font-size: 2.2rem; font-weight: 800; font-style: italic;
+            letter-spacing: -1.5px; margin-bottom: 4px;
+            background: linear-gradient(135deg, #a370f7 0%, #633bbc 100%);
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+            background-clip: text; display: inline-block; padding-right: 8px;
+        }
+        @media (min-width: 768px) { .menu-baslik { font-size: 2.5rem; } }
+        .menu-alt { font-size: 0.85rem; color: var(--sub-text); margin-bottom: 18px; }
+
+        /* Streak Uyarı */
+        .streak-uyari {
+            display: none; background: rgba(247, 90, 104, 0.1);
+            border: 1px solid rgba(247, 90, 104, 0.3); color: var(--danger);
+            padding: 10px 14px; border-radius: 10px; font-size: 0.8rem;
+            font-weight: 700; margin-bottom: 14px; text-align: center;
+        }
+
+        /* XP */
+        .xp-section { margin-bottom: 18px; text-align: left; }
+        .xp-info { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
+        .xp-level { font-weight: 800; font-size: 0.9rem; color: var(--primary-light); display: flex; align-items: center; gap: 5px; }
+        .xp-amount { font-size: 0.75rem; color: var(--sub-text); font-weight: 600; }
+        .xp-bar-outer { width: 100%; height: 8px; background: var(--panel-bg); border-radius: 8px; overflow: hidden; border: 1px solid var(--border-color); }
+        .xp-bar-inner { height: 100%; background: linear-gradient(90deg, var(--primary), var(--primary-light)); border-radius: 8px; transition: width 0.6s cubic-bezier(0.34, 1.56, 0.64, 1); width: 0%; }
+
+        /* Streak & Günlük */
+        .streak-daily-row { display: flex; gap: 10px; margin-bottom: 16px; }
+        .streak-box, .daily-box {
+            flex: 1; background: var(--panel-bg); border: 1px solid var(--border-color);
+            border-radius: 12px; padding: 12px 10px; text-align: center;
+        }
+        .streak-box .streak-num { font-size: 1.6rem; font-weight: 800; color: var(--warning); }
+        .streak-box .streak-label { font-size: 0.7rem; color: var(--sub-text); font-weight: 600; margin-top: 2px; }
+        .streak-dots { display: flex; justify-content: center; gap: 4px; margin-top: 8px; }
+        .streak-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--border-color); }
+        .streak-dot.aktif { background: var(--warning); box-shadow: 0 0 5px rgba(255, 159, 67, 0.4); }
+        .streak-dot.bugun { background: var(--success); box-shadow: 0 0 5px rgba(4, 211, 97, 0.4); }
+        .daily-box .daily-progress { font-size: 1.3rem; font-weight: 800; color: var(--success); }
+        .daily-box .daily-label { font-size: 0.7rem; color: var(--sub-text); font-weight: 600; margin-top: 2px; }
+        .daily-bar-outer { width: 100%; height: 5px; background: var(--bg-color); border-radius: 5px; overflow: hidden; margin-top: 7px; }
+        .daily-bar-inner { height: 100%; background: var(--success); border-radius: 5px; transition: width 0.4s ease; width: 0%; }
+        .daily-box.tamamlandi { border-color: var(--success); background: rgba(4, 211, 97, 0.05); }
+
+        /* Menü Butonları */
+        .menu-butonlar { display: flex; flex-direction: column; gap: 10px; }
+        .menu-btn {
+            background: var(--panel-bg); border: 1px solid var(--border-color);
+            color: var(--text-color); padding: 16px 14px; font-family: 'Inter', sans-serif;
+            border-radius: 12px; cursor: pointer; text-align: left;
+            display: flex; align-items: center; justify-content: space-between;
+            transition: all 0.2s ease; min-height: 48px;
+            -webkit-appearance: none; appearance: none;
+        }
+        .menu-btn:hover { border-color: var(--primary); transform: translateY(-2px); }
+        .menu-btn:active { transform: scale(0.98); }
+        .menu-btn .btn-text-title { font-weight: 700; font-size: 1.1rem; margin-bottom: 3px; }
+        .menu-btn .btn-text-desc { font-size: 0.78rem; font-weight: 400; color: var(--sub-text); }
+        .menu-btn span.icon {
+            font-size: 1.2rem; background: rgba(99, 59, 188, 0.15);
+            color: var(--primary); padding: 9px 11px; border-radius: 8px;
+            display: flex; align-items: center; justify-content: center; min-width: 42px;
+        }
+
+        .menu-alt-butonlar { display: flex; gap: 8px; margin-top: 12px; }
+        .menu-alt-btn {
+            flex: 1; background: var(--panel-bg); border: 1px solid var(--border-color);
+            color: var(--sub-text); padding: 11px 8px; font-family: 'Inter', sans-serif;
+            font-size: 0.78rem; font-weight: 600; border-radius: 10px;
+            cursor: pointer; display: flex; align-items: center;
+            justify-content: center; gap: 5px; transition: all 0.2s;
+            min-height: 44px; -webkit-appearance: none;
+        }
+        .menu-alt-btn:hover { color: var(--title-color); border-color: var(--primary); }
+        .menu-alt-btn:active { transform: scale(0.97); }
+
+        /* ===== ÇALIŞMA ALANI ===== */
+        .container {
+            display: none; text-align: center; background: var(--card-bg);
+            padding: 20px 16px; border-radius: 20px;
+            border: 1px solid var(--border-color);
+            box-shadow: 0 20px 40px var(--shadow);
+            width: 100%; max-width: 460px; position: relative;
+            animation: cardIn 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        @media (min-width: 768px) { .container { padding: 35px; } }
+
+        @keyframes cardIn {
+            from { opacity: 0; transform: translateY(30px) scale(0.95); }
+            to { opacity: 1; transform: translateY(0) scale(1); }
+        }
+        .shake { animation: shake 0.4s ease-in-out; }
+        @keyframes shake { 0%,100%{transform:translateX(0)} 20%,60%{transform:translateX(-8px)} 40%,80%{transform:translateX(8px)} }
+        .bounce { animation: bounce 0.4s ease-in-out; }
+        @keyframes bounce { 0%,100%{transform:scale(1)} 50%{transform:scale(1.03)} }
+
+        .ust-aksiyonlar {
+            display: flex; justify-content: space-between; align-items: center;
+            margin-bottom: 12px;
+        }
+        .nav-btn {
+            background: none; border: none; color: var(--sub-text);
+            font-size: 0.95rem; font-family: 'Inter', sans-serif;
+            cursor: pointer; transition: color 0.2s; display: flex;
+            align-items: center; gap: 5px; padding: 8px 4px;
+            min-height: 44px; min-width: 44px;
+        }
+        .nav-btn:hover { color: var(--title-color); }
+        .nav-btn:active { opacity: 0.7; }
+        .ust-sag-grup { display: flex; align-items: center; gap: 4px; }
+        .ayar-btn:hover { transform: rotate(45deg); transition: transform 0.3s; }
+
+        /* Ayar Paneli */
+        .ayor-panel {
+            display: none; position: absolute; top: 50px; right: 16px; left: 16px;
+            background: var(--panel-bg); border: 1px solid var(--border-color);
+            padding: 16px; border-radius: 12px; z-index: 10;
+            text-align: left; box-shadow: 0 15px 35px var(--shadow);
+        }
+        @media (min-width: 768px) {
+            .ayor-panel { left: auto; right: 20px; width: 300px; }
+        }
+        .ayor-panel textarea {
+            width: 100%; height: 120px; background: var(--bg-color);
+            border: 1px solid var(--border-color); color: var(--text-color);
+            padding: 10px; border-radius: 6px; resize: vertical;
+            font-family: monospace; font-size: 0.75rem; box-sizing: border-box;
+            outline: none; -webkit-user-select: text; user-select: text;
+        }
+        .ayar-aksiyon-row { display: flex; gap: 6px; margin-top: 10px; flex-wrap: wrap; }
+        .ayar-aksiyon-row button {
+            flex: 1; min-width: 80px; font-family: 'Inter', sans-serif;
+            font-weight: 700; border: none; border-radius: 6px;
+            padding: 10px 6px; cursor: pointer; font-size: 0.8rem;
+            min-height: 44px;
+        }
+        .btn-kaydet-ayar { background: var(--success); color: #fff; }
+        .btn-export-ayar { background: var(--primary); color: #fff; }
+        .btn-import-ayar { background: var(--warning); color: #000; }
+        .tema-secici {
+            display: flex; gap: 6px; margin-top: 12px;
+            padding-top: 12px; border-top: 1px solid var(--border-color);
+        }
+        .tema-btn {
+            flex: 1; padding: 8px 4px; border-radius: 6px;
+            border: 1px solid var(--border-color); background: var(--bg-color);
+            color: var(--text-color); font-family: 'Inter', sans-serif;
+            font-size: 0.72rem; font-weight: 600; cursor: pointer;
+            transition: all 0.2s; min-height: 38px;
+        }
+        .tema-btn:hover, .tema-btn.aktif { border-color: var(--primary); color: var(--primary); }
+
+        /* Overlay - ayar paneli arkası */
+        .ayar-overlay {
+            display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+            z-index: 9; background: transparent;
+        }
+
+        /* Üst Panel */
+        .ust-panel {
+            display: flex; justify-content: space-between; align-items: center;
+            margin-bottom: 16px; border-bottom: 1px solid var(--border-color);
+            padding-bottom: 10px;
+        }
+        .skor-tablosu {
+            display: flex; flex-direction: column; align-items: flex-start;
+            font-size: 0.78rem; color: var(--sub-text); font-weight: 600; gap: 2px;
+        }
+        .kronometre {
+            font-size: 0.88rem; font-weight: 800; color: var(--timer-color);
+            background: rgba(13, 138, 99, 0.1); padding: 5px 10px;
+            border-radius: 20px; border: 1px solid rgba(13, 138, 99, 0.3);
+            display: flex; align-items: center; gap: 5px;
+            font-variant-numeric: tabular-nums;
+        }
+        .kombo-paneli {
+            font-size: 0.75rem; font-weight: 800; color: #ff9f43;
+            background: rgba(255, 159, 67, 0.1); padding: 3px 8px;
+            border-radius: 6px; border: 1px solid rgba(255, 159, 67, 0.3);
+            display: none; align-items: center; gap: 4px; margin-top: 2px;
+        }
+
+        .ilerleme-cubugu { width: 100%; height: 4px; background: var(--panel-bg); border-radius: 4px; margin-bottom: 16px; overflow: hidden; }
+        .ilerleme-dolgu { height: 100%; background: linear-gradient(90deg, var(--primary), var(--success)); border-radius: 4px; transition: width 0.4s ease; width: 0%; }
+
+        .soru-tipi { font-size: 0.72rem; color: var(--sub-text); text-transform: uppercase; letter-spacing: 1.2px; margin-bottom: 10px; font-weight: 600; }
+
+        /* ===== FLASHCARD ===== */
+        .flashcard-wrapper { perspective: 1000px; width: 100%; margin-bottom: 20px; display: none; }
+        .flashcard {
+            width: 100%; height: 180px; position: relative;
+            transform-style: preserve-3d;
+            transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+            cursor: pointer;
+        }
+        @media (min-width: 768px) { .flashcard { height: 200px; } }
+        .flashcard.flipped { transform: rotateY(180deg); }
+        .card-face {
+            position: absolute; width: 100%; height: 100%;
+            backface-visibility: hidden; border-radius: 15px;
+            border: 1px solid var(--border-color);
+            display: flex; flex-direction: column; align-items: center;
+            justify-content: center; padding: 16px; box-sizing: border-box;
+        }
+        .card-front { background: var(--panel-bg); color: var(--title-color); font-size: 1.8rem; font-weight: 800; }
+        @media (min-width: 768px) { .card-front { font-size: 2.2rem; } }
+        .card-front .ipucu-text {
+            font-size: 0.75rem; color: var(--sub-text); margin-top: 12px;
+            font-weight: 400; display: flex; align-items: center; gap: 5px;
+        }
+        .card-back { background: var(--panel-bg); border-color: var(--primary); color: var(--title-color); transform: rotateY(180deg); }
+        .card-back .back-title { font-size: 0.72rem; color: var(--primary); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 6px; }
+        .card-back .back-meaning { font-size: 1.4rem; font-weight: 800; margin-bottom: 4px; text-align: center; word-break: break-word; }
+        @media (min-width: 768px) { .card-back .back-meaning { font-size: 1.6rem; } }
+        .card-back .back-synonym { font-size: 0.95rem; color: var(--success); font-weight: 600; }
+
+        .fc-aksiyon-grup { display: flex; gap: 10px; margin-top: 16px; }
+        .btn-fc-aksiyon {
+            flex: 1; border: none; padding: 14px 8px; font-size: 0.88rem;
+            font-weight: 700; font-family: 'Inter', sans-serif;
+            border-radius: 10px; cursor: pointer; transition: all 0.2s;
+            display: flex; align-items: center; justify-content: center;
+            gap: 6px; min-height: 48px;
+        }
+        .btn-bilmiyorum { background-color: #261920; border: 1px solid #ff79c6; color: #ff79c6; }
+        .btn-bilmiyorum:active { background-color: #ff79c6; color: #000; }
+        .btn-biliyorum { background-color: #113220; border: 1px solid var(--success); color: var(--success); }
+        .btn-biliyorum:active { background-color: var(--success); color: #000; }
+
+        /* ===== TEST ===== */
+        .test-wrapper { display: none; width: 100%; }
+        .kelime {
+            font-size: 2rem; font-weight: 800; color: var(--title-color);
+            margin-bottom: 24px; letter-spacing: -0.5px; word-break: break-word;
+        }
+        @media (min-width: 768px) { .kelime { font-size: 2.4rem; margin-bottom: 30px; } }
+        .secenekler-alani { display: flex; flex-direction: column; gap: 10px; margin-bottom: 16px; }
+        .secenek-btn {
+            background-color: var(--panel-bg); color: var(--text-color);
+            border: 1px solid var(--border-color); padding: 14px 16px;
+            font-size: 0.95rem; font-weight: 600; font-family: 'Inter', sans-serif;
+            border-radius: 10px; cursor: pointer; text-align: left;
+            transition: all 0.15s; width: 100%; display: flex;
+            align-items: center; gap: 10px; min-height: 48px;
+            -webkit-appearance: none;
+        }
+        .secenek-btn .shortcut-key {
+            display: none; /* Varsayılan: gizli (mobilde) */
+        }
+        /* Sadece masaüstünde shortcut key göster */
+        @media (hover: hover) and (pointer: fine) {
+            .secenek-btn .shortcut-key {
+                display: inline-flex; align-items: center; justify-content: center;
+                width: 24px; height: 24px; min-width: 24px;
+                background: var(--bg-color); border: 1px solid var(--border-color);
+                border-radius: 6px; font-size: 0.72rem; font-weight: 800;
+                color: var(--sub-text);
+            }
+        }
+        .secenek-btn:active:not(:disabled) { transform: scale(0.98); opacity: 0.9; }
+        @media (hover: hover) and (pointer: fine) {
+            .secenek-btn:hover:not(:disabled) { border-color: var(--primary); transform: translateY(-2px); }
+        }
+        .secenek-btn.dogru-sik { background-color: #113220 !important; border-color: var(--success) !important; color: #04d361 !important; }
+        .secenek-btn.yanlis-sik { background-color: #34171a !important; border-color: var(--danger) !important; color: #f75a68 !important; }
+
+        /* ===== YAZMA ===== */
+        .yazma-wrapper { display: none; width: 100%; }
+        .yazma-input-grup { position: relative; margin-bottom: 12px; }
+        .yazma-input {
+            width: 100%; padding: 14px 16px;
+            font-size: 16px; /* iOS zoom önleme - 16px altına düşürme! */
+            font-family: 'Inter', sans-serif; font-weight: 600;
+            background: var(--panel-bg); border: 2px solid var(--border-color);
+            color: var(--title-color); border-radius: 12px; outline: none;
+            transition: border-color 0.3s; box-sizing: border-box;
+            -webkit-user-select: text; user-select: text;
+        }
+        .yazma-input:focus { border-color: var(--primary); }
+        .yazma-input.dogru-input { border-color: var(--success) !important; }
+        .yazma-input.yanlis-input { border-color: var(--danger) !important; }
+        .yazma-hint { font-size: 0.75rem; color: var(--sub-text); margin-top: 6px; text-align: left; }
+        .yazma-sonuc {
+            display: none; padding: 12px; border-radius: 10px;
+            font-weight: 700; font-size: 0.88rem; margin-bottom: 12px; text-align: left;
+        }
+        .yazma-sonuc.dogru-sonuc { background: rgba(4, 211, 97, 0.1); border: 1px solid rgba(4, 211, 97, 0.3); color: var(--success); }
+        .yazma-sonuc.yanlis-sonuc { background: rgba(247, 90, 104, 0.1); border: 1px solid rgba(247, 90, 104, 0.3); color: var(--danger); }
+
+        .btn-aksiyon {
+            background-color: var(--primary); color: white; border: none;
+            padding: 14px 20px; font-size: 0.95rem; font-weight: 700;
+            font-family: 'Inter', sans-serif; border-radius: 10px;
+            cursor: pointer; transition: all 0.2s; width: 100%;
+            box-shadow: 0 8px 20px rgba(99, 59, 188, 0.3);
+            display: flex; align-items: center; justify-content: center;
+            gap: 8px; min-height: 48px; -webkit-appearance: none;
+        }
+        .btn-aksiyon:active { transform: scale(0.98); }
+        @media (hover: hover) { .btn-aksiyon:hover { background-color: #7248d1; } }
+
+        /* Klavye kısayol ipucu - SADECE masaüstünde göster */
+        .kisayol-ipucu {
+            display: none; font-size: 0.68rem; color: var(--sub-text);
+            margin-top: 12px; opacity: 0.5;
+        }
+        @media (hover: hover) and (pointer: fine) {
+            .kisayol-ipucu { display: block; }
+        }
+
+        /* ===== PANELler (İstatistik, Rozet, Özet) ===== */
+        .panel-sayfa {
+            display: none; text-align: center; background: var(--card-bg);
+            padding: 24px 16px; border-radius: 20px;
+            border: 1px solid var(--border-color);
+            box-shadow: 0 20px 40px var(--shadow);
+            width: 100%; max-width: 460px; animation: cardIn 0.5s ease;
+        }
+        @media (min-width: 768px) { .panel-sayfa { padding: 35px; } }
+
+        .panel-ust { display: flex; justify-content: flex-start; margin-bottom: 16px; }
+        .stat-baslik { font-size: 1.2rem; font-weight: 800; color: var(--title-color); margin-bottom: 20px; display: flex; align-items: center; justify-content: center; gap: 8px; }
+        .stat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 20px; }
+        .stat-card { background: var(--panel-bg); border: 1px solid var(--border-color); border-radius: 12px; padding: 14px; text-align: center; }
+        .stat-card .stat-num { font-size: 1.6rem; font-weight: 800; color: var(--title-color); }
+        .stat-card .stat-label { font-size: 0.7rem; color: var(--sub-text); font-weight: 600; margin-top: 3px; }
+        .stat-card.stat-accuracy .stat-num { color: var(--success); }
+        .stat-card.stat-best .stat-num { color: var(--warning); }
+
+        .zor-kelimeler-listesi { text-align: left; max-height: 180px; overflow-y: auto; }
+        .zor-kelime-item {
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 9px 0; border-bottom: 1px solid var(--border-color); font-size: 0.82rem;
+        }
+        .zor-kelime-item .zk-word { font-weight: 700; color: var(--title-color); }
+        .zor-kelime-item .zk-rate { font-weight: 700; color: var(--danger); font-size: 0.75rem; }
+
+        .rozet-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; margin-top: 16px; }
+        .rozet-item {
+            background: var(--panel-bg); border: 1px solid var(--border-color);
+            border-radius: 12px; padding: 14px 6px; display: flex;
+            flex-direction: column; align-items: center; gap: 6px;
+        }
+        .rozet-item.kazanildi { border-color: var(--warning); background: rgba(255, 159, 67, 0.05); }
+        .rozet-item.kilitli { opacity: 0.35; filter: grayscale(1); }
+        .rozet-item i { font-size: 1.5rem; color: var(--warning); }
+        .rozet-item .rozet-ad { font-size: 0.65rem; font-weight: 700; color: var(--title-color); text-align: center; line-height: 1.2; }
+        .rozet-item .rozet-desc { font-size: 0.58rem; color: var(--sub-text); text-align: center; }
+
+        /* Özet */
+        .ozet-buyuk-skor { font-size: 3.5rem; font-weight: 800; margin: 16px 0 4px; }
+        @media (min-width: 768px) { .ozet-buyuk-skor { font-size: 4rem; } }
+        .ozet-yuzde-label { font-size: 0.85rem; color: var(--sub-text); font-weight: 600; margin-bottom: 20px; }
+        .ozet-detay-row { display: flex; justify-content: space-around; margin-bottom: 20px; flex-wrap: wrap; gap: 8px; }
+        .ozet-detay-item { text-align: center; min-width: 60px; }
+        .ozet-detay-item .odi-num { font-size: 1.3rem; font-weight: 800; }
+        .ozet-detay-item .odi-label { font-size: 0.7rem; color: var(--sub-text); font-weight: 600; }
+        .ozet-xp-kazanilan {
+            background: rgba(99, 59, 188, 0.1); border: 1px solid rgba(99, 59, 188, 0.3);
+            border-radius: 10px; padding: 12px; font-weight: 800;
+            color: var(--primary-light); font-size: 1rem; margin-bottom: 16px;
+            display: flex; align-items: center; justify-content: center; gap: 8px;
+        }
+
+        /* ===== ANİMASYONLAR ===== */
+        .fx-text {
+            position: fixed; pointer-events: none; z-index: 100;
+            left: 50%; top: 45%; display: flex; flex-direction: column;
+            align-items: center; gap: 10px;
+            animation: floatUp 1.8s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+        }
+        .fx-text i { font-size: 2.5rem; filter: drop-shadow(0 3px 8px rgba(0,0,0,0.2)); }
+        .fx-text span {
+            font-weight: 800; font-size: 0.95rem; white-space: nowrap;
+            background: rgba(0, 0, 0, 0.8); padding: 5px 12px;
+            border-radius: 16px; color: #fff; border: 1px solid var(--border-color);
+        }
+        .fx-combo-epic {
+            position: fixed; pointer-events: none; z-index: 101;
+            left: 50%; top: 40%; display: flex; flex-direction: column;
+            align-items: center; gap: 12px;
+            animation: epicPop 2s cubic-bezier(0.175, 0.885, 0.32, 1.5) forwards;
+        }
+        .fx-combo-epic i {
+            font-size: 4rem; color: #ff9f43 !important;
+            filter: drop-shadow(0 0 20px #ff9f43) drop-shadow(0 0 40px #ff5252);
+            animation: flameFlicker 0.15s ease-in-out infinite alternate;
+        }
+        .fx-combo-epic span {
+            font-weight: 900; font-size: 1.1rem; text-transform: uppercase;
+            background: linear-gradient(135deg, #ffeaa7 0%, #ff9f43 100%);
+            padding: 8px 18px; border-radius: 24px; color: #0b0a0f;
+            box-shadow: 0 8px 24px rgba(255, 159, 67, 0.4);
+            border: 2px solid #fff; text-align: center; max-width: 280px;
+        }
+
+        .rozet-popup {
+            position: fixed; pointer-events: none; z-index: 102;
+            left: 50%; top: 50%; transform: translate(-50%, -50%);
+            display: flex; flex-direction: column; align-items: center; gap: 10px;
+            animation: rozetPop 2.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+            background: var(--card-bg); border: 2px solid var(--warning);
+            padding: 24px; border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(255, 159, 67, 0.3);
+        }
+        .rozet-popup i { font-size: 2.5rem; color: var(--warning); }
+        .rozet-popup .rp-title { font-size: 0.75rem; color: var(--warning); font-weight: 800; text-transform: uppercase; letter-spacing: 1px; }
+        .rozet-popup .rp-name { font-size: 1.1rem; font-weight: 800; color: var(--title-color); }
+
+        .level-up-fx {
+            position: fixed; pointer-events: none; z-index: 103;
+            left: 50%; top: 50%; transform: translate(-50%, -50%);
+            display: flex; flex-direction: column; align-items: center; gap: 6px;
+            animation: levelUpPop 2.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+            background: linear-gradient(135deg, var(--primary), var(--primary-light));
+            padding: 24px 44px; border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(99, 59, 188, 0.5);
+        }
+        .level-up-fx .lu-icon { font-size: 2rem; color: #fff; }
+        .level-up-fx .lu-text { font-size: 0.72rem; color: rgba(255,255,255,0.7); font-weight: 700; text-transform: uppercase; letter-spacing: 2px; }
+        .level-up-fx .lu-level { font-size: 2.2rem; font-weight: 900; color: #fff; }
+
+        @keyframes floatUp { 0%{opacity:0;transform:translate(-50%,-50%) scale(0.5) translateY(20px)} 20%{opacity:1;transform:translate(-50%,-50%) scale(1.1) translateY(-10px)} 100%{opacity:0;transform:translate(-50%,-50%) scale(1) translateY(-100px)} }
+        @keyframes epicPop { 0%{opacity:0;transform:translate(-50%,-50%) scale(0.2) rotate(-15deg)} 15%{opacity:1;transform:translate(-50%,-50%) scale(1.3) rotate(5deg)} 30%{transform:translate(-50%,-50%) scale(1) rotate(0)} 75%{opacity:1} 100%{opacity:0;transform:translate(-50%,-50%) scale(0.7) translateY(-150px)} }
+        @keyframes flameFlicker { 0%{transform:scale(1) rotate(-2deg)} 100%{transform:scale(1.08) rotate(2deg)} }
+        @keyframes rozetPop { 0%{opacity:0;transform:translate(-50%,-50%) scale(0.3)} 20%{opacity:1;transform:translate(-50%,-50%) scale(1.1)} 35%{transform:translate(-50%,-50%) scale(1)} 80%{opacity:1} 100%{opacity:0;transform:translate(-50%,-50%) scale(0.9) translateY(-30px)} }
+        @keyframes levelUpPop { 0%{opacity:0;transform:translate(-50%,-50%) scale(0.3) rotate(-10deg)} 15%{opacity:1;transform:translate(-50%,-50%) scale(1.15) rotate(3deg)} 30%{transform:translate(-50%,-50%) scale(1) rotate(0)} 80%{opacity:1} 100%{opacity:0;transform:translate(-50%,-50%) scale(0.8) translateY(-40px)} }
+
+        /* ===== YANLIŞ HAVUZU ===== */
+        .yanlis-havuzu {
+            margin-top: 20px; width: 100%; max-width: 460px;
+            background: var(--card-bg); border: 1px solid var(--border-color);
+            padding: 16px; border-radius: 20px; display: none;
+        }
+        .yanlis-liste { list-style: none; padding: 0; margin: 0; max-height: 160px; overflow-y: auto; text-align: left; }
+        .yanlis-item { padding: 8px 0; border-bottom: 1px solid var(--border-color); font-size: 0.85rem; }
+        .yanlis-word { font-weight: bold; color: var(--title-color); }
+        .yanlis-details { color: var(--sub-text); font-size: 0.75rem; margin-top: 2px; }
+
+        ::-webkit-scrollbar { width: 5px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: var(--border-color); border-radius: 3px; }
+    </style>
+</head>
+<body>
+
+<div class="offline-banner" id="offlineBanner"><i class="fa-solid fa-wifi"></i> Çevrimdışı — veriler yerel olarak kaydediliyor</div>
+
+<div class="pwa-install-banner" id="pwaInstallBanner">
+    <div class="pwa-row">
+        <div class="pwa-icon"><i class="fa-solid fa-bolt"></i></div>
+        <div class="pwa-text"><h4>VocaStride'ı Yükle</h4><p>Ana ekranına ekle, internetsiz çalış!</p></div>
+    </div>
+    <div class="pwa-actions">
+        <button class="pwa-btn-install" onclick="pwaYukle()"><i class="fa-solid fa-download"></i> Yükle</button>
+        <button class="pwa-btn-dismiss" onclick="pwaBannerKapat()">Sonra</button>
+    </div>
+</div>
+
+<!-- ANA MENÜ -->
+<div id="anaMenu" class="menu-container">
+    <div class="menu-baslik">VocaStride</div>
+    <div class="menu-alt">Çalışma stilini seçerek hemen başla.</div>
+    <div class="streak-uyari" id="streakUyari"><i class="fa-solid fa-fire"></i> Streak'ini kaybetmemek için bugün çalış!</div>
+    <div class="xp-section">
+        <div class="xp-info">
+            <span class="xp-level"><i class="fa-solid fa-star"></i> Seviye <span id="xpLevel">1</span></span>
+            <span class="xp-amount"><span id="xpCurrent">0</span> / <span id="xpNeeded">100</span> XP</span>
+        </div>
+        <div class="xp-bar-outer"><div class="xp-bar-inner" id="xpBar"></div></div>
+    </div>
+    <div class="streak-daily-row">
+        <div class="streak-box">
+            <div class="streak-num" id="streakNum">0</div>
+            <div class="streak-label"><i class="fa-solid fa-fire"></i> Gün Streak</div>
+            <div class="streak-dots" id="streakDots"></div>
+        </div>
+        <div class="daily-box" id="dailyBox">
+            <div class="daily-progress"><span id="dailyDone">0</span>/<span id="dailyGoal">20</span></div>
+            <div class="daily-label"><i class="fa-solid fa-bullseye"></i> Günlük Hedef</div>
+            <div class="daily-bar-outer"><div class="daily-bar-inner" id="dailyBar"></div></div>
+        </div>
+    </div>
+    <div class="menu-butonlar">
+        <button class="menu-btn" onclick="ekraniAc('test')">
+            <div><div class="btn-text-title">Çoktan Seçmeli</div><div class="btn-text-desc">4 şık arasından doğru cevabı bul.</div></div>
+            <span class="icon"><i class="fa-solid fa-bullseye"></i></span>
+        </button>
+        <button class="menu-btn" onclick="ekraniAc('flashcard')">
+            <div><div class="btn-text-title">Hafıza Kartları</div><div class="btn-text-desc">Kartı çevirerek hızlıca hatırla.</div></div>
+            <span class="icon"><i class="fa-solid fa-clone"></i></span>
+        </button>
+        <button class="menu-btn" onclick="ekraniAc('yazma')">
+            <div><div class="btn-text-title">Yazarak Öğren</div><div class="btn-text-desc">Anlamı klavyeden yazarak pekiştir.</div></div>
+            <span class="icon"><i class="fa-solid fa-keyboard"></i></span>
+        </button>
+    </div>
+    <div class="menu-alt-butonlar">
+        <button class="menu-alt-btn" onclick="sayfaAc('istatistikPanel')"><i class="fa-solid fa-chart-simple"></i> İstatistik</button>
+        <button class="menu-alt-btn" onclick="sayfaAc('rozetPanel')"><i class="fa-solid fa-trophy"></i> Rozetler</button>
+    </div>
+</div>
+
+<!-- ÇALIŞMA -->
+<div id="calismaAlani" class="container">
+    <div class="ust-aksiyonlar">
+        <button class="nav-btn" onclick="oturumuBitir()"><i class="fa-solid fa-arrow-left"></i> Bitir</button>
+        <div class="ust-sag-grup">
+            <button class="nav-btn" id="sesBtn" onclick="sesiToggle()"><i class="fa-solid fa-volume-high"></i></button>
+            <button class="nav-btn ayar-btn" onclick="togglePanel()"><i class="fa-solid fa-gear"></i></button>
+        </div>
+    </div>
+    <div class="ayar-overlay" id="ayarOverlay" onclick="togglePanel()"></div>
+    <div id="ayorPanel" class="ayor-panel">
+        <div style="font-weight:800;margin-bottom:8px;font-size:0.85rem;"><i class="fa-solid fa-pen-to-square"></i> Verileri Düzenle</div>
+        <textarea id="kelimeInput"></textarea>
+        <div class="ayar-aksiyon-row">
+            <button class="btn-kaydet-ayar" onclick="kelimeleriKaydet()"><i class="fa-solid fa-check"></i> Kaydet</button>
+            <button class="btn-export-ayar" onclick="exportJSON()"><i class="fa-solid fa-download"></i> Export</button>
+            <button class="btn-import-ayar" onclick="document.getElementById('importFile').click()"><i class="fa-solid fa-upload"></i> Import</button>
+        </div>
+        <input type="file" id="importFile" accept=".json" style="display:none" onchange="importJSON(event)">
+        <div class="tema-secici">
+            <button class="tema-btn" id="temaOto" onclick="temaAyarla('auto')"><i class="fa-solid fa-circle-half-stroke"></i> Oto</button>
+            <button class="tema-btn" id="temaKoyu" onclick="temaAyarla('dark')"><i class="fa-solid fa-moon"></i> Koyu</button>
+            <button class="tema-btn" id="temaAcik" onclick="temaAyarla('light')"><i class="fa-solid fa-sun"></i> Açık</button>
+        </div>
+    </div>
+    <div class="ust-panel">
+        <div class="skor-tablosu">
+            <div style="color:var(--success)">Doğru: <span id="skorDogru">0</span></div>
+            <div style="color:var(--danger)">Yanlış: <span id="skorYanlis">0</span></div>
+            <div class="kombo-paneli" id="komboKutusu"><i class="fa-solid fa-fire"></i> <span id="komboSayac">0</span> Kombo</div>
+        </div>
+        <div class="kronometre"><i class="fa-regular fa-clock"></i><span id="kronometreSayac">00:00</span></div>
+    </div>
+    <div class="ilerleme-cubugu"><div class="ilerleme-dolgu" id="ilerlemeDolgu"></div></div>
+    <div id="soruTipi" class="soru-tipi">SORU TİPİ</div>
+
+    <div id="flashcardWrapper" class="flashcard-wrapper">
+        <div class="flashcard" id="fKart" onclick="kartDondur()">
+            <div class="card-face card-front"><span id="fcAnaKelime">-</span><span class="ipucu-text">Çevirmek için dokun <i class="fa-solid fa-rotate"></i></span></div>
+            <div class="card-face card-back"><span class="back-title">Anlamı</span><span id="fcAnlam" class="back-meaning">-</span><span id="fcEsAnlam" class="back-synonym">-</span></div>
+        </div>
+        <div class="fc-aksiyon-grup">
+            <button class="btn-fc-aksiyon btn-bilmiyorum" onclick="fcDegerlendir(false)"><i class="fa-solid fa-backward"></i> Tekrar</button>
+            <button class="btn-fc-aksiyon btn-biliyorum" onclick="fcDegerlendir(true)"><i class="fa-solid fa-check"></i> Bildim</button>
+        </div>
+        <div class="kisayol-ipucu">Space: Çevir | ←: Bilmiyorum | →: Bildim</div>
+    </div>
+
+    <div id="testWrapper" class="test-wrapper">
+        <div id="anaKelime" class="kelime">-</div>
+        <div id="seceneklerAlani" class="secenekler-alani"></div>
+        <button id="btnSonraki" class="btn-aksiyon" style="display:none;" onclick="yeniSoru()">Sonraki <i class="fa-solid fa-arrow-right"></i></button>
+        <div class="kisayol-ipucu">1-4: Şık seç | Enter: Sonraki</div>
+    </div>
+
+    <div id="yazmaWrapper" class="yazma-wrapper">
+        <div id="yazmaKelime" class="kelime">-</div>
+        <div id="yazmaSoruDetay" style="font-size:0.78rem;color:var(--sub-text);margin-bottom:12px;"></div>
+        <div class="yazma-input-grup">
+            <input type="text" class="yazma-input" id="yazmaInput" placeholder="Cevabını yaz..." autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">
+            <div class="yazma-hint" id="yazmaHint"></div>
+        </div>
+        <div class="yazma-sonuc" id="yazmaSonuc"></div>
+        <button id="btnYazmaKontrol" class="btn-aksiyon" onclick="yazmaCevapKontrol()"><i class="fa-solid fa-paper-plane"></i> Kontrol Et</button>
+        <button id="btnYazmaSonraki" class="btn-aksiyon" style="display:none;" onclick="yeniSoru()">Sonraki <i class="fa-solid fa-arrow-right"></i></button>
+        <div class="kisayol-ipucu">Enter: Kontrol / Sonraki</div>
+    </div>
+</div>
+
+<!-- İSTATİSTİK -->
+<div id="istatistikPanel" class="panel-sayfa">
+    <div class="panel-ust"><button class="nav-btn" onclick="sayfaKapat('istatistikPanel')"><i class="fa-solid fa-arrow-left"></i> Geri</button></div>
+    <div class="stat-baslik"><i class="fa-solid fa-chart-simple"></i> İstatistikler</div>
+    <div class="stat-grid">
+        <div class="stat-card"><div class="stat-num" id="statToplam">0</div><div class="stat-label">Toplam Cevap</div></div>
+        <div class="stat-card stat-accuracy"><div class="stat-num" id="statAccuracy">0%</div><div class="stat-label">Doğruluk</div></div>
+        <div class="stat-card stat-best"><div class="stat-num" id="statBestCombo">0</div><div class="stat-label">En İyi Kombo</div></div>
+        <div class="stat-card"><div class="stat-num" id="statTotalTime">0dk</div><div class="stat-label">Toplam Süre</div></div>
+    </div>
+    <div style="text-align:left;font-weight:800;margin-bottom:10px;font-size:0.85rem;color:var(--danger);"><i class="fa-solid fa-triangle-exclamation"></i> En Zor Kelimeler</div>
+    <div class="zor-kelimeler-listesi" id="zorKelimelerListesi"><div style="color:var(--sub-text);font-size:0.82rem;padding:16px 0;">Henüz veri yok.</div></div>
+</div>
+
+<!-- ROZETLER -->
+<div id="rozetPanel" class="panel-sayfa">
+    <div class="panel-ust"><button class="nav-btn" onclick="sayfaKapat('rozetPanel')"><i class="fa-solid fa-arrow-left"></i> Geri</button></div>
+    <div class="stat-baslik"><i class="fa-solid fa-trophy" style="color:var(--warning)"></i> Rozetler</div>
+    <div class="rozet-grid" id="rozetGrid"></div>
+</div>
+
+<!-- OTURUM ÖZETİ -->
+<div id="ozetPanel" class="panel-sayfa">
+    <div class="stat-baslik"><i class="fa-solid fa-flag-checkered"></i> Oturum Özeti</div>
+    <div class="ozet-buyuk-skor" id="ozetSkor">0%</div>
+    <div class="ozet-yuzde-label">Doğruluk Oranı</div>
+    <div class="ozet-detay-row">
+        <div class="ozet-detay-item"><div class="odi-num" style="color:var(--success)" id="ozetDogru">0</div><div class="odi-label">Doğru</div></div>
+        <div class="ozet-detay-item"><div class="odi-num" style="color:var(--danger)" id="ozetYanlis">0</div><div class="odi-label">Yanlış</div></div>
+        <div class="ozet-detay-item"><div class="odi-num" style="color:var(--warning)" id="ozetKombo">0</div><div class="odi-label">Kombo</div></div>
+        <div class="ozet-detay-item"><div class="odi-num" style="color:var(--timer-color)" id="ozetSure">0:00</div><div class="odi-label">Süre</div></div>
+    </div>
+    <div class="ozet-xp-kazanilan"><i class="fa-solid fa-bolt"></i> +<span id="ozetXP">0</span> XP Kazanıldı!</div>
+    <button class="btn-aksiyon" onclick="ozetKapat()"><i class="fa-solid fa-house"></i> Ana Menü</button>
+</div>
+
+<!-- YANLIŞ HAVUZU -->
+<div id="yanlisHavuzu" class="yanlis-havuzu">
+    <h3 style="margin-top:0;color:var(--danger);font-weight:800;border-bottom:1px solid var(--border-color);padding-bottom:8px;font-size:0.88rem;"><i class="fa-solid fa-triangle-exclamation"></i> Takip Listesi</h3>
+    <ul id="yanlisListe" class="yanlis-liste"></ul>
+</div>
+
+<script>
+// ===== PWA =====
+const MANIFEST = {
+    name:"VocaStride",short_name:"VocaStride",description:"Kelime öğrenme uygulaması",
+    start_url:"./",display:"standalone",background_color:"#0b0a0f",theme_color:"#633bbc",
+    orientation:"portrait",
+    icons:[{src:"data:image/svg+xml,"+encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><rect width="512" height="512" rx="100" fill="#633bbc"/><text x="256" y="340" font-size="280" font-weight="900" font-style="italic" font-family="Arial" text-anchor="middle" fill="white">V</text></svg>'),sizes:"512x512",type:"image/svg+xml",purpose:"any maskable"}]
+};
+try{const mb=new Blob([JSON.stringify(MANIFEST)],{type:'application/json'});document.querySelector('link[rel="manifest"]').href=URL.createObjectURL(mb);}catch(e){}
+
+let deferredPrompt=null;
+window.addEventListener('beforeinstallprompt',e=>{e.preventDefault();deferredPrompt=e;if(!localStorage.getItem('pwaDismissed'))setTimeout(()=>{document.getElementById('pwaInstallBanner').style.display='block';},3000);});
+function pwaYukle(){if(deferredPrompt){deferredPrompt.prompt();deferredPrompt.userChoice.then(()=>{deferredPrompt=null;document.getElementById('pwaInstallBanner').style.display='none';});}}
+function pwaBannerKapat(){document.getElementById('pwaInstallBanner').style.display='none';localStorage.setItem('pwaDismissed',Date.now().toString());}
+window.addEventListener('online',()=>{document.getElementById('offlineBanner').style.display='none';});
+window.addEventListener('offline',()=>{document.getElementById('offlineBanner').style.display='block';});
+if(!navigator.onLine)document.getElementById('offlineBanner').style.display='block';
+
+// ===== STREAK =====
+function bugunStr(){const d=new Date();return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');}
+function gunFarki(t1,t2){return Math.round((new Date(t2+'T12:00:00')-new Date(t1+'T12:00:00'))/(864e5));}
+
+function streakKontrolVeUyari(){
+    const bugun=bugunStr(),son=localStorage.getItem('sonCalismaGunu');
+    if(!son){streak=0;return;}
+    const fark=gunFarki(son,bugun);
+    if(fark===0){/* bugün çalışmış */}
+    else if(fark===1){document.getElementById('streakUyari').style.display='block';}
+    else if(fark>1){streak=0;localStorage.setItem('streak','0');}
+}
+function streakGuncelle(){
+    const bugun=bugunStr(),son=localStorage.getItem('sonCalismaGunu');
+    document.getElementById('streakUyari').style.display='none';
+    if(!son){streak=1;}
+    else{const fark=gunFarki(son,bugun);if(fark===0)return;else if(fark===1)streak++;else streak=1;}
+    localStorage.setItem('sonCalismaGunu',bugun);
+    localStorage.setItem('streak',streak.toString());
+    document.getElementById('streakNum').innerText=streak;
+    streakGunuKaydet();
+}
+function streakGunuKaydet(){
+    const bugun=bugunStr();let g=JSON.parse(localStorage.getItem('streakGunleri')||'[]');
+    if(!g.includes(bugun)){g.push(bugun);if(g.length>30)g=g.slice(-30);localStorage.setItem('streakGunleri',JSON.stringify(g));}
+    streakDotsGuncelle();
+}
+function streakDotsGuncelle(){
+    const c=document.getElementById('streakDots');c.innerHTML='';
+    const bugun=bugunStr(),g=JSON.parse(localStorage.getItem('streakGunleri')||'[]');
+    for(let i=6;i>=0;i--){const d=new Date();d.setDate(d.getDate()-i);
+        const gs=d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
+        const dot=document.createElement('div');dot.className='streak-dot';
+        if(g.includes(gs))dot.classList.add(gs===bugun?'bugun':'aktif');
+        c.appendChild(dot);
+    }
+}
+
+// ===== VERİLER =====
+const varsayilanKelimeler=[
+    ["abandon (v)","leave","terk etmek"],["abrupt (adj)","sudden","ani"],
+    ["basis (n)","foundation","temel"],["candidate (n)","applicant","aday"],
+    ["considerable (adj)","important, significant","kayda değer"],
+    ["deceive (v)","trick","kandırmak"],["extensive (adj)","comprehensive","kapsamlı"],
+    ["grief (n)","great sadness","keder, yas"],["hesitate (v)","pause in indecision","tereddüt etmek"],
+    ["inherently (adv)","naturally, by birth","doğası gereği"],
+    ["intense (adj)","deep and strong","yoğun"],["measure (n)","an action to prevent sth","önlem"],
+    ["notably (adv)","particularly","özellikle"],["novelty (n)","innovation","yenilik"],
+    ["obtain (v)","acquire, gain","edinmek"],["outstanding (adj)","exceptionally good","göze çarpan, olağanüstü"],
+    ["praise (v)","compliment, express admiration","övmek"],["response (n)","reaction","yanıt, tepki"],
+    ["rigid (adj)","inflexible","katı, sert"],["severely (adv)","harshly","şiddetli bir şekilde"],
+    ["absence (n)","lack","yokluk"],["audible (adj)","loud enough to hear","duyulabilir"],
+    ["benefit (n)","advantage or help","fayda"],["broadly (adv)","generally, on the whole","genel olarak, esasen"],
+    ["collapse (v)","1. fall down 2. fail","1. çökmek 2. başarısız olmak"],
+    ["consecutively (adv)","successively, serially","peş peşe, arka arkaya"],
+    ["devote (v)","dedicate","adamak"],["discrimination (n)","unfair treatment","ayrımcılık"],
+    ["durable (adj)","long-lasting","dayanıklı, uzun ömürlü"],
+    ["elaborately (adv)","intricately, in a detailed way","detaylı şekilde"],
+    ["fierce (adj)","violent","şiddetli, azılı"],["halt (n)","stop","durma, duraksama"],
+    ["impair (v)","weaken or harm","bozmak, zarar vermek"],
+    ["moderate (adj)","not extreme","ölçülü, makul"],["negotiate (v)","discuss","müzakere etmek"],
+    ["outbreak (n)","sudden happening, eruption","patlak verme"],
+    ["predominantly (adv)","mainly","ağırlıklı olarak"],
+    ["recruit (v)","employ; enlist","(işe) almak"],["sparse (adj)","thinly spread","kıt, seyrek"],
+    ["tension (n)","a nervous feeling, strain","gerilim"],
+    ["abolish (v)","formally put an end","yürürlükten kaldırmak"],
+    ["barren (adj)","arid","çorak, verimsiz"],["bold (adj)","brave","cesur"],
+    ["controversy (n)","debate","tartışma"],["destiny (n)","fate","kader"],
+    ["eagerly (adv)","keenly","istekli bir şekilde"],["encounter (v)","meet by chance","karşılaşmak"],
+    ["endeavour (n)","effort","çaba, uğraş"],["fee (n)","charge for service","ücret, bedel"],
+    ["fertile (adj)","productive","bereketli"],
+    ["immensely (adv)","very much, extremely","aşırı bir şekilde"],
+    ["maintain (v)","1. continue to have 2. keep in good condition","1. sürdürmek 2. bakımını yapmak"],
+    ["morally (adv)","according to what is right or wrong","ahlaken"],
+    ["notify (v)","inform","bilgilendirmek"],["peculiar (adj)","1. strange 2. unique","1. tuhaf 2. özgü"],
+    ["phase (n)","stage","aşama"],["promote (v)","1. encourage 2. raise to a higher rank","1. teşvik etmek 2. terfi ettirmek"],
+    ["reckless (adj)","careless, heedless","umursamaz, tedbirsiz"],
+    ["resist (v)","fight against, oppose","direnmek"],["steady (adj)","stable, unchanging","sabit, değişmeyen"]
+];
+
+let kelimeVerisi=[],mevcutKelime=null,kelimeGecmisi=[],aktifMod="",soruModu="";
+let dogruSayisi=0,yanlisSayisi=0,komboSayisi=0,enIyiKombo=0,oturumEnIyiKombo=0;
+let cevaplandiMi=false,islemKilidi=false,secilenYanlislar=new Set();
+let toplamSaniye=0,zamanlayiciInterval=null,sesAcik=true,oturumXP=0;
+let kelimePerformans={},toplamXP=0,seviye=1,streak=0;
+const GUNLUK_HEDEF=20;let gunlukTamamlanan=0;
+
+const ROZETLER=[
+    {id:"ilk_dogru",ad:"İlk Adım",desc:"İlk doğru cevap",icon:"fa-solid fa-seedling",kosul:s=>s.td>=1},
+    {id:"dogru_10",ad:"Isınma Turu",desc:"10 doğru",icon:"fa-solid fa-dumbbell",kosul:s=>s.td>=10},
+    {id:"dogru_50",ad:"Kelime Avcısı",desc:"50 doğru",icon:"fa-solid fa-crosshairs",kosul:s=>s.td>=50},
+    {id:"dogru_100",ad:"Yüzüncü Vuruş",desc:"100 doğru",icon:"fa-solid fa-bullseye",kosul:s=>s.td>=100},
+    {id:"dogru_500",ad:"Sözlük Lordu",desc:"500 doğru",icon:"fa-solid fa-crown",kosul:s=>s.td>=500},
+    {id:"kombo_5",ad:"Seri Başladı",desc:"5 kombo",icon:"fa-solid fa-fire",kosul:s=>s.ek>=5},
+    {id:"kombo_10",ad:"Ateş Topu",desc:"10 kombo",icon:"fa-solid fa-fire-flame-curved",kosul:s=>s.ek>=10},
+    {id:"kombo_25",ad:"Durdurulamaz",desc:"25 kombo",icon:"fa-solid fa-meteor",kosul:s=>s.ek>=25},
+    {id:"kombo_50",ad:"Efsane",desc:"50 kombo",icon:"fa-solid fa-dragon",kosul:s=>s.ek>=50},
+    {id:"streak_3",ad:"Tutarlı",desc:"3 gün streak",icon:"fa-solid fa-calendar-check",kosul:s=>s.st>=3},
+    {id:"streak_7",ad:"Haftalık",desc:"7 gün streak",icon:"fa-solid fa-calendar-week",kosul:s=>s.st>=7},
+    {id:"streak_30",ad:"Kararlı",desc:"30 gün streak",icon:"fa-solid fa-shield",kosul:s=>s.st>=30},
+    {id:"seviye_5",ad:"Çırak",desc:"Seviye 5",icon:"fa-solid fa-graduation-cap",kosul:s=>s.sv>=5},
+    {id:"seviye_10",ad:"Usta",desc:"Seviye 10",icon:"fa-solid fa-hat-wizard",kosul:s=>s.sv>=10},
+    {id:"gunluk",ad:"Günlük Tamam",desc:"Hedefi tamamla",icon:"fa-solid fa-circle-check",kosul:s=>s.gt>=GUNLUK_HEDEF},
+];
+let kazanilanRozetler=new Set();
+
+// ===== SES =====
+let audioCtx=null;
+function getAudioCtx(){if(!audioCtx)audioCtx=new(window.AudioContext||window.webkitAudioContext)();return audioCtx;}
+function sesCal(tip){
+    if(!sesAcik)return;
+    try{const ctx=getAudioCtx(),o=ctx.createOscillator(),g=ctx.createGain();
+    o.connect(g);g.connect(ctx.destination);g.gain.value=0.07;
+    if(tip==='dogru'){o.frequency.setValueAtTime(523.25,ctx.currentTime);o.frequency.setValueAtTime(659.25,ctx.currentTime+0.1);o.frequency.setValueAtTime(783.99,ctx.currentTime+0.2);g.gain.exponentialRampToValueAtTime(0.001,ctx.currentTime+0.4);o.start(ctx.currentTime);o.stop(ctx.currentTime+0.4);}
+    else if(tip==='yanlis'){o.type='sawtooth';o.frequency.setValueAtTime(200,ctx.currentTime);o.frequency.setValueAtTime(150,ctx.currentTime+0.15);g.gain.exponentialRampToValueAtTime(0.001,ctx.currentTime+0.3);o.start(ctx.currentTime);o.stop(ctx.currentTime+0.3);}
+    else if(tip==='kombo'){[587.33,783.99,987.77,1174.66].forEach((f,i)=>o.frequency.setValueAtTime(f,ctx.currentTime+i*0.08));g.gain.exponentialRampToValueAtTime(0.001,ctx.currentTime+0.5);o.start(ctx.currentTime);o.stop(ctx.currentTime+0.5);}
+    else if(tip==='levelup'){[523.25,659.25,783.99,1046.50].forEach((f,i)=>o.frequency.setValueAtTime(f,ctx.currentTime+i*0.12));g.gain.exponentialRampToValueAtTime(0.001,ctx.currentTime+0.7);o.start(ctx.currentTime);o.stop(ctx.currentTime+0.7);}
+    else if(tip==='rozet'){o.type='triangle';[659.25,783.99,987.77,1174.66,1318.51].forEach((f,i)=>o.frequency.setValueAtTime(f,ctx.currentTime+i*0.1));g.gain.exponentialRampToValueAtTime(0.001,ctx.currentTime+0.8);o.start(ctx.currentTime);o.stop(ctx.currentTime+0.8);}
+    }catch(e){}
+}
+function sesiToggle(){sesAcik=!sesAcik;document.getElementById('sesBtn').innerHTML=sesAcik?'<i class="fa-solid fa-volume-high"></i>':'<i class="fa-solid fa-volume-xmark"></i>';}
+
+// ===== MESAJLAR =====
+const epicPool=["KODU MU YAZDIN! ☄️","MAKİNEYE BAĞLADIN! 🤖","ELİN TİTREMİYOR MU? 🥶","BEYNİN %100! 🧠","SÖZLÜKLER AĞLIYOR! 📈","HİLE AÇMIŞ GİBİSİN! 👁️","BU HIZ NE! 🌊","CİHAZ ALEV ALDI! 🧯","BOT MUSUN! 👾","İNANILMAZ! 🌟"];
+let recentEpic=[];
+const dogruMsg=[{t:"Harika!",i:"fa-solid fa-circle-check"},{t:"Ateşlendin! 🔥",i:"fa-solid fa-fire"},{t:"Süper!",i:"fa-solid fa-wand-magic-sparkles"},{t:"Doğru!",i:"fa-solid fa-thumbs-up"},{t:"Çok iyi!",i:"fa-solid fa-award"},{t:"Kelime canavarı! 👑",i:"fa-solid fa-bolt"}];
+const yanlisMsg=[{t:"Oops! 🥲",i:"fa-solid fa-face-frown"},{t:"Yakındın...",i:"fa-solid fa-compass"},{t:"Tekrar dene! 🔄",i:"fa-solid fa-rotate-left"},{t:"Ufak kaza!",i:"fa-solid fa-bolt-lightning"},{t:"Gözden kaçtı! 🧗",i:"fa-solid fa-mountain"},{t:"Hata = Öğrenme! 🧠",i:"fa-solid fa-circle-xmark"}];
+let sonDogru=[],sonYanlis=[];
+
+function msgSec(h,g){let u=h.filter(m=>!g.includes(m.t));if(!u.length)u=h;const s=u[Math.floor(Math.random()*u.length)];g.push(s.t);if(g.length>3)g.shift();return s;}
+function komboMsg(mk,d){
+    if(d==="dogru"&&mk>0&&mk%10===0){
+        const sabit={10:{i:"fa-solid fa-bolt-lightning",t:"YOK ARTIK! ⚡"},20:{i:"fa-solid fa-fire-flame-curved",t:"SERİ! 🔥"},30:{i:"fa-solid fa-crown",t:"KRAL! 👑"},40:{i:"fa-solid fa-rocket",t:"UZAY! 🚀"}};
+        if(sabit[mk])return{icon:sabit[mk].i,text:sabit[mk].t,epic:true};
+        let u=epicPool.filter(m=>!recentEpic.includes(m));if(!u.length)u=epicPool;
+        const s=u[Math.floor(Math.random()*u.length)];recentEpic.push(s);if(recentEpic.length>3)recentEpic.shift();
+        return{icon:"fa-solid fa-meteor",text:s+" ("+mk+")",epic:true};
+    }
+    if(d==="dogru"){const m=msgSec(dogruMsg,sonDogru);return{icon:m.i,text:m.t,epic:false};}
+    const m=msgSec(yanlisMsg,sonYanlis);return{icon:m.i,text:m.t,epic:false};
+}
+
+// ===== VERİ YÖNETİMİ =====
+function verileriYukle(){
+    const ld=localStorage.getItem("kelimeListesi");
+    if(ld){try{kelimeVerisi=JSON.parse(ld);}catch(e){kelimeVerisi=[...varsayilanKelimeler];}}
+    else{kelimeVerisi=[...varsayilanKelimeler];localStorage.setItem("kelimeListesi",JSON.stringify(kelimeVerisi));}
+    let tf="";kelimeVerisi.forEach(k=>tf+='"'+k[0]+'", "'+k[1]+'", "'+k[2]+'"\n');
+    document.getElementById("kelimeInput").value=tf.trim();
+
+    const pd=localStorage.getItem("kelimePerformans");if(pd)try{kelimePerformans=JSON.parse(pd);}catch(e){}
+    toplamXP=parseInt(localStorage.getItem("toplamXP")||"0");
+    seviye=parseInt(localStorage.getItem("seviye")||"1");
+    streak=parseInt(localStorage.getItem("streak")||"0");
+    enIyiKombo=parseInt(localStorage.getItem("enIyiKombo")||"0");
+    const rd=localStorage.getItem("kazanilanRozetler");if(rd)try{kazanilanRozetler=new Set(JSON.parse(rd));}catch(e){}
+
+    const bugun=bugunStr(),gt=localStorage.getItem("gunlukTarih");
+    if(gt!==bugun){gunlukTamamlanan=0;localStorage.setItem("gunlukTarih",bugun);localStorage.setItem("gunlukTamamlanan","0");}
+    else gunlukTamamlanan=parseInt(localStorage.getItem("gunlukTamamlanan")||"0");
+
+    streakKontrolVeUyari();
+    xpBarGuncelle();gunlukBarGuncelle();
+    document.getElementById("streakNum").innerText=streak;
+    streakDotsGuncelle();
+
+    const tema=localStorage.getItem("tema");
+    if(tema&&tema!=='auto')document.documentElement.setAttribute('data-theme',tema);
+    temaAktifGoster(tema||'auto');
+}
+function verileriKaydet(){
+    localStorage.setItem("kelimePerformans",JSON.stringify(kelimePerformans));
+    localStorage.setItem("toplamXP",toplamXP.toString());
+    localStorage.setItem("seviye",seviye.toString());
+    localStorage.setItem("streak",streak.toString());
+    localStorage.setItem("gunlukTamamlanan",gunlukTamamlanan.toString());
+    localStorage.setItem("gunlukTarih",bugunStr());
+    localStorage.setItem("enIyiKombo",enIyiKombo.toString());
+    localStorage.setItem("kazanilanRozetler",JSON.stringify([...kazanilanRozetler]));
+}
+
+// ===== XP =====
+function xpGerekli(l){return 50+(l*50);}
+function xpEkle(m){
+    toplamXP+=m;oturumXP+=m;let g=xpGerekli(seviye);
+    while(toplamXP>=g){toplamXP-=g;seviye++;g=xpGerekli(seviye);
+        setTimeout(()=>{sesCal('levelup');const fx=document.createElement('div');fx.className='level-up-fx';
+        fx.innerHTML='<div class="lu-icon"><i class="fa-solid fa-star"></i></div><div class="lu-text">Seviye Atladın!</div><div class="lu-level">'+seviye+'</div>';
+        document.body.appendChild(fx);setTimeout(()=>fx.remove(),2500);},300);
+    }
+    xpBarGuncelle();
+}
+function xpBarGuncelle(){const g=xpGerekli(seviye);document.getElementById("xpLevel").innerText=seviye;document.getElementById("xpCurrent").innerText=toplamXP;document.getElementById("xpNeeded").innerText=g;document.getElementById("xpBar").style.width=Math.min((toplamXP/g)*100,100)+"%";}
+function gunlukBarGuncelle(){
+    document.getElementById("dailyDone").innerText=gunlukTamamlanan;
+    document.getElementById("dailyGoal").innerText=GUNLUK_HEDEF;
+    document.getElementById("dailyBar").style.width=Math.min((gunlukTamamlanan/GUNLUK_HEDEF)*100,100)+"%";
+    const box=document.getElementById("dailyBox");
+    if(gunlukTamamlanan>=GUNLUK_HEDEF)box.classList.add('tamamlandi');else box.classList.remove('tamamlandi');
+}
+
+// ===== SPACED REPETITION =====
+function kelimeSecSR(){
+    if(kelimeVerisi.length<4)return kelimeVerisi[0];
+    let ag=kelimeVerisi.map(k=>{const p=kelimePerformans[k[0]];if(!p)return 10;
+        const ho=p.yanlis/Math.max(p.dogru+p.yanlis,1);
+        const zf=p.sonGorulen?Math.min((Date.now()-p.sonGorulen)/(36e5),48)/48:1;
+        return Math.max(1+(ho*8)+(zf*4)-(p.seviye*0.5),0.5);
+    });
+    kelimeVerisi.forEach((k,i)=>{if(kelimeGecmisi.includes(k[0]))ag[i]*=0.05;});
+    const t=ag.reduce((a,b)=>a+b,0);let r=Math.random()*t;
+    for(let i=0;i<ag.length;i++){r-=ag[i];if(r<=0)return kelimeVerisi[i];}
+    return kelimeVerisi[kelimeVerisi.length-1];
+}
+function perfGuncelle(ad,dogruMu){
+    if(!kelimePerformans[ad])kelimePerformans[ad]={dogru:0,yanlis:0,seviye:0,sonGorulen:Date.now()};
+    const p=kelimePerformans[ad];p.sonGorulen=Date.now();
+    if(dogruMu){p.dogru++;p.seviye=Math.min(p.seviye+1,5);}else{p.yanlis++;p.seviye=Math.max(p.seviye-2,0);}
+}
+
+// ===== ROZETLER =====
+function rozetKontrol(){
+    const td=Object.values(kelimePerformans).reduce((s,p)=>s+p.dogru,0);
+    const d={td,ek:enIyiKombo,st:streak,sv:seviye,gt:gunlukTamamlanan};
+    ROZETLER.forEach(r=>{if(!kazanilanRozetler.has(r.id)&&r.kosul(d)){
+        kazanilanRozetler.add(r.id);
+        setTimeout(()=>{sesCal('rozet');const p=document.createElement('div');p.className='rozet-popup';
+        p.innerHTML='<i class="'+r.icon+'"></i><div class="rp-title">Rozet Kazanıldı!</div><div class="rp-name">'+r.ad+'</div>';
+        document.body.appendChild(p);setTimeout(()=>p.remove(),2500);},600);
+    }});
+}
+
+// ===== SAYFA NAVİGASYON =====
+function sayfaAc(id){
+    document.getElementById("anaMenu").style.display="none";
+    document.getElementById(id).style.display="block";
+    if(id==='istatistikPanel')istatistikDoldur();
+    if(id==='rozetPanel')rozetDoldur();
+}
+function sayfaKapat(id){document.getElementById(id).style.display="none";document.getElementById("anaMenu").style.display="block";}
+
+function istatistikDoldur(){
+    const e=Object.entries(kelimePerformans);
+    const td=e.reduce((s,[,p])=>s+p.dogru,0),ty=e.reduce((s,[,p])=>s+p.yanlis,0),t=td+ty;
+    document.getElementById("statToplam").innerText=t;
+    document.getElementById("statAccuracy").innerText=(t>0?Math.round((td/t)*100):0)+"%";
+    document.getElementById("statBestCombo").innerText=enIyiKombo;
+    document.getElementById("statTotalTime").innerText=Math.floor(parseInt(localStorage.getItem("toplamSaniye")||"0")/60)+"dk";
+    const l=document.getElementById("zorKelimelerListesi");l.innerHTML="";
+    const z=e.filter(([,p])=>(p.dogru+p.yanlis)>=2).map(([k,p])=>({k,o:p.yanlis/(p.dogru+p.yanlis)})).sort((a,b)=>b.o-a.o).slice(0,8);
+    if(!z.length)l.innerHTML='<div style="color:var(--sub-text);font-size:0.82rem;padding:16px 0;">Henüz veri yok.</div>';
+    else z.forEach(zi=>{const d=document.createElement('div');d.className='zor-kelime-item';d.innerHTML='<span class="zk-word">'+zi.k+'</span><span class="zk-rate">'+Math.round(zi.o*100)+'% hata</span>';l.appendChild(d);});
+}
+function rozetDoldur(){
+    const g=document.getElementById("rozetGrid");g.innerHTML="";
+    ROZETLER.forEach(r=>{const k=kazanilanRozetler.has(r.id);const d=document.createElement('div');d.className='rozet-item '+(k?'kazanildi':'kilitli');
+    d.innerHTML='<i class="'+r.icon+'"></i><div class="rozet-ad">'+r.ad+'</div><div class="rozet-desc">'+r.desc+'</div>';g.appendChild(d);});
+}
+
+// ===== EKRAN YÖNETİMİ =====
+function ekraniAc(mod){
+    aktifMod=mod;oturumXP=0;oturumEnIyiKombo=0;dogruSayisi=0;yanlisSayisi=0;komboSayisi=0;toplamSaniye=0;
+    secilenYanlislar.clear();islemKilidi=false;
+    document.getElementById("skorDogru").innerText="0";document.getElementById("skorYanlis").innerText="0";
+    document.getElementById("kronometreSayac").innerText="00:00";document.getElementById("yanlisListe").innerHTML="";
+    document.getElementById("komboKutusu").style.display="none";document.getElementById("yanlisHavuzu").style.display="none";
+    document.getElementById("anaMenu").style.display="none";
+    document.getElementById("calismaAlani").style.display="block";
+    document.getElementById("flashcardWrapper").style.display=mod==='flashcard'?"block":"none";
+    document.getElementById("testWrapper").style.display=mod==='test'?"block":"none";
+    document.getElementById("yazmaWrapper").style.display=mod==='yazma'?"block":"none";
+    streakGuncelle();
+    yeniSoru();
+    if(zamanlayiciInterval)clearInterval(zamanlayiciInterval);
+    kronometreyiBaslat();
+}
+
+function oturumuBitir(){
+    if(zamanlayiciInterval){clearInterval(zamanlayiciInterval);zamanlayiciInterval=null;}
+    const mt=parseInt(localStorage.getItem("toplamSaniye")||"0");
+    localStorage.setItem("toplamSaniye",(mt+toplamSaniye).toString());
+    verileriKaydet();
+    const t=dogruSayisi+yanlisSayisi;
+    if(t>=3){
+        document.getElementById("calismaAlani").style.display="none";
+        document.getElementById("yanlisHavuzu").style.display="none";
+        const y=Math.round((dogruSayisi/t)*100);
+        const s=document.getElementById("ozetSkor");s.innerText=y+"%";
+        s.style.color=y>=70?"var(--success)":y>=40?"var(--warning)":"var(--danger)";
+        document.getElementById("ozetDogru").innerText=dogruSayisi;
+        document.getElementById("ozetYanlis").innerText=yanlisSayisi;
+        document.getElementById("ozetKombo").innerText=oturumEnIyiKombo;
+        const dk=Math.floor(toplamSaniye/60),sn=toplamSaniye%60;
+        document.getElementById("ozetSure").innerText=dk+":"+(sn<10?"0":"")+sn;
+        document.getElementById("ozetXP").innerText=oturumXP;
+        document.getElementById("ozetPanel").style.display="block";
+    }else menuyeDon();
+}
+function ozetKapat(){document.getElementById("ozetPanel").style.display="none";menuyeDon();}
+function menuyeDon(){
+    document.getElementById("calismaAlani").style.display="none";
+    document.getElementById("yanlisHavuzu").style.display="none";
+    document.getElementById("anaMenu").style.display="block";
+    xpBarGuncelle();gunlukBarGuncelle();
+    document.getElementById("streakNum").innerText=streak;streakDotsGuncelle();
+}
+
+function kronometreyiBaslat(){
+    zamanlayiciInterval=setInterval(()=>{toplamSaniye++;
+    const dk=Math.floor(toplamSaniye/60),sn=toplamSaniye%60;
+    document.getElementById("kronometreSayac").innerText=(dk<10?"0"+dk:dk)+":"+(sn<10?"0"+sn:sn);},1000);
+}
+
+// ===== SORU MOTORU =====
+function yeniSoru(){
+    if(kelimeVerisi.length<4)return;
+    cevaplandiMi=false;islemKilidi=false;
+    document.getElementById("fKart").classList.remove("flipped");
+    document.getElementById("btnSonraki").style.display="none";
+    document.getElementById("btnYazmaSonraki").style.display="none";
+    document.getElementById("btnYazmaKontrol").style.display="flex";
+    document.getElementById("yazmaSonuc").style.display="none";
+    document.getElementById("calismaAlani").classList.remove("bounce","shake");
+
+    mevcutKelime=kelimeSecSR();
+    const mg=Math.min(5,kelimeVerisi.length-2);
+    kelimeGecmisi.push(mevcutKelime[0]);
+    if(kelimeGecmisi.length>Math.max(mg,1))kelimeGecmisi.shift();
+    soruModu=Math.random()<0.5?"turkce":"synonym";
+
+    const t=dogruSayisi+yanlisSayisi;
+    document.getElementById("ilerlemeDolgu").style.width=Math.min((t/kelimeVerisi.length)*100,100)+"%";
+
+    if(aktifMod==='flashcard'){
+        document.getElementById("soruTipi").innerText="Kart Görünümü";
+        document.getElementById("fcAnaKelime").innerText=mevcutKelime[0];
+        document.getElementById("fcAnlam").innerText=mevcutKelime[2];
+        document.getElementById("fcEsAnlam").innerText="Synonym: "+mevcutKelime[1];
+    }else if(aktifMod==='test'){
+        document.getElementById("soruTipi").innerText=soruModu==="turkce"?"Türkçe karşılığı:":"Eş anlamlısı (synonym):";
+        document.getElementById("anaKelime").innerText=mevcutKelime[0];
+        const hi=soruModu==="turkce"?2:1;
+        const dc=mevcutKelime[hi];
+        // Doğru cevapla aynı olmayan 3 yanlış seçenek seç
+        let yanlislar=kelimeVerisi.filter(k=>k[0]!==mevcutKelime[0]&&k[hi]!==dc).map(k=>k[hi]);
+        yanlislar=[...new Set(yanlislar)].sort(()=>0.5-Math.random()).slice(0,3);
+        // Yeterli yanlış yoksa tümünden al
+        if(yanlislar.length<3){yanlislar=kelimeVerisi.filter(k=>k[0]!==mevcutKelime[0]).map(k=>k[hi]).sort(()=>0.5-Math.random()).slice(0,3);}
+        const tum=[...yanlislar,dc].sort(()=>0.5-Math.random());
+        const alan=document.getElementById("seceneklerAlani");alan.innerHTML="";
+        tum.forEach((s,i)=>{
+            const b=document.createElement("button");b.className="secenek-btn";
+            b.innerHTML='<span class="shortcut-key">'+(i+1)+'</span><span class="secenek-text">'+s+'</span>';
+            b.dataset.cevap=s;
+            b.onclick=()=>cevapKontrol(b,s,dc);alan.appendChild(b);
+        });
+    }else if(aktifMod==='yazma'){
+        document.getElementById("soruTipi").innerText=soruModu==="turkce"?"Türkçe karşılığını yaz:":"Eş anlamlısını yaz:";
+        document.getElementById("yazmaKelime").innerText=mevcutKelime[0];
+        const hi=soruModu==="turkce"?2:1;const c=mevcutKelime[hi];
+        document.getElementById("yazmaSoruDetay").innerText=soruModu==="turkce"?"Türkçe anlamını yazın":"İngilizce eş anlamlısını yazın";
+        document.getElementById("yazmaHint").innerText="İpucu: "+c.length+' karakter, "'+c[0]+'..." ile başlıyor';
+        const inp=document.getElementById("yazmaInput");inp.value="";inp.className="yazma-input";inp.disabled=false;
+        setTimeout(()=>inp.focus(),100);
+    }
+}
+
+function kartDondur(){document.getElementById("fKart").classList.toggle("flipped");}
+
+function komboGuncelle(){document.getElementById("komboSayac").innerText=komboSayisi;document.getElementById("komboKutusu").style.display=komboSayisi>1?"flex":"none";}
+
+// ===== DOĞRU / YANLIŞ =====
+function dogruIsle(){
+    dogruSayisi++;komboSayisi++;
+    if(komboSayisi>oturumEnIyiKombo)oturumEnIyiKombo=komboSayisi;
+    if(komboSayisi>enIyiKombo)enIyiKombo=komboSayisi;
+    document.getElementById("skorDogru").innerText=dogruSayisi;
+    let xp=10;if(komboSayisi>=5)xp+=5;if(komboSayisi>=10)xp+=10;
+    xpEkle(xp);gunlukTamamlanan++;gunlukBarGuncelle();
+    perfGuncelle(mevcutKelime[0],true);
+    const epic=(komboSayisi>0&&komboSayisi%10===0);
+    sesCal(epic?'kombo':'dogru');
+    const v=komboMsg(komboSayisi,"dogru");
+    animasyonGoster(v.icon,v.text,"var(--success)",v.epic);
+    rozetKontrol();komboGuncelle();verileriKaydet();
+}
+function yanlisIsle(){
+    yanlisSayisi++;komboSayisi=0;document.getElementById("skorYanlis").innerText=yanlisSayisi;
+    xpEkle(2);gunlukTamamlanan++;gunlukBarGuncelle();
+    perfGuncelle(mevcutKelime[0],false);sesCal('yanlis');
+    const v=komboMsg(0,"yanlis");
+    animasyonGoster(v.icon,v.text,"var(--danger)",false);
+    yanlisListeEkle(mevcutKelime);komboGuncelle();verileriKaydet();
+}
+
+function fcDegerlendir(b){
+    if(islemKilidi)return;islemKilidi=true;
+    const c=document.getElementById("calismaAlani");c.classList.remove("bounce","shake");
+    if(b){c.classList.add("bounce");dogruIsle();}else{c.classList.add("shake");yanlisIsle();}
+    setTimeout(()=>{islemKilidi=false;yeniSoru();},450);
+}
+
+function cevapKontrol(btn,sec,dogru){
+    if(cevaplandiMi||islemKilidi)return;cevaplandiMi=true;islemKilidi=true;
+    const c=document.getElementById("calismaAlani");
+    document.querySelectorAll(".secenek-btn").forEach(b=>b.disabled=true);
+    if(sec===dogru){btn.classList.add("dogru-sik");c.classList.add("bounce");dogruIsle();}
+    else{
+        btn.classList.add("yanlis-sik");c.classList.add("shake");yanlisIsle();
+        // Doğru cevabı dataset üzerinden bul (innerText karışması sorunu çözüldü)
+        document.querySelectorAll(".secenek-btn").forEach(b=>{if(b.dataset.cevap===dogru)b.classList.add("dogru-sik");});
+    }
+    document.getElementById("btnSonraki").style.display="block";
+    setTimeout(()=>{islemKilidi=false;},300);
+}
+
+function yazmaCevapKontrol(){
+    if(cevaplandiMi||islemKilidi)return;cevaplandiMi=true;islemKilidi=true;
+    const hi=soruModu==="turkce"?2:1;
+    const dc=mevcutKelime[hi].toLowerCase().trim();
+    const kc=document.getElementById("yazmaInput").value.toLowerCase().trim();
+    const inp=document.getElementById("yazmaInput");
+    const son=document.getElementById("yazmaSonuc");
+    const card=document.getElementById("calismaAlani");
+    inp.disabled=true;
+
+    // Esnek karşılaştırma
+    const varyantlar=[];
+    dc.split(',').forEach(s=>varyantlar.push(s.trim()));
+    dc.split(';').forEach(s=>varyantlar.push(s.trim()));
+    const np=dc.match(/\d+\.\s*([^0-9,;]+)/g);
+    if(np)np.forEach(p=>varyantlar.push(p.replace(/\d+\.\s*/,'').trim()));
+
+    // Türkçe karakter normalizasyonu
+    const normalize=s=>s.replace(/ı/g,'i').replace(/ğ/g,'g').replace(/ü/g,'u').replace(/ş/g,'s').replace(/ö/g,'o').replace(/ç/g,'c').toLowerCase().trim();
+    const kcNorm=normalize(kc);
+
+    const dogruMu=varyantlar.some(v=>{
+        const vNorm=normalize(v);
+        return kc===v||kcNorm===vNorm||(v.includes(kc)&&kc.length>=3)||(kc.includes(v)&&v.length>=3);
+    });
+
+    son.style.display="block";document.getElementById("btnYazmaKontrol").style.display="none";
+    if(dogruMu){inp.classList.add("dogru-input");son.className="yazma-sonuc dogru-sonuc";son.innerHTML='<i class="fa-solid fa-circle-check"></i> Doğru! <b>'+mevcutKelime[hi]+'</b>';card.classList.add("bounce");dogruIsle();}
+    else{inp.classList.add("yanlis-input");son.className="yazma-sonuc yanlis-sonuc";son.innerHTML='<i class="fa-solid fa-circle-xmark"></i> Yanlış! Doğrusu: <b>'+mevcutKelime[hi]+'</b>';card.classList.add("shake");yanlisIsle();}
+    document.getElementById("btnYazmaSonraki").style.display="flex";
+    setTimeout(()=>{islemKilidi=false;},300);
+}
+
+function yanlisListeEkle(k){
+    const[ing,syn,tr]=k;
+    if(!secilenYanlislar.has(ing)){
+        secilenYanlislar.add(ing);document.getElementById("yanlisHavuzu").style.display="block";
+        const li=document.createElement("li");li.className="yanlis-item";
+        li.innerHTML='<span class="yanlis-word"><i class="fa-solid fa-circle-exclamation" style="color:var(--danger)"></i> '+ing+'</span><div class="yanlis-details"><b>TR:</b> '+tr+' | <b>Syn:</b> '+syn+'</div>';
+        document.getElementById("yanlisListe").insertBefore(li,document.getElementById("yanlisListe").firstChild);
+    }
+}
+
+function animasyonGoster(icon,text,renk,epic){
+    const fx=document.createElement("div");fx.className=epic?"fx-combo-epic":"fx-text";
+    if(!epic)fx.style.color=renk;
+    fx.innerHTML='<i class="'+icon+'"></i>'+(text?'<span>'+text+'</span>':'');
+    document.body.appendChild(fx);setTimeout(()=>fx.remove(),epic?1800:1400);
+}
+
+// ===== AYARLAR =====
+function togglePanel(){
+    const p=document.getElementById("ayorPanel"),o=document.getElementById("ayarOverlay");
+    const goster=p.style.display!=="block";
+    p.style.display=goster?"block":"none";
+    o.style.display=goster?"block":"none";
+}
+function kelimeleriKaydet(){
+    const t=document.getElementById("kelimeInput").value.trim().split("\n");
+    const yl=[];t.forEach(s=>{const m=s.match(/"([^"]+)"/g);if(m&&m.length>=3)yl.push([m[0].replace(/"/g,'').trim(),m[1].replace(/"/g,'').trim(),m[2].replace(/"/g,'').trim()]);});
+    if(yl.length<4){alert("En az 4 kelime girin!");return;}
+    localStorage.setItem("kelimeListesi",JSON.stringify(yl));kelimeVerisi=yl;kelimeGecmisi=[];
+    togglePanel();yeniSoru();
+}
+function exportJSON(){
+    const d={kelimeler:kelimeVerisi,performans:kelimePerformans,xp:toplamXP,seviye,streak,rozetler:[...kazanilanRozetler],enIyiKombo,streakGunleri:JSON.parse(localStorage.getItem('streakGunleri')||'[]')};
+    const b=new Blob([JSON.stringify(d,null,2)],{type:'application/json'});
+    const a=document.createElement('a');a.href=URL.createObjectURL(b);a.download='vocastride_backup.json';a.click();URL.revokeObjectURL(a.href);
+}
+function importJSON(e){
+    const f=e.target.files[0];if(!f)return;
+    const r=new FileReader();r.onload=function(ev){
+        try{const d=JSON.parse(ev.target.result);
+        if(d.kelimeler){kelimeVerisi=d.kelimeler;localStorage.setItem("kelimeListesi",JSON.stringify(kelimeVerisi));let tf="";kelimeVerisi.forEach(k=>tf+='"'+k[0]+'", "'+k[1]+'", "'+k[2]+'"\n');document.getElementById("kelimeInput").value=tf.trim();}
+        if(d.performans){kelimePerformans=d.performans;localStorage.setItem("kelimePerformans",JSON.stringify(kelimePerformans));}
+        if(d.xp!==undefined){toplamXP=d.xp;localStorage.setItem("toplamXP",toplamXP.toString());}
+        if(d.seviye){seviye=d.seviye;localStorage.setItem("seviye",seviye.toString());}
+        if(d.streak){streak=d.streak;localStorage.setItem("streak",streak.toString());}
+        if(d.rozetler){kazanilanRozetler=new Set(d.rozetler);localStorage.setItem("kazanilanRozetler",JSON.stringify(d.rozetler));}
+        if(d.enIyiKombo){enIyiKombo=d.enIyiKombo;localStorage.setItem("enIyiKombo",enIyiKombo.toString());}
+        if(d.streakGunleri)localStorage.setItem('streakGunleri',JSON.stringify(d.streakGunleri));
+        xpBarGuncelle();gunlukBarGuncelle();streakDotsGuncelle();
+        alert("Veriler aktarıldı!");
+        }catch(err){alert("Geçersiz dosya!");}
+    };r.readAsText(f);e.target.value='';
+}
+function temaAyarla(t){
+    if(t==='auto')document.documentElement.removeAttribute('data-theme');
+    else document.documentElement.setAttribute('data-theme',t);
+    localStorage.setItem("tema",t);temaAktifGoster(t);
+}
+function temaAktifGoster(t){
+    document.querySelectorAll('.tema-btn').forEach(b=>b.classList.remove('aktif'));
+    const id={auto:'temaOto',dark:'temaKoyu',light:'temaAcik'}[t];
+    if(id)document.getElementById(id).classList.add('aktif');
+}
+
+// ===== KLAVYE KISAYOLLARI (sadece masaüstünde etkili) =====
+let enterKilidi=false;
+document.addEventListener('keydown',function(e){
+    // Yazma inputuna yazarken engelleme
+    if(document.activeElement.id==='yazmaInput'&&e.key!=='Enter')return;
+    if(document.getElementById("calismaAlani").style.display!=="block")return;
+
+    if(aktifMod==='test'){
+        if(!cevaplandiMi&&e.key>='1'&&e.key<='4'){const b=document.querySelectorAll('.secenek-btn');const idx=parseInt(e.key)-1;if(b[idx]&&!b[idx].disabled)b[idx].click();}
+        if(cevaplandiMi&&e.key==='Enter'&&!enterKilidi){enterKilidi=true;yeniSoru();setTimeout(()=>{enterKilidi=false;},200);}
+    }
+    if(aktifMod==='flashcard'){
+        if(e.key===' '||e.code==='Space'){e.preventDefault();kartDondur();}
+        if(e.key==='ArrowLeft')fcDegerlendir(false);
+        if(e.key==='ArrowRight')fcDegerlendir(true);
+    }
+    if(aktifMod==='yazma'&&e.key==='Enter'){
+        e.preventDefault();
+        if(enterKilidi)return;enterKilidi=true;
+        if(!cevaplandiMi)yazmaCevapKontrol();else yeniSoru();
+        setTimeout(()=>{enterKilidi=false;},300);
+    }
+});
+
+// ===== BAŞLAT =====
+verileriYukle();
+</script>
+</body>
+</html>
