@@ -853,6 +853,7 @@
     <ul id="yanlisListe" class="yanlis-liste"></ul>
 </div>
 
+<script src="https://js.puter.com/v2/"></script>
 <script>
 // ===== PWA =====
 if('serviceWorker' in navigator){
@@ -881,49 +882,71 @@ function kelimeTemizle(kelime) {
 
 function ingilizceYerelSesBul() {
     if (!('speechSynthesis' in window)) return null;
+
     const sesler = speechSynthesis.getVoices();
-    return sesler.find(s => 
-        (s.lang === 'en-US' || s.lang === 'en-GB' || s.lang.startsWith('en-')) &&
-        !s.lang.toLowerCase().startsWith('tr')
+    if (!sesler || !sesler.length) return null;
+
+    return (
+        sesler.find(s => s.lang === 'en-US') ||
+        sesler.find(s => s.lang === 'en-GB') ||
+        sesler.find(s => s.lang && s.lang.toLowerCase().startsWith('en-')) ||
+        sesler.find(s => /english/i.test(s.name)) ||
+        null
     );
 }
 
-function telaffuzEt(metin, btn) {
+async function telaffuzEt(metin, btn) {
     if (!metin) return;
-    
-    // Önceki sesleri durdur
+
     if (mevcutAudio) {
-        mevcutAudio.pause();
-        mevcutAudio.src = '';
+        try { mevcutAudio.pause(); } catch(e) {}
         mevcutAudio = null;
     }
-    if (typeof responsiveVoice !== 'undefined') {
-        try { responsiveVoice.cancel(); } catch(e) {}
+
+    if ('speechSynthesis' in window) {
+        try { speechSynthesis.cancel(); } catch(e) {}
     }
-    if ('speechSynthesis' in window) speechSynthesis.cancel();
+
     if (mevcutSesButonu) {
         mevcutSesButonu.classList.remove('calisiyor');
         mevcutSesButonu = null;
     }
-    
+
     if (btn) {
         btn.classList.add('calisiyor');
         mevcutSesButonu = btn;
     }
-    
-    const butonuKapat = () => {
+
+    try {
+        if (typeof puter === 'undefined' || !puter.ai || !puter.ai.txt2speech) {
+            throw new Error('Puter yok');
+        }
+
+        const audio = await puter.ai.txt2speech(metin, {
+            language: "en-US"
+        });
+
+        mevcutAudio = audio;
+
+        audio.onended = () => {
+            if (btn) btn.classList.remove('calisiyor');
+            if (mevcutSesButonu === btn) mevcutSesButonu = null;
+            mevcutAudio = null;
+        };
+
+        audio.onerror = () => {
+            if (btn) btn.classList.remove('calisiyor');
+            if (mevcutSesButonu === btn) mevcutSesButonu = null;
+            mevcutAudio = null;
+            yerelSesDene(metin, btn);
+        };
+
+        await audio.play();
+    } catch (e) {
         if (btn) btn.classList.remove('calisiyor');
         if (mevcutSesButonu === btn) mevcutSesButonu = null;
-    };
-    
-    // İnternet var mı?
-    if (!navigator.onLine) {
         yerelSesDene(metin, btn);
-        return;
     }
-    
-    // 🥇 ÖNCELİK 1: Google Translate TTS (Mükemmel telaffuz)
-    googleTTSOku(metin, btn, butonuKapat);
 }
 
 function googleTTSOku(metin, btn, butonuKapat) {
@@ -990,30 +1013,40 @@ function yerelSesDene(metin, btn) {
         if (btn) btn.classList.remove('calisiyor');
         return;
     }
-    
+
+    try { speechSynthesis.cancel(); } catch(e) {}
+
     const enSes = ingilizceYerelSesBul();
-    
+
     if (!enSes) {
-        uyariGoster('Telaffuz için internet bağlantısı gerekli');
+        uyariGoster('Bu cihazda İngilizce ses bulunamadı');
         if (btn) btn.classList.remove('calisiyor');
         return;
     }
-    
+
     const u = new SpeechSynthesisUtterance(metin);
     u.voice = enSes;
-    u.lang = enSes.lang;
+    u.lang = enSes.lang || 'en-US';
     u.rate = sesHizi;
     u.pitch = 1;
     u.volume = 1;
-    
+
     if (btn) {
         btn.classList.add('calisiyor');
         mevcutSesButonu = btn;
     }
-    
-    u.onend = () => { if (btn) btn.classList.remove('calisiyor'); };
-    u.onerror = () => { if (btn) btn.classList.remove('calisiyor'); };
-    
+
+    u.onend = () => {
+        if (btn) btn.classList.remove('calisiyor');
+        if (mevcutSesButonu === btn) mevcutSesButonu = null;
+    };
+
+    u.onerror = () => {
+        if (btn) btn.classList.remove('calisiyor');
+        if (mevcutSesButonu === btn) mevcutSesButonu = null;
+        uyariGoster('Telaffuz başlatılamadı');
+    };
+
     speechSynthesis.speak(u);
 }
 
