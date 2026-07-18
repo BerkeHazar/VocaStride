@@ -853,7 +853,6 @@
     <ul id="yanlisListe" class="yanlis-liste"></ul>
 </div>
 
-<script src="https://js.puter.com/v2/"></script>
 <script>
 // ===== PWA =====
 if('serviceWorker' in navigator){
@@ -895,11 +894,12 @@ function ingilizceYerelSesBul() {
     );
 }
 
-async function telaffuzEt(metin, btn) {
+function telaffuzEt(metin, btn) {
     if (!metin) return;
 
     if (mevcutAudio) {
         try { mevcutAudio.pause(); } catch(e) {}
+        mevcutAudio.src = '';
         mevcutAudio = null;
     }
 
@@ -917,94 +917,44 @@ async function telaffuzEt(metin, btn) {
         mevcutSesButonu = btn;
     }
 
-    try {
-        if (typeof puter === 'undefined' || !puter.ai || !puter.ai.txt2speech) {
-            throw new Error('Puter yok');
-        }
-
-        const audio = await puter.ai.txt2speech(metin, {
-            language: "en-US"
-        });
-
-        mevcutAudio = audio;
-
-        audio.onended = () => {
-            if (btn) btn.classList.remove('calisiyor');
-            if (mevcutSesButonu === btn) mevcutSesButonu = null;
-            mevcutAudio = null;
-        };
-
-        audio.onerror = () => {
-            if (btn) btn.classList.remove('calisiyor');
-            if (mevcutSesButonu === btn) mevcutSesButonu = null;
-            mevcutAudio = null;
-            yerelSesDene(metin, btn);
-        };
-
-        await audio.play();
-    } catch (e) {
+    const butonuKapat = () => {
         if (btn) btn.classList.remove('calisiyor');
         if (mevcutSesButonu === btn) mevcutSesButonu = null;
-        yerelSesDene(metin, btn);
-    }
+    };
+
+    googleTTSOku(metin, btn, butonuKapat);
 }
 
 function googleTTSOku(metin, btn, butonuKapat) {
-    // Hız için Google'ın ttsspeed parametresi (0.24 - 1.0 arası)
     const gSpeed = sesHizi < 1 ? 0.5 : 1;
     const url = `https://translate.google.com/translate_tts?ie=UTF-8&q=${encodeURIComponent(metin)}&tl=en&client=tw-ob&ttsspeed=${gSpeed}`;
-    
+
     const audio = new Audio();
     audio.src = url;
     audio.playbackRate = sesHizi;
     mevcutAudio = audio;
-    
+
     audio.onended = () => {
         butonuKapat();
         mevcutAudio = null;
     };
-    
-    audio.onerror = (e) => {
-        console.log('Google TTS başarısız, alternatife geçiliyor');
+
+    audio.onerror = () => {
+        console.log('Google TTS başarısız, yerel sese geçiliyor');
         butonuKapat();
         mevcutAudio = null;
-        // Google başarısız → ResponsiveVoice dene
-        rvOku(metin, btn, butonuKapat);
+        yerelSesDene(metin, btn);
     };
-    
+
     const playPromise = audio.play();
     if (playPromise !== undefined) {
         playPromise.catch(err => {
             console.log('Audio play hatası:', err.message);
             butonuKapat();
-            rvOku(metin, btn, butonuKapat);
+            mevcutAudio = null;
+            yerelSesDene(metin, btn);
         });
     }
-}
-
-function rvOku(metin, btn, butonuKapat) {
-    // ResponsiveVoice fallback
-    if (typeof responsiveVoice !== 'undefined' && responsiveVoice.voiceSupport()) {
-        try {
-            if (btn) {
-                btn.classList.add('calisiyor');
-                mevcutSesButonu = btn;
-            }
-            responsiveVoice.speak(metin, "UK English Male", {
-                rate: sesHizi,
-                pitch: 1,
-                volume: 1,
-                onend: butonuKapat,
-                onerror: () => {
-                    butonuKapat();
-                    yerelSesDene(metin, btn);
-                }
-            });
-            return;
-        } catch(e) {}
-    }
-    // Son çare: yerel ses
-    yerelSesDene(metin, btn);
 }
 
 function yerelSesDene(metin, btn) {
@@ -1019,7 +969,7 @@ function yerelSesDene(metin, btn) {
     const enSes = ingilizceYerelSesBul();
 
     if (!enSes) {
-        uyariGoster('Bu cihazda İngilizce ses bulunamadı');
+        uyariGoster('Bu cihazda uygun İngilizce ses bulunamadı');
         if (btn) btn.classList.remove('calisiyor');
         return;
     }
@@ -1055,14 +1005,13 @@ function uyariGoster(mesaj) {
     const div = document.createElement('div');
     div.className = 'ses-uyari';
     div.style.cssText = `
-        position: fixed; top: 20px; left: 50%; 
+        position: fixed; top: 20px; left: 50%;
         transform: translateX(-50%);
-        background: var(--danger); color: #fff; 
-        padding: 12px 20px; border-radius: 12px; 
+        background: var(--danger); color: #fff;
+        padding: 12px 20px; border-radius: 12px;
         z-index: 999; font-weight: 700; font-size: 0.85rem;
         box-shadow: 0 10px 30px rgba(0,0,0,0.3);
         max-width: 90%; text-align: center;
-        animation: slideDown 0.3s ease;
     `;
     div.innerHTML = '<i class="fa-solid fa-triangle-exclamation"></i> ' + mesaj;
     document.body.appendChild(div);
@@ -1070,7 +1019,7 @@ function uyariGoster(mesaj) {
         div.style.opacity = '0';
         div.style.transition = 'opacity 0.3s';
         setTimeout(() => div.remove(), 300);
-    }, 3500);
+    }, 2500);
 }
 
 function otoOkuToggle() {
@@ -1078,6 +1027,7 @@ function otoOkuToggle() {
     document.getElementById('otoOkuToggle').classList.toggle('aktif', otoOku);
     localStorage.setItem('otoOku', otoOku ? '1' : '0');
 }
+
 function sesHiziAyarla(h) {
     sesHizi = h;
     localStorage.setItem('sesHizi', h.toString());
@@ -1085,6 +1035,7 @@ function sesHiziAyarla(h) {
         b.classList.toggle('aktif', parseFloat(b.dataset.hiz) === h);
     });
 }
+
 function sesAyarlariniYukle() {
     otoOku = localStorage.getItem('otoOku') === '1';
     document.getElementById('otoOkuToggle').classList.toggle('aktif', otoOku);
