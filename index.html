@@ -892,11 +892,11 @@
 
 <script>
 // ===== PWA =====
-if('serviceWorker' in navigator){
-    window.addEventListener('load',()=>{
-        navigator.serviceWorker.register('./sw.js').catch(()=>{});
-    });
-}
+// if('serviceWorker' in navigator){
+//    window.addEventListener('load',()=>{
+//    navigator.serviceWorker.register('./sw.js').catch(()=>{});
+//    });
+//}
 let deferredPrompt=null;
 window.addEventListener('beforeinstallprompt',e=>{e.preventDefault();deferredPrompt=e;if(!localStorage.getItem('pwaDismissed'))setTimeout(()=>{document.getElementById('pwaInstallBanner').style.display='block';},3000);});
 window.addEventListener('appinstalled',()=>{document.getElementById('pwaInstallBanner').style.display='none';deferredPrompt=null;});
