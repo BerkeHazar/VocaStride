@@ -869,7 +869,7 @@ window.addEventListener('online',()=>{document.getElementById('offlineBanner').s
 window.addEventListener('offline',()=>{document.getElementById('offlineBanner').style.display='block';});
 if(!navigator.onLine)document.getElementById('offlineBanner').style.display='block';
 
-// ===== TELAFFUZ (Google TTS) =====
+// ===== TELAFFUZ (Dictionary API + Yerel Yedek) =====
 let sesHizi = 1;
 let otoOku = false;
 let mevcutSesButonu = null;
@@ -894,12 +894,11 @@ function ingilizceYerelSesBul() {
     );
 }
 
-function telaffuzEt(metin, btn) {
+async function telaffuzEt(metin, btn) {
     if (!metin) return;
 
     if (mevcutAudio) {
         try { mevcutAudio.pause(); } catch(e) {}
-        mevcutAudio.src = '';
         mevcutAudio = null;
     }
 
@@ -917,43 +916,75 @@ function telaffuzEt(metin, btn) {
         mevcutSesButonu = btn;
     }
 
-    const butonuKapat = () => {
-        if (btn) btn.classList.remove('calisiyor');
-        if (mevcutSesButonu === btn) mevcutSesButonu = null;
-    };
-
-    googleTTSOku(metin, btn, butonuKapat);
+    try {
+        const okundu = await dictionaryTTSOku(metin, btn);
+        if (!okundu) {
+            yerelSesDene(metin, btn);
+        }
+    } catch (e) {
+        yerelSesDene(metin, btn);
+    }
 }
 
-function googleTTSOku(metin, btn, butonuKapat) {
-    const gSpeed = sesHizi < 1 ? 0.5 : 1;
-    const url = `https://translate.google.com/translate_tts?ie=UTF-8&q=${encodeURIComponent(metin)}&tl=en&client=tw-ob&ttsspeed=${gSpeed}`;
+async function dictionaryTTSOku(metin, btn) {
+    const kelime = kelimeTemizle(metin).toLowerCase().trim();
 
-    const audio = new Audio();
-    audio.src = url;
-    audio.playbackRate = sesHizi;
-    mevcutAudio = audio;
+    // Çok kelimeli ifadelerde Dictionary API ses bulamayabiliyor
+    if (!kelime || kelime.includes(' ')) return false;
 
-    audio.onended = () => {
-        butonuKapat();
-        mevcutAudio = null;
-    };
+    try {
+        const res = await fetch(`https://api.dictionaryapi.dev/api/v2/entries/en/${encodeURIComponent(kelime)}`);
+        if (!res.ok) return false;
 
-    audio.onerror = () => {
-        console.log('Google TTS başarısız, yerel sese geçiliyor');
-        butonuKapat();
-        mevcutAudio = null;
-        yerelSesDene(metin, btn);
-    };
+        const data = await res.json();
+        if (!Array.isArray(data) || !data.length) return false;
 
-    const playPromise = audio.play();
-    if (playPromise !== undefined) {
-        playPromise.catch(err => {
-            console.log('Audio play hatası:', err.message);
-            butonuKapat();
+        let audioUrl = '';
+
+        for (const entry of data) {
+            if (!Array.isArray(entry.phonetics)) continue;
+
+            const bulunan = entry.phonetics.find(p =>
+                typeof p.audio === 'string' && p.audio.trim() !== ''
+            );
+
+            if (bulunan) {
+                audioUrl = bulunan.audio.trim();
+                break;
+            }
+        }
+
+        if (!audioUrl) return false;
+
+        if (audioUrl.startsWith('//')) {
+            audioUrl = 'https:' + audioUrl;
+        }
+
+        const audio = new Audio(audioUrl);
+        audio.preload = 'auto';
+        audio.playbackRate = sesHizi;
+        mevcutAudio = audio;
+
+        audio.onended = () => {
+            if (btn) btn.classList.remove('calisiyor');
+            if (mevcutSesButonu === btn) mevcutSesButonu = null;
             mevcutAudio = null;
-            yerelSesDene(metin, btn);
-        });
+        };
+
+        audio.onerror = () => {
+            if (btn) btn.classList.remove('calisiyor');
+            if (mevcutSesButonu === btn) mevcutSesButonu = null;
+            mevcutAudio = null;
+        };
+
+        const playPromise = audio.play();
+        if (playPromise !== undefined) {
+            await playPromise;
+        }
+
+        return true;
+    } catch (e) {
+        return false;
     }
 }
 
@@ -974,7 +1005,7 @@ function yerelSesDene(metin, btn) {
         return;
     }
 
-    const u = new SpeechSynthesisUtterance(metin);
+    const u = new SpeechSynthesisUtterance(kelimeTemizle(metin));
     u.voice = enSes;
     u.lang = enSes.lang || 'en-US';
     u.rate = sesHizi;
@@ -1002,19 +1033,28 @@ function yerelSesDene(metin, btn) {
 
 function uyariGoster(mesaj) {
     if (document.querySelector('.ses-uyari')) return;
+
     const div = document.createElement('div');
     div.className = 'ses-uyari';
     div.style.cssText = `
-        position: fixed; top: 20px; left: 50%;
+        position: fixed;
+        top: 20px;
+        left: 50%;
         transform: translateX(-50%);
-        background: var(--danger); color: #fff;
-        padding: 12px 20px; border-radius: 12px;
-        z-index: 999; font-weight: 700; font-size: 0.85rem;
+        background: var(--danger);
+        color: #fff;
+        padding: 12px 20px;
+        border-radius: 12px;
+        z-index: 999;
+        font-weight: 700;
+        font-size: 0.85rem;
         box-shadow: 0 10px 30px rgba(0,0,0,0.3);
-        max-width: 90%; text-align: center;
+        max-width: 90%;
+        text-align: center;
     `;
     div.innerHTML = '<i class="fa-solid fa-triangle-exclamation"></i> ' + mesaj;
     document.body.appendChild(div);
+
     setTimeout(() => {
         div.style.opacity = '0';
         div.style.transition = 'opacity 0.3s';
@@ -1039,8 +1079,10 @@ function sesHiziAyarla(h) {
 function sesAyarlariniYukle() {
     otoOku = localStorage.getItem('otoOku') === '1';
     document.getElementById('otoOkuToggle').classList.toggle('aktif', otoOku);
+
     const kh = parseFloat(localStorage.getItem('sesHizi') || '1');
     sesHizi = kh;
+
     document.querySelectorAll('.ses-hiz-btn').forEach(b => {
         b.classList.toggle('aktif', parseFloat(b.dataset.hiz) === kh);
     });
