@@ -369,7 +369,28 @@
         }
         .card-front { background: var(--panel-bg); color: var(--title-color); font-size: 1.8rem; font-weight: 800; }
         @media (min-width: 768px) { .card-front { font-size: 2.2rem; } }
-        .card-front-row { display: flex; align-items: center; justify-content: center; flex-wrap: wrap; }
+        .card-front-row {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            flex-wrap: nowrap;
+            width: 100%;
+        }
+
+        .card-front-row > span,
+        #fcAnaKelime {
+            min-width: 0;
+            flex: 1;
+            text-align: center;
+            overflow-wrap: anywhere;
+            word-break: break-word;
+        }
+
+        .card-front-row .telaffuz-btn {
+            flex: 0 0 auto;
+            margin-left: 0;
+        }
         .card-front .ipucu-text {
             font-size: 0.75rem; color: var(--sub-text); margin-top: 12px;
             font-weight: 400; display: flex; align-items: center; gap: 5px;
@@ -395,8 +416,36 @@
         .btn-biliyorum:active { background-color: var(--success); color: #000; }
 
         .test-wrapper { display: none; width: 100%; }
-        .kelime-row { display: flex; align-items: center; justify-content: center; flex-wrap: wrap; margin-bottom: 24px; }
-        @media (min-width: 768px) { .kelime-row { margin-bottom: 30px; } }
+        .kelime-row {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            flex-wrap: nowrap;
+            width: 100%;
+            margin-bottom: 24px;
+        }
+
+        @media (min-width: 768px) {
+            .kelime-row {
+                margin-bottom: 30px;
+            }
+        }
+
+        .kelime-row .kelime,
+        #anaKelime,
+        #yazmaKelime {
+            min-width: 0;
+            flex: 1;
+            text-align: center;
+            overflow-wrap: anywhere;
+            word-break: break-word;
+        }
+
+        .kelime-row .telaffuz-btn {
+            flex: 0 0 auto;
+            margin-left: 0;
+        }
         .kelime {
             font-size: 2rem; font-weight: 800; color: var(--title-color);
             letter-spacing: -0.5px; word-break: break-word;
