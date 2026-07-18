@@ -4,8 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>VocaStride</title>
-    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0%25' y1='0%25' x2='100%25' y2='100%25'%3E%3Cstop offset='0%25' stop-color='%23a370f7'/%3E%3Cstop offset='100%25' stop-color='%23633bbc'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='100' height='100' rx='24' fill='url(%23g)'/%3E%3Cpath d='M 28 30 L 50 70 L 72 30' stroke='white' stroke-width='9' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3Cline x1='32' y1='80' x2='68' y2='80' stroke='white' stroke-width='7' stroke-linecap='round' opacity='0.85'/%3E%3C/svg%3E">
-    <link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0%25' y1='0%25' x2='100%25' y2='100%25'%3E%3Cstop offset='0%25' stop-color='%23a370f7'/%3E%3Cstop offset='100%25' stop-color='%23633bbc'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='100' height='100' rx='24' fill='url(%23g)'/%3E%3Cpath d='M 28 30 L 50 70 L 72 30' stroke='white' stroke-width='9' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3Cline x1='32' y1='80' x2='68' y2='80' stroke='white' stroke-width='7' stroke-linecap='round' opacity='0.85'/%3E%3C/svg%3E">
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0%25' y1='0%25' x2='100%25' y2='100%25'%3E%3Cstop offset='0%25' stop-color='%23a370f7'/%3E%3Cstop offset='100%25' stop-color='%23633bbc'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='100' height='100' rx='24' fill='url(%23g)'/%3E%3Cpath d='M 28 30 L 50 70 L 72 30' stroke='white' stroke-width='9' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3Cline x1='32' y1='80' x2='68' y2='80' stroke='white' stroke-width='7' stroke-linecap='round' opacity='0.85'/%3E%3C/svg%3E">
+<link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0%25' y1='0%25' x2='100%25' y2='100%25'%3E%3Cstop offset='0%25' stop-color='%23a370f7'/%3E%3Cstop offset='100%25' stop-color='%23633bbc'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='100' height='100' rx='24' fill='url(%23g)'/%3E%3Cpath d='M 28 30 L 50 70 L 72 30' stroke='white' stroke-width='9' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3Cline x1='32' y1='80' x2='68' y2='80' stroke='white' stroke-width='7' stroke-linecap='round' opacity='0.85'/%3E%3C/svg%3E">
     
     <meta name="theme-color" content="#0b0a0f" media="(prefers-color-scheme: dark)">
     <meta name="theme-color" content="#f4f4f7" media="(prefers-color-scheme: light)">
@@ -88,11 +88,11 @@
             animation: slideUp 0.5s cubic-bezier(0.16, 1, 0.3, 1);
         }
         .pwa-install-banner .pwa-row { display: flex; align-items: center; gap: 12px; }
-        .pwa-install-banner .pwa-icon {
-            width: 44px; height: 44px; min-width: 44px;
-            border-radius: 12px; display: flex; align-items: center;
-            justify-content: center; overflow: hidden;
-        }
+.pwa-install-banner .pwa-icon {
+    width: 44px; height: 44px; min-width: 44px;
+    border-radius: 12px; display: flex; align-items: center;
+    justify-content: center; overflow: hidden;
+}
         .pwa-install-banner .pwa-text h4 { font-size: 0.9rem; font-weight: 800; color: var(--title-color); margin-bottom: 2px; }
         .pwa-install-banner .pwa-text p { font-size: 0.7rem; color: var(--sub-text); }
         .pwa-install-banner .pwa-actions { display: flex; gap: 8px; margin-top: 12px; }
@@ -369,6 +369,7 @@
         }
         .card-front { background: var(--panel-bg); color: var(--title-color); font-size: 1.8rem; font-weight: 800; }
         @media (min-width: 768px) { .card-front { font-size: 2.2rem; } }
+        .card-front-row { display: flex; align-items: center; justify-content: center; flex-wrap: wrap; }
         .card-front .ipucu-text {
             font-size: 0.75rem; color: var(--sub-text); margin-top: 12px;
             font-weight: 400; display: flex; align-items: center; gap: 5px;
@@ -394,46 +395,8 @@
         .btn-biliyorum:active { background-color: var(--success); color: #000; }
 
         .test-wrapper { display: none; width: 100%; }
-        .card-front-row,
-        .kelime-row {
-            position: relative;
-            width: 100%;
-            padding-left: 48px;
-            padding-right: 48px;
-            min-height: 36px;
-        }
-
-        .kelime-row {
-            margin-bottom: 24px;
-        }
-        @media (min-width: 768px) {
-            .kelime-row {
-                margin-bottom: 30px;
-            }
-        }
-
-        .card-front-row > span,
-        .kelime,
-        #anaKelime,
-        #yazmaKelime,
-        #fcAnaKelime {
-            display: block;
-            width: 100%;
-            min-width: 0;
-            overflow-wrap: anywhere;
-            word-break: break-word;
-            text-align: center;
-        }
-
-        .card-front-row .telaffuz-btn,
-        .kelime-row .telaffuz-btn {
-            position: absolute;
-            right: 0;
-            top: 50%;
-            transform: translateY(-50%);
-            margin-left: 0;
-            flex-shrink: 0;
-        }
+        .kelime-row { display: flex; align-items: center; justify-content: center; flex-wrap: wrap; margin-bottom: 24px; }
+        @media (min-width: 768px) { .kelime-row { margin-bottom: 30px; } }
         .kelime {
             font-size: 2rem; font-weight: 800; color: var(--title-color);
             letter-spacing: -0.5px; word-break: break-word;
@@ -635,28 +598,28 @@
         ::-webkit-scrollbar-track { background: transparent; }
         ::-webkit-scrollbar-thumb { background: var(--border-color); border-radius: 3px; }
 
-        /* LOGO */
-        .logo-container {
-            display: flex; flex-direction: column;
-            align-items: center; gap: 6px; margin-bottom: 8px;
-        }
-        .logo-svg {
-            width: 68px; height: 68px;
-            filter: drop-shadow(0 8px 20px rgba(99, 59, 188, 0.4));
-            animation: logoFloat 3s ease-in-out infinite;
-            cursor: default;
-        }
-        @media (min-width: 768px) {
-            .logo-svg { width: 78px; height: 78px; }
-        }
-        @keyframes logoFloat {
-            0%, 100% { transform: translateY(0) rotate(0deg); }
-            50% { transform: translateY(-4px) rotate(-1deg); }
-        }
-        .pwa-icon-svg {
-            width: 44px; height: 44px;
-            filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.2));
-        }
+/* LOGO */
+.logo-container {
+    display: flex; flex-direction: column;
+    align-items: center; gap: 6px; margin-bottom: 8px;
+}
+.logo-svg {
+    width: 68px; height: 68px;
+    filter: drop-shadow(0 8px 20px rgba(99, 59, 188, 0.4));
+    animation: logoFloat 3s ease-in-out infinite;
+    cursor: default;
+}
+@media (min-width: 768px) {
+    .logo-svg { width: 78px; height: 78px; }
+}
+@keyframes logoFloat {
+    0%, 100% { transform: translateY(0) rotate(0deg); }
+    50% { transform: translateY(-4px) rotate(-1deg); }
+}
+.pwa-icon-svg {
+    width: 44px; height: 44px;
+    filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.2));
+}
     </style>
 </head>
 <body>
@@ -892,11 +855,11 @@
 
 <script>
 // ===== PWA =====
-// if('serviceWorker' in navigator){
-//    window.addEventListener('load',()=>{
-//    navigator.serviceWorker.register('./sw.js').catch(()=>{});
-//    });
-//}
+if('serviceWorker' in navigator){
+    window.addEventListener('load',()=>{
+        navigator.serviceWorker.register('./sw.js').catch(()=>{});
+    });
+}
 let deferredPrompt=null;
 window.addEventListener('beforeinstallprompt',e=>{e.preventDefault();deferredPrompt=e;if(!localStorage.getItem('pwaDismissed'))setTimeout(()=>{document.getElementById('pwaInstallBanner').style.display='block';},3000);});
 window.addEventListener('appinstalled',()=>{document.getElementById('pwaInstallBanner').style.display='none';deferredPrompt=null;});
@@ -919,7 +882,7 @@ function kelimeTemizle(kelime) {
 function ingilizceYerelSesBul() {
     if (!('speechSynthesis' in window)) return null;
     const sesler = speechSynthesis.getVoices();
-    return sesler.find(s =>
+    return sesler.find(s => 
         (s.lang === 'en-US' || s.lang === 'en-GB' || s.lang.startsWith('en-')) &&
         !s.lang.toLowerCase().startsWith('tr')
     );
@@ -927,70 +890,98 @@ function ingilizceYerelSesBul() {
 
 function telaffuzEt(metin, btn) {
     if (!metin) return;
-
+    
+    // Önceki sesleri durdur
     if (mevcutAudio) {
         mevcutAudio.pause();
         mevcutAudio.src = '';
         mevcutAudio = null;
     }
-
-    if ('speechSynthesis' in window) {
-        speechSynthesis.cancel();
+    if (typeof responsiveVoice !== 'undefined') {
+        try { responsiveVoice.cancel(); } catch(e) {}
     }
-
+    if ('speechSynthesis' in window) speechSynthesis.cancel();
     if (mevcutSesButonu) {
         mevcutSesButonu.classList.remove('calisiyor');
         mevcutSesButonu = null;
     }
-
+    
     if (btn) {
         btn.classList.add('calisiyor');
         mevcutSesButonu = btn;
     }
-
+    
     const butonuKapat = () => {
         if (btn) btn.classList.remove('calisiyor');
         if (mevcutSesButonu === btn) mevcutSesButonu = null;
     };
-
+    
+    // İnternet var mı?
     if (!navigator.onLine) {
         yerelSesDene(metin, btn);
         return;
     }
-
+    
+    // 🥇 ÖNCELİK 1: Google Translate TTS (Mükemmel telaffuz)
     googleTTSOku(metin, btn, butonuKapat);
 }
 
 function googleTTSOku(metin, btn, butonuKapat) {
+    // Hız için Google'ın ttsspeed parametresi (0.24 - 1.0 arası)
     const gSpeed = sesHizi < 1 ? 0.5 : 1;
     const url = `https://translate.google.com/translate_tts?ie=UTF-8&q=${encodeURIComponent(metin)}&tl=en&client=tw-ob&ttsspeed=${gSpeed}`;
-
+    
     const audio = new Audio();
     audio.src = url;
     audio.playbackRate = sesHizi;
     mevcutAudio = audio;
-
+    
     audio.onended = () => {
         butonuKapat();
         mevcutAudio = null;
     };
-
-    audio.onerror = () => {
-        console.log('Google TTS başarısız, yerel sese geçiliyor');
+    
+    audio.onerror = (e) => {
+        console.log('Google TTS başarısız, alternatife geçiliyor');
         butonuKapat();
         mevcutAudio = null;
-        yerelSesDene(metin, btn);
+        // Google başarısız → ResponsiveVoice dene
+        rvOku(metin, btn, butonuKapat);
     };
-
+    
     const playPromise = audio.play();
     if (playPromise !== undefined) {
         playPromise.catch(err => {
             console.log('Audio play hatası:', err.message);
             butonuKapat();
-            mevcutAudio = null;
-            yerelSesDene(metin, btn);
+            rvOku(metin, btn, butonuKapat);
         });
     }
+}
+
+function rvOku(metin, btn, butonuKapat) {
+    // ResponsiveVoice fallback
+    if (typeof responsiveVoice !== 'undefined' && responsiveVoice.voiceSupport()) {
+        try {
+            if (btn) {
+                btn.classList.add('calisiyor');
+                mevcutSesButonu = btn;
+            }
+            responsiveVoice.speak(metin, "UK English Male", {
+                rate: sesHizi,
+                pitch: 1,
+                volume: 1,
+                onend: butonuKapat,
+                onerror: () => {
+                    butonuKapat();
+                    yerelSesDene(metin, btn);
+                }
+            });
+            return;
+        } catch(e) {}
+    }
+    // Son çare: yerel ses
+    yerelSesDene(metin, btn);
 }
 
 function yerelSesDene(metin, btn) {
@@ -999,37 +990,30 @@ function yerelSesDene(metin, btn) {
         if (btn) btn.classList.remove('calisiyor');
         return;
     }
-
+    
     const enSes = ingilizceYerelSesBul();
-
+    
     if (!enSes) {
         uyariGoster('Telaffuz için internet bağlantısı gerekli');
         if (btn) btn.classList.remove('calisiyor');
         return;
     }
-
+    
     const u = new SpeechSynthesisUtterance(metin);
     u.voice = enSes;
     u.lang = enSes.lang;
     u.rate = sesHizi;
     u.pitch = 1;
     u.volume = 1;
-
+    
     if (btn) {
         btn.classList.add('calisiyor');
         mevcutSesButonu = btn;
     }
-
-    u.onend = () => {
-        if (btn) btn.classList.remove('calisiyor');
-        if (mevcutSesButonu === btn) mevcutSesButonu = null;
-    };
-
-    u.onerror = () => {
-        if (btn) btn.classList.remove('calisiyor');
-        if (mevcutSesButonu === btn) mevcutSesButonu = null;
-    };
-
+    
+    u.onend = () => { if (btn) btn.classList.remove('calisiyor'); };
+    u.onerror = () => { if (btn) btn.classList.remove('calisiyor'); };
+    
     speechSynthesis.speak(u);
 }
 
@@ -1038,10 +1022,10 @@ function uyariGoster(mesaj) {
     const div = document.createElement('div');
     div.className = 'ses-uyari';
     div.style.cssText = `
-        position: fixed; top: 20px; left: 50%;
+        position: fixed; top: 20px; left: 50%; 
         transform: translateX(-50%);
-        background: var(--danger); color: #fff;
-        padding: 12px 20px; border-radius: 12px;
+        background: var(--danger); color: #fff; 
+        padding: 12px 20px; border-radius: 12px; 
         z-index: 999; font-weight: 700; font-size: 0.85rem;
         box-shadow: 0 10px 30px rgba(0,0,0,0.3);
         max-width: 90%; text-align: center;
@@ -1061,7 +1045,6 @@ function otoOkuToggle() {
     document.getElementById('otoOkuToggle').classList.toggle('aktif', otoOku);
     localStorage.setItem('otoOku', otoOku ? '1' : '0');
 }
-
 function sesHiziAyarla(h) {
     sesHizi = h;
     localStorage.setItem('sesHizi', h.toString());
@@ -1069,7 +1052,6 @@ function sesHiziAyarla(h) {
         b.classList.toggle('aktif', parseFloat(b.dataset.hiz) === h);
     });
 }
-
 function sesAyarlariniYukle() {
     otoOku = localStorage.getItem('otoOku') === '1';
     document.getElementById('otoOkuToggle').classList.toggle('aktif', otoOku);
