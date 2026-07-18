@@ -370,27 +370,33 @@
         .card-front { background: var(--panel-bg); color: var(--title-color); font-size: 1.8rem; font-weight: 800; }
         @media (min-width: 768px) { .card-front { font-size: 2.2rem; } }
         .card-front-row {
-            display: flex;
+            display: grid;
+            grid-template-columns: 36px minmax(0, 1fr) 36px;
             align-items: center;
-            justify-content: center;
             gap: 8px;
-            flex-wrap: nowrap;
             width: 100%;
+        }
+
+        .card-front-row::before {
+            content: "";
+            width: 36px;
+            height: 36px;
         }
 
         .card-front-row > span,
         #fcAnaKelime {
             min-width: 0;
-            flex: 1;
             text-align: center;
             overflow-wrap: anywhere;
             word-break: break-word;
+            grid-column: 2;
         }
 
         .card-front-row .telaffuz-btn {
-            flex: 0 0 auto;
+            grid-column: 3;
             margin-left: 0;
         }
+
         .card-front .ipucu-text {
             font-size: 0.75rem; color: var(--sub-text); margin-top: 12px;
             font-weight: 400; display: flex; align-items: center; gap: 5px;
@@ -417,11 +423,10 @@
 
         .test-wrapper { display: none; width: 100%; }
         .kelime-row {
-            display: flex;
+            display: grid;
+            grid-template-columns: 36px minmax(0, 1fr) 36px;
             align-items: center;
-            justify-content: center;
             gap: 8px;
-            flex-wrap: nowrap;
             width: 100%;
             margin-bottom: 24px;
         }
@@ -432,20 +437,27 @@
             }
         }
 
+        .kelime-row::before {
+            content: "";
+            width: 36px;
+            height: 36px;
+        }
+
         .kelime-row .kelime,
         #anaKelime,
         #yazmaKelime {
             min-width: 0;
-            flex: 1;
             text-align: center;
             overflow-wrap: anywhere;
             word-break: break-word;
+            grid-column: 2;
         }
 
         .kelime-row .telaffuz-btn {
-            flex: 0 0 auto;
+            grid-column: 3;
             margin-left: 0;
         }
+
         .kelime {
             font-size: 2rem; font-weight: 800; color: var(--title-color);
             letter-spacing: -0.5px; word-break: break-word;
@@ -668,6 +680,38 @@
 .pwa-icon-svg {
     width: 44px; height: 44px;
     filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.2));
+}
+
+.kelime.kisa,
+#fcAnaKelime.kisa {
+    font-size: 2rem;
+}
+
+.kelime.orta,
+#fcAnaKelime.orta {
+    font-size: 1.75rem;
+}
+
+.kelime.uzun,
+#fcAnaKelime.uzun {
+    font-size: 1.45rem;
+}
+
+@media (min-width: 768px) {
+    .kelime.kisa,
+    #fcAnaKelime.kisa {
+        font-size: 2.4rem;
+    }
+
+    .kelime.orta,
+    #fcAnaKelime.orta {
+        font-size: 2rem;
+    }
+
+    .kelime.uzun,
+    #fcAnaKelime.uzun {
+        font-size: 1.7rem;
+    }
 }
     </style>
 </head>
@@ -1141,6 +1185,23 @@ if ('speechSynthesis' in window) {
     speechSynthesis.getVoices();
     speechSynthesis.onvoiceschanged = () => speechSynthesis.getVoices();
 }
+// ===== BOYUT =====
+
+function kelimeBoyutuAyarla(metin) {
+    const temiz = kelimeTemizle(metin);
+    const uzunluk = temiz.length;
+
+    let sinif = 'kisa';
+    if (uzunluk > 16) sinif = 'uzun';
+    else if (uzunluk > 10) sinif = 'orta';
+
+    ['anaKelime', 'yazmaKelime', 'fcAnaKelime'].forEach(id => {
+        const el = document.getElementById(id);
+        if (!el) return;
+        el.classList.remove('kisa', 'orta', 'uzun');
+        el.classList.add(sinif);
+    });
+}
 
 // ===== STREAK =====
 function bugunStr(){const d=new Date();return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');}
@@ -1458,6 +1519,7 @@ function yeniSoru(){
     document.getElementById("calismaAlani").classList.remove("bounce","shake");
 
     mevcutKelime=kelimeSecSR();
+    kelimeBoyutuAyarla(mevcutKelime[0]);
     const mg=Math.min(5,kelimeVerisi.length-2);
     kelimeGecmisi.push(mevcutKelime[0]);
     if(kelimeGecmisi.length>Math.max(mg,1))kelimeGecmisi.shift();
