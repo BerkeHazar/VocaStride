@@ -221,7 +221,11 @@
         .nav-btn:hover { color: var(--title-color); }
         .nav-btn:active { opacity: 0.7; }
         .ust-sag-grup { display: flex; align-items: center; gap: 4px; }
-        .ayar-btn:hover { transform: rotate(45deg); transition: transform 0.3s; }
+        /* Ayarlar açılıp kapanırken yalnızca ikon kısa ve sade biçimde hareket eder. */
+        .ayar-btn { justify-content: center; }
+        .ayar-btn:hover { transform: none; }
+        .ayar-btn.tiklandi i { animation: ayarTiklama .28s ease-out; }
+        @keyframes ayarTiklama { 0% { transform:rotate(0); } 55% { transform:rotate(28deg); } 100% { transform:rotate(0); } }
 
         .ayor-panel {
             display: none; position: absolute; top: 50px; right: 16px; left: 16px;
@@ -549,10 +553,6 @@
             .eslestirme-kart { min-height: 54px; padding: 8px 7px; gap: 5px; border-radius: 10px; font-size: .76rem; }
             .eslestirme-kart .eslestirme-text { line-height: 1.15; }
             .eslestirme-kart .kart-telaffuz-btn { flex-basis: 24px; width: 24px; height: 24px; font-size: .62rem; }
-            .eslestirme-hero { margin-bottom: 10px; padding: 8px 9px; gap: 8px; }
-            .eslestirme-hero-icon { width:30px; height:30px; flex-basis:30px; border-radius:8px; font-size:.8rem; }
-            .eslestirme-hero strong { font-size:.78rem; }
-            .eslestirme-hero span { font-size:.64rem; }
         }
         /* Kısa ekranlarda kartları biraz daha sıkılaştırarak ilk görünümü kaydırmasız tutar. */
         @media (max-height: 700px) and (max-width: 520px) {
@@ -576,7 +576,7 @@
             font-size: 0.9rem;
             font-weight: 600;
             cursor: pointer;
-            transition: all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+            transition: all 0.2s ease;
             text-align: center;
             word-break: break-word;
             min-height: 76px;
@@ -591,9 +591,8 @@
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05), inset 0 1px 0 rgba(255, 255, 255, 0.05);
         }
 
-        .eslestirme-kart:active {
-            transform: scale(0.97);
-        }
+        /* Ana menü butonuyla birebir aynı, sade basma geri bildirimi. */
+        .eslestirme-kart:active:not(.eslesti) { transform: scale(0.98) !important; }
         @media (hover: hover) and (pointer: fine) {
             .eslestirme-kart:hover:not(.eslesti) {
                 border-color: rgba(99, 59, 188, 0.35);
@@ -664,8 +663,8 @@
         .eslestirme-kart.secili {
             border-color: var(--primary);
             background: linear-gradient(135deg, rgba(99, 59, 188, 0.18), rgba(163, 112, 247, 0.14));
-            transform: translateY(-4px);
-            box-shadow: 0 8px 24px rgba(99, 59, 188, 0.25), 0 0 0 3px rgba(99, 59, 188, 0.1);
+            transform: none;
+            box-shadow: 0 0 0 3px rgba(99, 59, 188, 0.1);
         }
 
         .eslestirme-kart.eslesti {
@@ -677,16 +676,7 @@
             filter: grayscale(0.2);
         }
 
-        .eslestirme-kart.yanlis-deneme {
-            animation: kartShake 0.4s ease-in-out;
-        }
-
-        @keyframes kartShake {
-            0%, 100% { transform: translateX(0); }
-            25% { transform: translateX(-8px); }
-            50% { transform: translateX(8px); }
-            75% { transform: translateX(-6px); }
-        }
+        .eslestirme-kart.yanlis-deneme { border-color: var(--danger); }
 
         .eslestirme-durum {
             display: none;
@@ -740,6 +730,7 @@
             border-color: var(--primary);
             transform: translateY(-2px);
         }
+        .eslestirme-reset:active { transform: scale(.98); }
 
         .btn-aksiyon {
             background-color: var(--primary); color: white; border: none;
@@ -947,34 +938,40 @@
 }
 
         /* Eşleştirme deneyimi — oyunlaştırılmış, mevcut görsel dile uyumlu */
-        .eslestirme-hero { display:flex; align-items:center; gap:10px; text-align:left; margin:0 0 16px; padding:11px 12px; border:1px solid var(--border-color); border-radius:12px; background:var(--panel-bg); }
-        .eslestirme-hero-icon { width:36px; height:36px; flex:0 0 36px; display:grid; place-items:center; color:var(--primary-light); border-radius:10px; background:rgba(99,59,188,.13); border:1px solid rgba(99,59,188,.24); }
-        .eslestirme-hero strong { display:block; color:var(--title-color); font-size:.86rem; margin-bottom:2px; }
-        .eslestirme-hero span { display:block; color:var(--sub-text); font-size:.7rem; line-height:1.3; }
-        .eslestirme-score { margin-left:auto; flex:0 0 auto; white-space:nowrap; text-align:right; color:var(--primary-light); font-size:1.1rem; line-height:1; font-weight:800; font-variant-numeric:tabular-nums; }
-        .eslestirme-score span { display:inline; } .eslestirme-score small { display:inline; color:var(--sub-text); font-size:.68rem; }
         .eslestirme-kart { overflow:hidden; isolation:isolate; font-family:inherit; color:var(--text-color); appearance:none; -webkit-appearance:none; }
         .eslestirme-kart::before { content:''; position:absolute; inset:0; z-index:-1; opacity:0; background:linear-gradient(110deg,transparent 20%,rgba(255,255,255,.2) 50%,transparent 80%); transform:translateX(-120%); }
-        .eslestirme-kart.secili::before { opacity:.65; animation:kartParilti 1.6s ease infinite; }
-        .eslestirme-kart.dogru-eslesme { border-color: var(--success); background: rgba(4,211,97,.08); }
+        .eslestirme-kart.secili::before { opacity:0; animation:none; }
+        /* Doğru eşleşmenin yeşil geri bildirimi gecikmeden görünür. */
+        .eslestirme-kart.dogru-eslesme {
+            border-color: var(--success) !important;
+            background: rgba(4,211,97,.12) !important;
+            box-shadow: 0 0 0 2px rgba(4,211,97,.12) !important;
+            transition: none !important;
+        }
         .eslestirme-kart.dogru-eslesme::after { content:'✓'; position:absolute; right:9px; top:8px; display:grid; place-items:center; width:21px; height:21px; border-radius:50%; background:var(--success); color:#fff; font-size:.7rem; font-weight:900; box-shadow:0 3px 10px rgba(4,211,97,.35); }
         .eslestirme-kart.eslesti { animation:matchedOut .45s ease forwards; }
         .eslestirme-kart.yanlis-deneme { border-color:var(--danger); background:rgba(247,90,104,.1); }
-        .eslestirme-grid.set-yukleniyor .eslestirme-kart { animation:cardDeal .42s both; }
+        /* Yeni sette kartlar sırayla sahneye gelir; geçiş, ekranı kaplamadan belirgin kalır. */
+        .eslestirme-grid.set-cikiyor { animation:setCikis .18s ease-in both; pointer-events:none; }
+        .eslestirme-grid.set-yukleniyor { animation:setGiris .38s ease-out both; }
+        .eslestirme-grid.set-yukleniyor .eslestirme-kart { animation:cardDeal .46s cubic-bezier(.2,1.2,.4,1) both; }
         .eslestirme-grid.set-yukleniyor .eslestirme-kart:nth-child(2) { animation-delay:.05s; }.eslestirme-grid.set-yukleniyor .eslestirme-kart:nth-child(3) { animation-delay:.1s; }.eslestirme-grid.set-yukleniyor .eslestirme-kart:nth-child(4) { animation-delay:.15s; }.eslestirme-grid.set-yukleniyor .eslestirme-kart:nth-child(5) { animation-delay:.2s; }
         @keyframes kartParilti { to { transform:translateX(120%); } }
         @keyframes matchedOut { to { opacity:.52; transform:scale(.97); } }
-        @keyframes cardDeal { from { opacity:0; transform:translateY(14px) scale(.95); } to { opacity:1; transform:none; } }
+        @keyframes setCikis { to { opacity:0; transform:translateY(-7px) scale(.985); } }
+        @keyframes setGiris { from { opacity:.35; transform:translateY(5px); } to { opacity:1; transform:none; } }
+        @keyframes cardDeal { from { opacity:0; transform:translateY(18px) scale(.93); } 65% { opacity:1; transform:translateY(-2px) scale(1.015); } to { opacity:1; transform:none; } }
         @media (prefers-reduced-motion: reduce) { .eslestirme-kart, .eslestirme-kart::before { animation:none !important; transition:none !important; } }
 
         /* Eşleştirme kartları, diğer modlardaki seçenek butonlarıyla aynı kompakt ölçüde. */
-        .eslestirme-grid { gap: 10px; margin-bottom: 14px; }
-        .eslestirme-kolon { gap: 8px; }
+        /* İki sütun arasındaki orta boşluk, kartları sıkıştırmadan biraz genişletildi. */
+        .eslestirme-grid { column-gap: 14px; row-gap: 10px; margin-bottom: 14px; }
+        .eslestirme-kolon { gap: 9px; }
         .eslestirme-kart {
-            height: 48px; min-height: 48px; max-height: 48px;
-            padding: 8px 10px; gap: 7px; border-width: 1px; border-radius: 10px;
+            height: 62px; min-height: 62px; max-height: 62px;
+            padding: 10px 12px; gap: 9px; border-width: 1px; border-radius: 11px;
             font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-            font-size: .84rem; font-weight: 600;
+            font-size: .9rem; font-weight: 600;
         }
         .eslestirme-kart .eslestirme-text {
             overflow: hidden; white-space: nowrap; text-overflow: ellipsis;
@@ -984,14 +981,36 @@
             flex-basis: 25px; width: 25px; height: 25px; font-size: .65rem;
         }
         @media (max-width: 520px) {
-            .eslestirme-grid { gap: 8px; margin-bottom: 10px; }
-            .eslestirme-kolon { gap: 6px; }
-            .eslestirme-kart { height: 48px; min-height: 48px; max-height: 48px; padding: 7px 6px; gap: 4px; font-size: .74rem; }
-            .eslestirme-kart .kart-telaffuz-btn { flex-basis: 22px; width: 22px; height: 22px; font-size: .58rem; }
+            .eslestirme-grid { column-gap: 10px; row-gap: 8px; margin-bottom: 10px; }
+            .eslestirme-kolon { gap: 7px; }
+            .eslestirme-kart { height: 60px; min-height: 60px; max-height: 60px; padding: 9px 9px; gap: 6px; font-size: .84rem; }
+            .eslestirme-kart .kart-telaffuz-btn { flex-basis: 26px; width: 26px; height: 26px; font-size: .65rem; }
         }
         @media (max-height: 700px) and (max-width: 520px) {
-            .eslestirme-kart { height: 46px; min-height: 46px; max-height: 46px; }
-            .eslestirme-kolon { gap: 5px; }
+            .eslestirme-kart { height: 54px; min-height: 54px; max-height: 54px; }
+            .eslestirme-kolon { gap: 8px; }
+        }
+
+        /* Eşleştirme alanına menülerdeki gibi ferah, çerçeveli bir düzen verilir. */
+        .eslestirme-wrapper { padding: 4px 0; }
+        .eslestirme-grid {
+            padding: 10px; border: 1px solid var(--border-color); border-radius: 16px;
+            background: linear-gradient(145deg, rgba(99,59,188,.045), rgba(255,255,255,.015));
+            box-shadow: inset 0 1px 0 rgba(255,255,255,.035);
+            column-gap: 16px; row-gap: 12px; margin-bottom: 18px;
+        }
+        .eslestirme-kolon { gap: 12px; }
+        .eslestirme-kart { height: 64px; min-height: 64px; max-height: 64px; }
+        @media (max-width: 520px) {
+            .eslestirme-wrapper { padding: 2px 0; }
+            .eslestirme-grid { padding: 7px; column-gap: 12px; row-gap: 10px; margin-bottom: 14px; border-radius: 14px; }
+            .eslestirme-kolon { gap: 10px; }
+            .eslestirme-kart { height: 60px; min-height: 60px; max-height: 60px; }
+        }
+        @media (max-height: 700px) and (max-width: 520px) {
+            .eslestirme-grid { padding: 6px; column-gap: 10px; row-gap: 8px; margin-bottom: 10px; }
+            .eslestirme-kolon { gap: 8px; }
+            .eslestirme-kart { height: 54px; min-height: 54px; max-height: 54px; }
         }
 
     </style>
@@ -1173,18 +1192,13 @@
     </div>
 
     <div id="eslestirmeWrapper" class="eslestirme-wrapper">
-        <div class="eslestirme-hero" aria-live="polite">
-            <div class="eslestirme-hero-icon"><i class="fa-solid fa-wand-magic-sparkles"></i></div>
-            <div><strong id="eslestirmeBaslik">Eşleştirme Turu</strong><span id="eslestirmeIpucu">Bir çifti seç ve ritmi yakala.</span></div>
-            <div class="eslestirme-score"><span id="eslesenSayisi">0</span><small>/ 5</small></div>
-        </div>
         <div class="eslestirme-grid">
             <div class="eslestirme-kolon" id="kelimeKolonu"></div>
             <div class="eslestirme-kolon" id="anlamKolonu"></div>
         </div>
         <div class="eslestirme-durum" id="eslestirmeDurum"></div>
 
-        <button class="eslestirme-reset" id="btnEslestirmeReset" onclick="yeniEslestirmeSet()">
+        <button class="eslestirme-reset" id="btnEslestirmeReset" onclick="yeniEslestirmeSet(true)">
             <i class="fa-solid fa-rotate"></i> Yeni Set
         </button>
         <div class="kisayol-ipucu">R: Yeni set</div>
@@ -2327,6 +2341,10 @@ function togglePanel(){
     const goster=p.style.display!=="block";
     p.style.display=goster?"block":"none";
     o.style.display=goster?"block":"none";
+    const ayarButonu=document.querySelector('.ayar-btn');
+    ayarButonu.classList.remove('tiklandi');
+    void ayarButonu.offsetWidth;
+    ayarButonu.classList.add('tiklandi');
 }
 function kelimeleriKaydet(){
     const t=document.getElementById("kelimeInput").value.trim().split("\n");
@@ -2387,7 +2405,7 @@ document.addEventListener('keydown',function(e){
 
     if(aktifMod==='eslestirme'){
         if((e.key==='r'||e.key==='R')&&!enterKilidi){
-            enterKilidi=true;yeniEslestirmeSet();setTimeout(()=>{enterKilidi=false;},300);
+            enterKilidi=true;yeniEslestirmeSet(true);setTimeout(()=>{enterKilidi=false;},500);
         }
         if(aktifMod==='eslestirme') return; // Aşağıdaki kısayolları çalıştırma
     }
@@ -2412,6 +2430,7 @@ document.addEventListener('keydown',function(e){
         const ESLestirmeGecmisiAnahtari = 'eslestirmeSonUcTur';
         const ESLestirmeBeklemeTurSayisi = 3;
         let eslestirmeGecmisi = eslestirmeGecmisiniYukle();
+        let yeniSetGecisiDevamEdiyor = false;
 
         function eslestirmeGecmisiniYukle() {
             try {
@@ -2428,7 +2447,22 @@ document.addEventListener('keydown',function(e){
             localStorage.setItem(ESLestirmeGecmisiAnahtari, JSON.stringify(eslestirmeGecmisi));
         }
 
-        function yeniEslestirmeSet() {
+        function yeniEslestirmeSet(gecisli = false) {
+            if (gecisli) {
+                if (yeniSetGecisiDevamEdiyor) return;
+                yeniSetGecisiDevamEdiyor = true;
+                const grid = document.querySelector('.eslestirme-grid');
+                grid.classList.remove('set-yukleniyor');
+                void grid.offsetWidth;
+                grid.classList.add('set-cikiyor');
+                setTimeout(() => {
+                    grid.classList.remove('set-cikiyor');
+                    yeniSetGecisiDevamEdiyor = false;
+                    yeniEslestirmeSet(false);
+                }, 180);
+                return;
+            }
+
             // Aynı İngilizce kelimenin yinelenmesi, eşleştirmeyi belirsizleştirir.
             const benzersizKelimeler = [...new Map(kelimeVerisi.map(k => [k[0], k])).values()];
             if (benzersizKelimeler.length < 5) {
@@ -2468,8 +2502,6 @@ document.addEventListener('keydown',function(e){
             
             document.getElementById('eslestirmeDurum').style.display = 'none';
             document.getElementById('btnEslestirmeReset').style.display = 'none';
-            document.getElementById('eslesenSayisi').innerText = '0';
-            eslestirmeIpucuGuncelle('Bir çifti seç ve ritmi yakala.');
         }
 
         function karistir(liste) {
@@ -2479,11 +2511,6 @@ document.addEventListener('keydown',function(e){
                 [sonuc[i], sonuc[j]] = [sonuc[j], sonuc[i]];
             }
             return sonuc;
-        }
-
-        function eslestirmeIpucuGuncelle(metin) {
-            const ipucu = document.getElementById('eslestirmeIpucu');
-            if (ipucu) ipucu.textContent = metin;
         }
 
         function eslestirmeRender() {
@@ -2534,7 +2561,8 @@ document.addEventListener('keydown',function(e){
             grid.classList.remove('set-yukleniyor');
             void grid.offsetWidth;
             grid.classList.add('set-yukleniyor');
-            eslestirmeIpucuGuncelle('Bir çifti seç ve ritmi yakala.');
+            // Giriş animasyonu bittiğinde sınıfı kaldır: sonraki tıklama animasyonlarını engellemesin.
+            setTimeout(() => grid.classList.remove('set-yukleniyor'), 700);
         }
 
         function eslestirmeTelaffuz(kelime, btn) {
@@ -2544,7 +2572,6 @@ document.addEventListener('keydown',function(e){
         function eslestirmeSec(kart) {
             if (islemKilidi) return;
             if (kart.classList.contains('eslesti')) return;
-            
             const tip = kart.dataset.tip;
 
             if (tip === 'kelime') {
@@ -2560,8 +2587,7 @@ document.addEventListener('keydown',function(e){
                 } else {
                     kart.classList.add('secili');
                     eslestirmeSeciliKelime = kart;
-                    eslestirmeIpucuGuncelle('Şimdi karşılığını bul.');
-                }
+                        }
             } else if (tip === 'anlam') {
                 if (eslestirmeSeciliAnlam === kart) {
                     kart.classList.remove('secili');
@@ -2572,7 +2598,6 @@ document.addEventListener('keydown',function(e){
                     });
                     kart.classList.add('secili');
                     eslestirmeSeciliAnlam = kart;
-                    eslestirmeIpucuGuncelle('Harika seçim — kontrol ediliyor…');
                 }
             }
 
@@ -2600,11 +2625,9 @@ document.addEventListener('keydown',function(e){
         seciliAnlam.classList.remove('secili');
         seciliKelime.classList.add('dogru-eslesme');
         seciliAnlam.classList.add('dogru-eslesme');
-        setTimeout(() => { seciliKelime.classList.add('eslesti'); seciliAnlam.classList.add('eslesti'); }, 180);
+        setTimeout(() => { seciliKelime.classList.add('eslesti'); seciliAnlam.classList.add('eslesti'); }, 400);
         
         eslestirmeEslesenSayisi++;
-        document.getElementById('eslesenSayisi').innerText = eslestirmeEslesenSayisi;
-        eslestirmeIpucuGuncelle(eslestirmeEslesenSayisi === 5 ? 'Tur tamamlandı! Harika iş.' : 'Doğru eşleşme! Devam et.');
 
         // XP, kombo, günlük hedef ve performans hesabı diğer modlarla tamamen aynı ortak akıştan gelir.
         const dogruKelime = aktifEslestirmeSet.find(k => k[0] === kelimeAdi);
@@ -2622,11 +2645,10 @@ document.addEventListener('keydown',function(e){
             setTimeout(() => eslestirmeTamamlandi(), 800);
         }
 
-        setTimeout(() => { islemKilidi = false; }, 280);
+        setTimeout(() => { islemKilidi = false; }, 430);
         
     } else {
         // YANLIŞ EŞLEŞME
-        eslestirmeIpucuGuncelle('Olmadı, kartlar yerinde. Yeniden dene.');
         const yanlisKelime = aktifEslestirmeSet.find(k => k[0] === kelimeAdi);
         
         eslestirmeHatalar.push({
@@ -2692,5 +2714,5 @@ function eslestirmeTamamlandi() {
     verileriKaydet();
 }
 verileriYukle();
-</script></body>
+</script><script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'a204b6b6fbf9d232',t:'MTc4NDkxNDg2NQ=='};var a=document.createElement('script');a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
 </html>
