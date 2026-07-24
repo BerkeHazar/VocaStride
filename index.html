@@ -967,6 +967,33 @@
         @keyframes cardDeal { from { opacity:0; transform:translateY(14px) scale(.95); } to { opacity:1; transform:none; } }
         @media (prefers-reduced-motion: reduce) { .eslestirme-kart, .eslestirme-kart::before { animation:none !important; transition:none !important; } }
 
+        /* Eşleştirme kartları, diğer modlardaki seçenek butonlarıyla aynı kompakt ölçüde. */
+        .eslestirme-grid { gap: 10px; margin-bottom: 14px; }
+        .eslestirme-kolon { gap: 8px; }
+        .eslestirme-kart {
+            height: 48px; min-height: 48px; max-height: 48px;
+            padding: 8px 10px; gap: 7px; border-width: 1px; border-radius: 10px;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            font-size: .84rem; font-weight: 600;
+        }
+        .eslestirme-kart .eslestirme-text {
+            overflow: hidden; white-space: nowrap; text-overflow: ellipsis;
+            overflow-wrap: normal; word-break: normal; line-height: 1.2; text-wrap: nowrap;
+        }
+        .eslestirme-kart .kart-telaffuz-btn {
+            flex-basis: 25px; width: 25px; height: 25px; font-size: .65rem;
+        }
+        @media (max-width: 520px) {
+            .eslestirme-grid { gap: 8px; margin-bottom: 10px; }
+            .eslestirme-kolon { gap: 6px; }
+            .eslestirme-kart { height: 48px; min-height: 48px; max-height: 48px; padding: 7px 6px; gap: 4px; font-size: .74rem; }
+            .eslestirme-kart .kart-telaffuz-btn { flex-basis: 22px; width: 22px; height: 22px; font-size: .58rem; }
+        }
+        @media (max-height: 700px) and (max-width: 520px) {
+            .eslestirme-kart { height: 46px; min-height: 46px; max-height: 46px; }
+            .eslestirme-kolon { gap: 5px; }
+        }
+
     </style>
 </head>
 <body>
@@ -2124,11 +2151,7 @@ function oturumuBitir(){
     const mt=parseInt(localStorage.getItem("toplamSaniye")||"0");
     localStorage.setItem("toplamSaniye",(mt+toplamSaniye).toString());
     verileriKaydet();
-    // Eşleştirme modundaysa özet gösterme, direkt çık
-    if(aktifMod==='eslestirme'){
-        menuyeDon();
-        return;
-    }
+    // Eşleştirme de diğer modlar gibi oturum özetini ve kazanılan XP'yi gösterir.
     const t=dogruSayisi+yanlisSayisi;
     if(t>=3){
         document.getElementById("calismaAlani").style.display="none";
@@ -2583,38 +2606,10 @@ document.addEventListener('keydown',function(e){
         document.getElementById('eslesenSayisi').innerText = eslestirmeEslesenSayisi;
         eslestirmeIpucuGuncelle(eslestirmeEslesenSayisi === 5 ? 'Tur tamamlandı! Harika iş.' : 'Doğru eşleşme! Devam et.');
 
-        // XP ve istatistik
+        // XP, kombo, günlük hedef ve performans hesabı diğer modlarla tamamen aynı ortak akıştan gelir.
         const dogruKelime = aktifEslestirmeSet.find(k => k[0] === kelimeAdi);
         mevcutKelime = dogruKelime;
-        dogruSayisi++;
-        komboSayisi++;
-        
-        if (komboSayisi > oturumEnIyiKombo) oturumEnIyiKombo = komboSayisi;
-        if (komboSayisi > enIyiKombo) enIyiKombo = komboSayisi;
-        
-        document.getElementById('skorDogru').innerText = dogruSayisi;
-        
-        // XP hesapla
-        let xp = 15; // Eşleştirme daha çok XP
-        if (komboSayisi >= 3) xp += 5;
-        if (komboSayisi >= 5) xp += 10;
-        if (eslestirmeEslesenSayisi === 5) xp += 25; // Tam set bonusu
-        
-        xpEkle(xp);
-        gunlukTamamlanan++;
-        gunlukBarGuncelle();
-        perfGuncelle(kelimeAdi, true);
-
-        // Kombo güncelle
-        komboGuncelle();
-
-        // Ses efekti
-        const epic = (komboSayisi > 0 && komboSayisi % 10 === 0);
-        sesCal(epic ? 'kombo' : 'dogru');
-
-        // Animasyon
-        const v = komboMsg(komboSayisi, "dogru");
-        animasyonGoster(v.icon, v.text, "var(--success)", v.epic);
+        dogruIsle();
 
         // Test ve kart modlarıyla aynı doğru-cevap animasyonu.
         const calismaAlani = document.getElementById('calismaAlani');
@@ -2626,9 +2621,6 @@ document.addEventListener('keydown',function(e){
         if (eslestirmeEslesenSayisi === 5) {
             setTimeout(() => eslestirmeTamamlandi(), 800);
         }
-
-        rozetKontrol();
-        verileriKaydet();
 
         setTimeout(() => { islemKilidi = false; }, 280);
         
@@ -2700,5 +2692,5 @@ function eslestirmeTamamlandi() {
     verileriKaydet();
 }
 verileriYukle();
-</script><script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'a2044b458bd7d3b9',t:'MTc4NDkxMDQ2NA=='};var a=document.createElement('script');a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</script></body>
 </html>
