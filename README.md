@@ -2,7 +2,6 @@
 
 Aralıklı tekrar (Leitner) tabanlı, tamamen çevrimdışı çalışan kelime öğrenme uygulaması. Tek sayfalık statik uygulama; sunucu yok, veriler yalnızca cihazda kalır.
 
-> Kelime haznesi kullanıcı kararıyla değiştirilmedi; kaynak uygulamadan birebir aktarıldı.
 
 ## Özellikler
 
