@@ -1,6 +1,6 @@
 # VocaStride
 
-Aralıklı tekrar (Leitner) tabanlı, tamamen çevrimdışı çalışan kelime öğrenme uygulaması. Tek sayfalık statik uygulama; sunucu yok, veriler yalnızca cihazda kalır.
+VocaStride, kelime öğrenmeyi alışkanlık haline getirmek için tasarlanmış, tarayıcı tabanlı bir çalışma aracı. Sunucu gerektirmez, tüm veriler cihazınızda kalır.
 
 
 ## Özellikler
