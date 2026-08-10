@@ -1,121 +1,94 @@
 # VocaStride
 
-Kelime öğrenmeyi alışkanlık haline getirmek için tasarlanmış, tarayıcı tabanlı bir çalışma aracı. Tek bir HTML dosyasıyla çalışır, sunucu gerektirmez, tüm veriler cihazınızda kalır.
+Aralıklı tekrar (Leitner) tabanlı, tamamen çevrimdışı çalışan kelime öğrenme uygulaması.
+Tek sayfalık statik uygulama; sunucu yok, veriler yalnızca cihazda kalır.
 
 **AI desteğiyle geliştirilmiştir** — tasarım, mimari ve kod üretim sürecinde yapay zekâ araçlarından yararlanılmıştır.
 
+> **Kelime haznesi (400 kelime) kullanıcı kararıyla DEĞİŞTİRİLMEDİ.** Kaynak uygulamadan birebir aktarılmıştır (`src/js/words.js`).
 
 ## Özellikler
 
 ### Çalışma Modları
-- **Çoktan Seçmeli** — 4 şık arasından doğru cevabı seç
-- **Hafıza Kartları** — Kartı çevirerek hatırla, biliyorsan ilerle
-- **Yazarak Öğren** — Cevabı klavyeden yaz, aktif hatırlamayı güçlendir
+- **Çoktan Seçmeli** — 4 şık; TR karşılık / Synonym / Ters (TR→EN) / Karışık yön
+- **Hafıza Kartları** — çevir, hatırla, "Tekrar / Bildim" ile ilerle
+- **Kelime Eşleştirme** — 5 kelime ↔ 5 anlam; hatasız tur = **+25 XP bonus** (düzeltildi)
+- **Öğrenme / Göz At** — yeni kelimeleri sınav öncesi incele, "Öğrendim" ile SRS'ye al
+- **Bugünkü Tekrarlar** — vadesi gelen kelimeler için ana menüden tek tık
 
-### Öğrenme Sistemi
-- Spaced Repetition (aralıklı tekrar) algoritması
-- Yanlış bilinen kelimeler daha sık karşına çıkar
-- Kelime bazlı performans takibi
-- Takip listesi ile hatalı cevapların anlık kaydı
+### Öğrenme Motoru (yeni)
+- **Leitner aralıklı tekrar**: 5 kutu, aralıklar 1-2-4-8-16 gün
+- Yanlış cevap kelimeyi 1. kutuya döndürür; doğrular yukarı taşır
+- Kelime bazlı performans, ustalık seviyesi (0-5) sözlükte ve ısı haritasında görünür
 
 ### Motivasyon
-- XP ve seviye sistemi
-- Günlük hedef (20 kelime/gün)
-- Streak takibi (ardışık gün sayacı)
-- Kombo sistemi ve animasyonlu geri bildirimler
-- 15 farklı rozet / başarım
+- XP & seviye, kombo sistemi, streak (son 7 gün noktaları)
+- **23 rozet** (mod bazlı, mükemmel gün, ustalık vb.) — ilerleme yüzdeleriyle
+- Günlük hedef (10/20/30/50 + özel), konfeti, haptik titreşim, sakin mod
+
+### Telaffuz (düzeltildi)
+- Çok kaynaklı: Dictionary API → yerel sentez (speechSynthesis) yedeği
+- Sesli/URL önbelleği: tekrar dinlemeler anında, çevrimdışında da çalışır
+- Hız ayarı (Yavaş/Normal/Hızlı)
 
 ### Teknik
-- Tek HTML dosyası, bağımlılık yok
-- Tüm veriler `localStorage`'da saklanır
-- PWA desteği — ana ekrana eklenebilir, çevrimdışı çalışır
-- Otomatik koyu/açık tema (manuel seçim de var)
-- Mobil uyumlu (responsive), dokunmatik optimize
-- Klavye kısayolları (masaüstünde)
-- JSON ile veri yedekleme ve geri yükleme (export/import)
-- Ses efektleri (Web Audio API)
+- **Tam çevrimdışı**: tüm CSS/JS/ikonlar/fontlar (Inter alt küme) gömülü — CDN yok
+- **Gerçek service worker** (`sw.js`): app-shell önbelleği, cache-first
+- **PNG ikonlar** (192/512 + maskable) — iOS ana ekran uyumu
+- **Şema sürümleme + otomatik migration** (eski localStorage'dan taşır)
+- 5 vurgu rengi × koyu/açık/otomatik tema
+- Onboarding (ilk açılış: hedef + renk seçimi)
+- İstatistik: 7/30 gün grafikleri, oturum geçmişi, ustalık ısı haritası, odak kelimeler → tek tıkla çalışma
+- Sözlük: arama, tür filtresi (v/adj/n/adv), ustalık göstergesi, telaffuz
+- Klavye kısayolları, erişilebilirlik (yakınlaştırma, focus, reduced-motion)
+- JSON yedekleme / geri yükleme
 
----
-
-## Kullanım
-
-### Doğrudan Tarayıcıda
-1. `index.html` dosyasını indirin
-2. Tarayıcıda açın
-3. Çalışmaya başlayın
-
-### PWA Olarak Yükleme
-Dosyayı bir web sunucusuna yükleyin (GitHub Pages, Netlify vb.) ve:
-
-- **iPhone:** Safari → Paylaş → Ana Ekrana Ekle
-- **Android:** Chrome → Menü → Ana Ekrana Ekle
-- **PC:** Chrome → Adres çubuğundaki yükle ikonu
-
-### GitHub Pages ile Yayınlama
-1. Bu repoyu fork edin veya dosyayı kendi reponuza ekleyin
-2. Settings → Pages → Branch: `main`, Folder: `/`
-3. Birkaç dakika içinde `https://kullaniciadi.github.io/repo-adi/` adresinde yayında
-
----
-
-## Kelime Listesini Düzenleme
-
-Uygulama içindeki ⚙️ ayar panelinden kelimelerinizi düzenleyebilirsiniz.
-
-Her satır şu formatta olmalı:
+## Yapı
 
 ```
-"kelime (tür)", "synonym", "Türkçe karşılık"
+vocastride/
+├── build.py          # derleme: modüler kaynak → release/index.html
+├── manifest.json     # PWA manifest
+├── sw.js             # service worker
+├── src/
+│   ├── index.html    # iskelet (statik ekranlar)
+│   ├── css/          # fonts, tokens, base, components, screens
+│   └── js/           # modüler JS (icons, storage, words, srs, game, tts, ui, stats, panels, settings, session, main)
+│       └── modes/    # quiz, flashcards, matching, learn
+└── release/          # derleme çıktısı (yayınlamaya hazır tek dosya + varlıklar)
 ```
 
-Örnek:
+## Derleme
+
+```bash
+python3 build.py
 ```
-"abandon (v)", "leave", "terk etmek"  
-"bold (adj)", "brave", "cesur"
+
+Çıktı: `release/index.html` (her şey gömülü, ~300 KB), `release/manifest.json`, `release/sw.js`, `release/icons/*.png`.
+
+## Yayınlama
+
+Statik olduğu için herhangi bir yerde barındırılabilir (GitHub Pages, Netlify, klasör):
+
+```bash
+cd release
+python3 -m http.server 8000
 ```
 
-Minimum 4 kelime gereklidir.
+PWA yükleme: HTTPS üzerinden açılıp tarayıcının "Uygulamayı yükle" akışı ile.
 
----
+## Veri
 
-## Klavye Kısayolları
+- Tüm veri `localStorage`'da `vs:*` anahtarları altında (şema v2).
+- Eski sürüm anahtarları (`kelimeListesi` vb.) ilk açılışta otomatik taşınır; silinmez.
+- Yedek: Ayarlar → Yedekle (JSON); Geri Yükle ile geri alınır.
 
-| Kısayol | İşlev |
-|---------|-------|
-| `1` `2` `3` `4` | Şık seçme (test modu) |
-| `Enter` | Sonraki soru / Cevabı kontrol et |
-| `Space` | Kartı çevir (flashcard modu) |
-| `←` `→` | Bilmiyorum / Bildim (flashcard) |
+## Kısayollar
 
-> Kısayollar yalnızca masaüstünde aktiftir, mobilde görünmez.
-
----
-
-## Veri Yedekleme
-
-- **Export:** Ayar panelinden JSON olarak indirin
-- **Import:** Daha önce aldığınız yedeği geri yükleyin
-
-Yedek dosyası kelime listesini, performans verilerini, XP/seviye bilgisini, streak ve rozetleri içerir.
-
----
-
-## Teknolojiler
-
-- Vanilla HTML, CSS, JavaScript
-- [Inter](https://fonts.google.com/specimen/Inter) (Google Fonts)
-- [Font Awesome 6](https://fontawesome.com/) (ikonlar)
-- Web Audio API (ses efektleri)
-- PWA (manifest + service worker)
-
----
-
-## Lisans
-
-MIT
-
----
-
-<p align="center">
-  <em>AI desteğiyle geliştirilmiştir.</em>
-</p>
+| Tuş | İşlev |
+|---|---|
+| `1-4` | Şık seç (test) |
+| `Enter` | Sonraki soru |
+| `Boşluk` | Kartı çevir |
+| `←` / `→` | Kartta Tekrar / Bildim |
+| `R` | Eşleştirmede yeni set |

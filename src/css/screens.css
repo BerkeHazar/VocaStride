@@ -1,0 +1,112 @@
+/* ============================================================
+   VocaStride — Ekran Özel Stilleri (screens.css)
+   ============================================================ */
+
+/* PWA kurulum afişi */
+.install-banner {
+  display: none; align-items: center; gap: 12px;
+  background: var(--surface-1); border: 1px solid var(--accent);
+  border-radius: var(--radius-m); padding: 12px 14px;
+  box-shadow: var(--shadow-2);
+}
+.install-banner.show { display: flex; }
+.install-banner .ib-logo { width: 40px; height: 40px; flex-shrink: 0; border-radius: 10px; overflow: hidden; display: inline-flex; }
+.install-banner .ib-logo svg { width: 100%; height: 100%; display: block; }
+.install-banner .ib-txt { flex: 1; min-width: 0; }
+.install-banner .ib-txt b { font-size: .84rem; display: block; }
+.install-banner .ib-txt span { font-size: .7rem; color: var(--text-2); }
+.install-banner .ib-btn { flex-shrink: 0; }
+
+/* Onboarding */
+.onb { text-align: center; }
+.onb .onb-logo { width: 72px; height: 72px; margin: 6px auto 12px; }
+.onb h2 { font-size: 1.5rem; font-weight: 800; letter-spacing: -.02em; margin-bottom: 6px; }
+.onb p { font-size: .86rem; color: var(--text-2); margin-bottom: 18px; }
+.onb .goal-pick { display: flex; gap: 8px; margin-bottom: 18px; }
+.onb .goal-pick button {
+  flex: 1; padding: 14px 6px; border-radius: 16px; border: 1.5px solid var(--border);
+  background: var(--surface-2); color: var(--text-1);
+}
+.onb .goal-pick button .g-num { display: block; font-size: 1.3rem; font-weight: 800; }
+.onb .goal-pick button .g-lbl { font-size: .68rem; color: var(--text-3); font-weight: 700; }
+.onb .goal-pick button.sel { border-color: var(--accent); background: var(--accent-soft); box-shadow: 0 0 0 3px var(--ring); }
+
+/* Rozet ana ekranı "rozetler" sayfası header'ı */
+.panel-head { display: flex; align-items: center; gap: 10px; margin-bottom: 4px; }
+.panel-head h2 { font-size: 1.1rem; font-weight: 800; flex: 1; letter-spacing: -.01em; display: flex; align-items: center; gap: 8px; }
+
+/* İstatistik üst kartlar */
+.stats-top { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.stats-top .st-card {
+  background: var(--surface-1); border: 1px solid var(--border); border-radius: var(--radius-m);
+  padding: 15px 15px; box-shadow: var(--shadow-1); min-width: 0;
+  animation: actIn .4s var(--ease-out) both;
+}
+.stats-top .st-card:nth-child(1) { animation-delay: .03s; }
+.stats-top .st-card:nth-child(2) { animation-delay: .07s; }
+.stats-top .st-card:nth-child(3) { animation-delay: .11s; }
+.stats-top .st-card:nth-child(4) { animation-delay: .15s; }
+.stats-top .st-num { font-size: 1.42rem; font-weight: 800; letter-spacing: -.02em; line-height: 1.15; }
+.stats-top .st-lbl { font-size: .7rem; color: var(--text-2); font-weight: 700; margin-top: 3px; }
+.stats-top .st-sub { font-size: .64rem; color: var(--text-3); margin-top: 1px; line-height: 1.35; }
+
+/* Sözlük sayfa üstü */
+/* ---- Mobil alt navigasyon (YALNIZCA mobilde) ---- */
+.bottomnav {
+  position: fixed; left: 0; right: 0; bottom: 0; z-index: 95;
+  display: none; grid-template-columns: repeat(4, minmax(0, 1fr));
+  background: var(--surface-glass);
+  -webkit-backdrop-filter: blur(16px); backdrop-filter: blur(16px);
+  border-top: 1px solid var(--border);
+  padding: 7px 10px calc(7px + env(safe-area-inset-bottom));
+}
+@media (max-width: 767px) {
+  .bottomnav:not(.hidden) { display: grid; }
+}
+.bottomnav button {
+  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px;
+  min-height: 50px; padding: 6px 2px;
+  border-radius: 13px;
+  font-size: .64rem; font-weight: 700; color: var(--text-3);
+  transition: color .2s, background .2s, transform .12s;
+}
+.bottomnav button:active { transform: scale(.9); }
+.bottomnav button.on { color: var(--accent); background: var(--accent-soft); }
+.bottomnav button .bn-ico { display: inline-flex; }
+
+/* Alt bar için içerik boşluğu (mobilde) */
+@media (max-width: 767px) {
+  .app { padding-bottom: calc(96px + env(safe-area-inset-bottom)); }
+}
+
+/* "Keşfet" satırı: mobilde gizli (nav bar görevi görür), masaüstünde görünür */
+.desktop-only { display: none; }
+@media (min-width: 768px) {
+  .desktop-only.sec-head { display: block; }
+  .desktop-only.menu-actions { display: grid; }
+}
+
+/* Klavye kısayolu ipucu — yalnızca fare/klavye olan cihazlarda */
+@media (hover: hover) and (pointer: fine) {
+  #kisayolHint { display: block !important; }
+}
+
+/* Streak noktaları */
+.streak-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--surface-3); }
+.streak-dot.on { background: var(--warning); }
+.streak-dot.today { background: var(--success); box-shadow: 0 0 5px rgba(45,212,139,.5); }
+
+/* ============================================================
+   İSTATİSTİK EKRANI — ferah, geniş görünüm
+   ============================================================ */
+#screenStats { gap: 18px; }
+#screenStats .stats-top { gap: 14px; }
+#screenStats .st-card { padding: 17px 16px; }
+#screenStats .heatmap { gap: 5px; }
+#screenStats .card.card-pad { padding: 20px; }
+#screenStats .card .cc-title { margin-bottom: 14px; }
+#screenStats .card .row { padding: 13px 15px; }
+#screenStats .card .row + .row { margin-top: 4px; }
+#screenStats .session-item + .session-item { margin-top: 6px; }
+#screenStats .empty { padding: 30px 14px; }
+

@@ -1,0 +1,228 @@
+/* ============================================================
+   VocaStride — Temel Stiller (base.css)
+   ============================================================ */
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { -webkit-text-size-adjust: 100%; text-size-adjust: 100%; background-color: var(--bg); }
+html, body { height: 100%; }
+
+/* Arka plan gradyanı: sabit katman olarak (background-attachment:fixed mobilde
+   bozulup kopyalanıyordu; bu yöntem her platformda tek parça çalışır) */
+body { position: relative; }
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  background: var(--bg-grad);
+  background-repeat: no-repeat;
+  background-size: cover;
+  pointer-events: none;
+}
+
+body {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  background: transparent;
+  color: var(--text-1);
+  line-height: 1.5;
+  min-height: 100dvh;
+  -webkit-tap-highlight-color: transparent;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+  transition: background-color .3s, color .3s;
+}
+button { font-family: inherit; color: inherit; background: none; border: none; cursor: pointer; }
+input, textarea, select { font-family: inherit; font-size: 1rem; color: var(--text-1); }
+ul, ol { list-style: none; }
+img, svg { display: block; }
+a { color: var(--accent); text-decoration: none; }
+:focus { outline: none; }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 6px; }
+
+::selection { background: var(--accent); color: #fff; }
+::-webkit-scrollbar { width: 8px; height: 8px; }
+::-webkit-scrollbar-thumb { background: var(--border-strong); border-radius: 8px; }
+::-webkit-scrollbar-track { background: transparent; }
+
+/* Uygulama sütunu */
+.app {
+  width: 100%;
+  max-width: 480px;
+  margin: 0 auto;
+  padding: calc(14px + env(safe-area-inset-top)) 16px calc(28px + env(safe-area-inset-bottom));
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+@media (min-width: 768px) {
+  .app { max-width: 520px; padding-top: 34px; }
+}
+
+/* Ekran katmanları */
+.screen { display: none; flex-direction: column; gap: 14px; animation: screenIn .38s var(--ease-out) both; }
+.screen.active { display: flex; }
+@keyframes screenIn { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: none; } }
+
+/* Kartlar */
+.card {
+  background: var(--surface-1);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-l);
+  box-shadow: var(--shadow-1);
+}
+.card-pad { padding: 18px; }
+@media (min-width: 768px) { .card-pad { padding: 22px; } }
+
+/* Başlık çubuğu */
+.topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  min-height: 52px;
+}
+.topbar .title { font-size: 1.05rem; font-weight: 800; letter-spacing: -.02em; display: flex; align-items: center; gap: 8px; }
+.topbar .title .ico { color: var(--accent); display: inline-flex; }
+.icobtn {
+  width: 42px; height: 42px;
+  display: inline-flex; align-items: center; justify-content: center;
+  border-radius: 13px;
+  background: var(--surface-1);
+  border: 1px solid var(--border);
+  color: var(--text-2);
+  transition: color var(--dur), border-color var(--dur), transform .12s;
+}
+.icobtn:hover { color: var(--text-1); border-color: var(--border-strong); }
+.icobtn:active { transform: scale(.93); }
+.icobtn.on { color: var(--accent); border-color: var(--accent); background: var(--accent-soft); }
+
+/* Butonlar */
+.btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: 9px;
+  min-height: 48px; padding: 0 20px;
+  border-radius: 14px;
+  font-weight: 700; font-size: .95rem;
+  background: var(--surface-2); color: var(--text-1);
+  border: 1px solid var(--border);
+  transition: transform .12s, border-color var(--dur), background var(--dur), box-shadow var(--dur);
+  user-select: none;
+}
+.btn:hover { border-color: var(--border-strong); }
+.btn:active { transform: scale(.97); }
+.btn-primary {
+  background: var(--accent-grad); color: #fff; border: none;
+  box-shadow: 0 10px 24px -10px var(--accent);
+}
+.btn-primary:hover { filter: brightness(1.06); }
+.btn-ghost { background: transparent; border-color: transparent; color: var(--text-2); }
+.btn-danger { background: rgba(255, 100, 121, .12); color: var(--danger); border-color: rgba(255,100,121,.3); }
+.btn-success { background: rgba(45, 212, 139, .12); color: var(--success); border-color: rgba(45,212,139,.3); }
+.btn-sm { min-height: 40px; padding: 0 14px; font-size: .84rem; border-radius: 11px; }
+.btn-block { width: 100%; }
+.btn:disabled { opacity: .5; pointer-events: none; }
+
+/* Bölüm başlıkları */
+.sec-head { margin: 8px 2px 2px; }
+.sec-title {
+  font-size: .74rem; font-weight: 800; letter-spacing: .12em; text-transform: uppercase;
+  color: var(--text-3);
+  display: flex; align-items: center; gap: 8px;
+}
+.sec-title::after { content: ""; flex: 1; height: 1px; background: var(--border); min-width: 8px; }
+/* ============================================================
+   TAŞMA ÖNLEME — açıklama/alt metinler asla taşmaz, alt satıra sarılır
+   ============================================================ */
+/* Flex içindeki daralabilir metin öğeleri */
+.mode-tile .m-body, .duetile .d-body, .install-banner .ib-txt,
+.stat-card > div, .session-head .sh-left, .menu-actions .action-btn {
+  min-width: 0;
+}
+/* PWA kurulum afişi: dar ekranda içeriği alt satıra sar (taşma yok) */
+.install-banner { flex-wrap: wrap; }
+.install-banner .ib-txt { flex: 1 1 180px; }
+
+/* Liste satırları */
+.row {
+  display: flex; align-items: center; gap: 12px;
+  width: 100%; text-align: left;
+  padding: 12px 14px;
+  border-radius: 14px;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  transition: border-color var(--dur), transform .12s, background var(--dur);
+}
+.row:hover { border-color: var(--border-strong); }
+.row:active { transform: scale(.98); }
+.row .row-main { flex: 1; min-width: 0; }
+.row .row-title { font-weight: 700; font-size: .95rem; }
+.row .row-desc { font-size: .78rem; color: var(--text-2); margin-top: 1px; }
+
+/* Çipler / rozetler */
+.chip {
+  display: inline-flex; align-items: center; gap: 5px;
+  font-size: .72rem; font-weight: 700;
+  padding: 4px 10px; border-radius: 999px;
+  background: var(--surface-3); color: var(--text-2);
+  border: 1px solid var(--border);
+}
+.chip.accent { color: var(--accent); background: var(--accent-soft); border-color: transparent; }
+.chip.success { color: var(--success); background: rgba(45,212,139,.1); border-color: transparent; }
+.chip.warning { color: var(--warning); background: rgba(255,180,84,.1); border-color: transparent; }
+.chip.danger { color: var(--danger); background: rgba(255,100,121,.1); border-color: transparent; }
+
+/* İlerleme çubukları */
+.bar { height: 8px; background: var(--surface-3); border-radius: 999px; overflow: hidden; }
+.bar > span { display: block; height: 100%; border-radius: 999px; background: var(--accent-grad); transition: width .5s var(--ease-out); }
+.bar.thin { height: 5px; }
+
+/* Girişler */
+.field {
+  width: 100%; min-height: 46px;
+  background: var(--surface-2); color: var(--text-1);
+  border: 1px solid var(--border); border-radius: 12px;
+  padding: 10px 14px; font-size: .95rem;
+  transition: border-color var(--dur), box-shadow var(--dur);
+}
+.field:focus { border-color: var(--accent); box-shadow: 0 0 0 3px var(--ring); outline: none; }
+
+/* Geçiş anahtarı */
+.switch { position: relative; width: 44px; height: 26px; flex-shrink: 0; cursor: pointer; }
+.switch input { position: absolute; opacity: 0; inset: 0; margin: 0; }
+.switch .track {
+  position: absolute; inset: 0; border-radius: 999px;
+  background: var(--surface-3); border: 1px solid var(--border-strong);
+  transition: background var(--dur), border-color var(--dur);
+}
+.switch .track::after {
+  content: ""; position: absolute; top: 2px; left: 3px; width: 18px; height: 18px;
+  border-radius: 50%; background: #fff; box-shadow: 0 1px 3px rgba(0,0,0,.35);
+  transition: transform .22s var(--ease-spring);
+}
+.switch input:checked + .track { background: var(--accent-grad); border-color: transparent; }
+.switch input:checked + .track::after { transform: translateX(17px); }
+
+/* Toast */
+#toastWrap {
+  position: fixed; left: 50%; bottom: calc(24px + env(safe-area-inset-bottom));
+  transform: translateX(-50%);
+  width: min(92vw, 420px);
+  display: flex; flex-direction: column; gap: 8px; z-index: 300;
+  pointer-events: none;
+}
+.toast {
+  display: flex; align-items: center; gap: 10px;
+  background: var(--surface-2); color: var(--text-1);
+  border: 1px solid var(--border-strong);
+  padding: 12px 14px; border-radius: 14px;
+  box-shadow: var(--shadow-2);
+  font-size: .86rem; font-weight: 600;
+  animation: toastIn .34s var(--ease-spring);
+}
+.toast.out { animation: toastOut .3s ease forwards; }
+.toast .t-ico { color: var(--accent); display: inline-flex; flex-shrink: 0; }
+.toast.err .t-ico { color: var(--danger); }
+.toast.ok .t-ico { color: var(--success); }
+@keyframes toastIn { from { opacity: 0; transform: translateY(16px) scale(.96); } to { opacity: 1; transform: none; } }
+@keyframes toastOut { to { opacity: 0; transform: translateY(10px) scale(.97); } }
+
+/* Erişilebilirlik yardımcıları */
