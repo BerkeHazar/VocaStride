@@ -772,53 +772,44 @@ a { color: var(--accent); text-decoration: none; }
   background: rgba(45,212,139,.18);
   border-color: var(--success);
   color: var(--success);
-  animation: optCorrect .5s var(--ease-spring);
+  animation: optGlow .55s var(--ease-out);
   box-shadow: 0 0 0 2px rgba(45,212,139,.28), 0 0 30px rgba(45,212,139,.4);
+  transition: background .3s, border-color .3s;
 }
 .opt-btn.correct .key { background: var(--success); color: #fff; box-shadow: 0 0 12px rgba(45,212,139,.6); }
 .opt-btn.wrong {
   background: rgba(255,100,121,.16);
   border-color: var(--danger);
   color: var(--danger);
-  animation: optWrong .45s ease;
+  animation: optGlow .55s var(--ease-out);
   box-shadow: 0 0 0 2px rgba(255,100,121,.22), 0 0 26px rgba(255,100,121,.32);
+  transition: background .3s, border-color .3s;
 }
 .opt-btn.wrong .key { background: var(--danger); color: #fff; box-shadow: 0 0 12px rgba(255,100,121,.55); }
 .opt-btn:disabled { opacity: .75; }
-/* Güçlü pop: belirgin büyüme + sönüm */
-@keyframes optCorrect {
+/* Yumuşak parlama: minimal büyüme + sönüm — titreme yok */
+@keyframes optGlow {
   0% { transform: scale(1); }
-  30% { transform: scale(1.07); }
-  55% { transform: scale(.97); }
-  75% { transform: scale(1.03); }
+  40% { transform: scale(1.035); }
   100% { transform: scale(1); }
 }
-/* Yanlış: sarsılma */
-@keyframes optWrong {
-  0%,100% { transform: translateX(0); }
-  15%,45%,75% { transform: translateX(-8px); }
-  30%,60%,90% { transform: translateX(8px); }
+
+
+/* Cevap anı tepkisi — tüm soru alanı (yumuşak, titreme yok) */
+.q-correct { animation: rootGlow .5s var(--ease-out); }
+.q-wrong { animation: rootGlow .5s var(--ease-out); }
+@keyframes rootGlow {
+  0% { transform: scale(1); }
+  45% { transform: scale(1.012); }
+  100% { transform: scale(1); }
 }
 
+/* Soru geçiş fade'i — cevap tepkisinden SONRA tanımlı (çakışmada kazanır) */
 /* Soru geçiş fade'i (next() ile modeRoot'a eklenir) */
 .q-swap { animation: qSwap .38s var(--ease-out) both; }
 @keyframes qSwap {
   from { opacity: 0; transform: translateY(10px) scale(.985); }
   to { opacity: 1; transform: none; }
-}
-
-/* Cevap anı tepkisi — tüm soru alanı */
-.q-correct { animation: rootCorrect .5s var(--ease-spring); }
-.q-wrong { animation: rootWrong .45s ease; }
-@keyframes rootCorrect {
-  0% { transform: scale(1); }
-  40% { transform: scale(1.018); }
-  100% { transform: scale(1); }
-}
-@keyframes rootWrong {
-  0%,100% { transform: translateX(0); }
-  20%,60% { transform: translateX(-6px); }
-  40%,80% { transform: translateX(6px); }
 }
 .opt-btn .opt-text { flex: 1; min-width: 0; }
 
@@ -2350,14 +2341,14 @@ VS.ui = (function () {
 /* ===== wordinfo.js ===== */
 /* ============================================================
    VocaStride — Kelime Bilgisi (wordinfo.js)
-   Ses/TTS YOK. Kelimenin üzerine 5 saniye hover edilince:
+   Ses/TTS YOK. Kelimenin üzerine 2 saniye hover edilince:
    İngilizce anlamı + IPA okunuşu (örn. ˈjɪn ən ˈjæŋ) gösterir.
    Kaynak: api.dictionaryapi.dev (yalnızca METİN — ses alınmaz).
    Sonuçlar localStorage'da önbelleklenir (tekrar istek yok).
    ============================================================ */
 window.VS = window.VS || {};
 VS.wordinfo = (function () {
-  const HOLD_MS = 5000; // 5 saniye hover
+  const HOLD_MS = 2000; // 2 saniye hover
   let cache = VS.storage.get('wordInfoCache', {});
   let timers = new Map();   // element -> timeout
   let tipEl = null;         // aktif tooltip
@@ -2805,8 +2796,8 @@ VS.settings = (function () {
         '<label class="switch"><input type="checkbox" data-bool="sound" ' + (st.sound !== false ? 'checked' : '') + '><span class="track"></span></label></div>' +
         '<div class="set-row"><div><div class="set-lbl">Titreşim</div><div class="set-desc">Mobil cihazlarda dokunsal geri bildirim</div></div>' +
         '<label class="switch"><input type="checkbox" data-bool="haptics" ' + (st.haptics !== false ? 'checked' : '') + '><span class="track"></span></label></div>' +
-        '<div class="set-row"><div><div class="set-lbl">Kelime bilgisi</div><div class="set-desc">Kelime üzerinde 5 sn bekleyince anlam + okunuş</div></div>' +
-        '<span class="chip accent" title="Kelime üzerinde 5 sn bekleyince anlam + okunuş görünür">' + VS.icons.svg('eye', 15) + '</span></div>' +
+        '<div class="set-row"><div><div class="set-lbl">Kelime bilgisi</div><div class="set-desc">Kelime üzerinde 2 sn bekleyince anlam + okunuş</div></div>' +
+        '<span class="chip accent" title="Kelime üzerinde 2 sn bekleyince anlam + okunuş görünür">' + VS.icons.svg('eye', 15) + '</span></div>' +
       '</div>' +
 
       '<div class="card card-pad"><div class="sec-title">' + VS.icons.svg('book-open', 12) + ' Kelime Listesi</div>' +
@@ -2961,7 +2952,8 @@ VS.session = (function () {
     if (S.pos >= S.queue.length) { finish(); return; }
     // Soru geçişinde yumuşak fade (içerik değişince animasyon yeniden tetiklensin)
     const root = VS.ui.$('modeRoot');
-    root.classList.remove('q-swap');
+    // Cevap tepki sınıflarını da temizle — yoksa q-swap animasyonuyla çakışır
+    root.classList.remove('q-swap', 'q-correct', 'q-wrong');
     void root.offsetWidth; // reflow → animasyonu sıfırdan oynat
     root.classList.add('q-swap');
     renderHeader();
@@ -2971,7 +2963,7 @@ VS.session = (function () {
   // Oturumun ilk sorusu da fade ile gelsin (start → ilk render)
   function swapIn() {
     const root = VS.ui.$('modeRoot');
-    root.classList.remove('q-swap');
+    root.classList.remove('q-swap', 'q-correct', 'q-wrong');
     void root.offsetWidth;
     root.classList.add('q-swap');
   }
