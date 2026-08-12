@@ -383,7 +383,7 @@ a { color: var(--accent); text-decoration: none; }
    TAŞMA ÖNLEME — açıklama/alt metinler asla taşmaz, alt satıra sarılır
    ============================================================ */
 /* Flex içindeki daralabilir metin öğeleri */
-.mode-tile .m-body, .duetile .d-body, .install-banner .ib-txt,
+.duetile .d-body, .install-banner .ib-txt,
 .stat-card > div, .session-head .sh-left, .menu-actions .action-btn {
   min-width: 0;
 }
@@ -580,30 +580,31 @@ a { color: var(--accent); text-decoration: none; }
 .xp-lvl { display: inline-flex; align-items: center; gap: 7px; font-weight: 800; font-size: .88rem; color: var(--accent); }
 .xp-nums { font-size: .74rem; color: var(--text-2); font-weight: 700; font-variant-numeric: tabular-nums; }
 
-/* ---- Mod kutucukları ---- */
-.mode-tile {
-  display: flex; align-items: center; gap: 14px;
-  width: 100%; text-align: left;
+/* ---- Mod kartları (2'li grid — liste hissi yok) ---- */
+.mode-grid {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 12px;
+}
+.mode-card {
+  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 12px;
   background: var(--surface-1); border: 1px solid var(--border);
-  border-radius: var(--radius-l); padding: 15px 16px;
+  border-radius: var(--radius-l); padding: 26px 12px;
   box-shadow: var(--shadow-1);
   transition: transform .16s var(--ease-spring), border-color var(--dur), box-shadow var(--dur);
   position: relative; overflow: hidden;
   animation: tileIn .5s var(--ease-out) both;
 }
-.mode-tile:nth-of-type(1) { animation-delay: .03s; }
-.mode-tile:nth-of-type(2) { animation-delay: .08s; }
-.mode-tile:nth-of-type(3) { animation-delay: .13s; }
-.mode-tile:nth-of-type(4) { animation-delay: .18s; }
+.mode-card:nth-of-type(1) { animation-delay: .03s; }
+.mode-card:nth-of-type(2) { animation-delay: .08s; }
+.mode-card:nth-of-type(3) { animation-delay: .13s; }
 @keyframes tileIn { from { opacity: 0; transform: translateY(12px) scale(.97); } to { opacity: 1; transform: none; } }
 
-.mode-tile::before {
+.mode-card::before {
   content: ""; position: absolute; inset: 0;
   background: linear-gradient(120deg, var(--accent-soft), transparent 45%);
   opacity: 0; transition: opacity var(--dur);
 }
 /* Parıltı geçişi (shine) */
-.mode-tile::after {
+.mode-card::after {
   content: ""; position: absolute; inset: 0;
   background: linear-gradient(115deg, transparent 32%, rgba(255,255,255,.09) 50%, transparent 68%);
   transform: translateX(-130%);
@@ -611,26 +612,21 @@ a { color: var(--accent); text-decoration: none; }
   pointer-events: none;
 }
 @media (hover: hover) {
-  .mode-tile:hover { border-color: var(--border-strong); box-shadow: var(--shadow-2); transform: translateY(-2px); }
-  .mode-tile:hover::before { opacity: 1; }
-  .mode-tile:hover::after { transform: translateX(130%); }
+  .mode-card:hover { border-color: var(--border-strong); box-shadow: var(--shadow-2); transform: translateY(-3px); }
+  .mode-card:hover::before { opacity: 1; }
+  .mode-card:hover::after { transform: translateX(130%); }
 }
-.mode-tile:active { transform: scale(.975); }
-.mode-tile .m-ico {
-  width: 46px; height: 46px; border-radius: 15px; flex-shrink: 0;
+.mode-card:active { transform: scale(.97); }
+.mode-card .mc-ico {
+  width: 54px; height: 54px; border-radius: 18px; flex-shrink: 0;
   display: flex; align-items: center; justify-content: center;
   background: var(--accent-soft); color: var(--accent);
-  position: relative;
   transition: transform .28s var(--ease-spring);
 }
-@media (hover: hover) { .mode-tile:hover .m-ico { transform: scale(1.1) rotate(-5deg); } }
-.mode-tile .m-ico.alt2 { background: rgba(45,212,139,.12); color: var(--success); }
-.mode-tile .m-ico.alt3 { background: rgba(255,180,84,.12); color: var(--warning); }
-.mode-tile .m-ico.alt4 { background: rgba(92,200,255,.12); color: var(--info); }
-.mode-tile .m-body { flex: 1; min-width: 0; position: relative; }
-.mode-tile .m-title { font-weight: 800; font-size: .98rem; letter-spacing: -.01em; }
-.mode-tile .mode-tile .mode-tile .m-chev { color: var(--text-3); flex-shrink: 0; position: relative; transition: transform .25s var(--ease-spring); }
-@media (hover: hover) { .mode-tile:hover .m-chev { transform: translateX(3px); color: var(--accent); } }
+@media (hover: hover) { .mode-card:hover .mc-ico { transform: scale(1.1) rotate(-5deg); } }
+.mode-card .mc-ico.alt2 { background: rgba(45,212,139,.12); color: var(--success); }
+.mode-card .mc-ico.alt3 { background: rgba(255,180,84,.12); color: var(--warning); }
+.mode-card .mc-name { font-weight: 800; font-size: .92rem; letter-spacing: -.01em; text-align: center; line-height: 1.3; }
 
 /* ---- Ana menü alt aksiyonları (4 eşit parça) ---- */
 .menu-actions { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px; }
@@ -890,17 +886,6 @@ a { color: var(--accent); text-decoration: none; }
 }
 .match-status.show { display: block; animation: screenIn .4s var(--ease-out); }
 
-/* Öğrenme modu */
-.learn-card {
-  background: var(--surface-1); border: 1px solid var(--border); border-radius: var(--radius-l);
-  padding: 24px 20px; text-align: center; box-shadow: var(--shadow-1);
-}
-.learn-word { font-size: 1.9rem; font-weight: 800; letter-spacing: -.02em; overflow-wrap: anywhere; display: inline-flex; align-items: center; gap: 10px; }
-.learn-meaning { margin-top: 12px; font-size: 1.15rem; font-weight: 700; color: var(--text-1); }
-.learn-syn { margin-top: 6px; font-size: .92rem; color: var(--success); font-weight: 600; }
-.learn-nav { display: grid; grid-template-columns: 1fr 1.6fr 1fr; gap: 8px; }
-.learn-count { text-align: center; font-size: .78rem; color: var(--text-3); font-weight: 700; margin-top: 10px; }
-
 /* ---- Özet ---- */
 .summary-score { text-align: center; padding: 8px 0 2px; }
 .sum-score-big { font-size: 3.4rem; font-weight: 800; letter-spacing: -.04em; line-height: 1; animation: popScore .6s var(--ease-spring); }
@@ -1067,6 +1052,8 @@ a { color: var(--accent); text-decoration: none; }
   font-size: .95rem; margin-bottom: 3px; letter-spacing: .02em;
 }
 .word-tip .wt-def { color: var(--text-2); font-size: .76rem; }
+.word-tip .wt-ex { display: block; color: var(--text-2); font-size: .72rem; margin-top: 6px; font-style: italic; line-height: 1.5; }
+.word-tip .wt-note { display: block; color: var(--warning); font-size: .72rem; margin-top: 6px; line-height: 1.45; border-top: 1px dashed var(--border); padding-top: 6px; }
 
 /* Offline banner */
 .offline-note {
@@ -1081,6 +1068,60 @@ a { color: var(--accent); text-decoration: none; }
   text-align: center; color: var(--text-3); font-size: .84rem;
   padding: 26px 14px; font-weight: 600;
 }
+
+/* ---- Özet başarı ekranı (10) ---- */
+.sum-tag {
+  display: inline-block; margin-top: 10px; padding: 8px 16px;
+  border-radius: 999px; font-weight: 900; font-size: .95rem; letter-spacing: .01em;
+}
+.sum-tag.tag-perfect { background: linear-gradient(135deg, rgba(255,180,84,.25), rgba(255,100,121,.2)); color: var(--warning); border: 1px solid rgba(255,180,84,.4); }
+.sum-tag.tag-great { background: rgba(45,212,139,.15); color: var(--success); border: 1px solid rgba(45,212,139,.35); }
+.sum-tag.tag-good { background: var(--accent-soft); color: var(--accent-2); border: 1px solid var(--accent); }
+.sum-tag.tag-keep { background: rgba(255,100,121,.12); color: var(--danger); border: 1px solid rgba(255,100,121,.3); }
+.sum-tag.tag-record { background: linear-gradient(135deg, var(--accent-2), var(--accent)); color: #fff; border: none; box-shadow: 0 6px 20px -6px var(--accent); animation: recordPop .6s var(--ease-spring); }
+@keyframes recordPop { 0% { transform: scale(.6) rotate(-4deg); } 60% { transform: scale(1.12) rotate(2deg); } 100% { transform: scale(1) rotate(0); } }
+.sum-best { margin-top: 8px; font-size: .74rem; color: var(--text-3); font-weight: 700; }
+
+/* ---- Günlük meydan okuma (14) ---- */
+.challenge-tile {
+  display: flex; align-items: center; gap: 14px;
+  width: 100%; text-align: left;
+  background: linear-gradient(135deg, rgba(255,180,84,.14), rgba(255,100,121,.08)), var(--surface-1);
+  border: 1px solid rgba(255,180,84,.3); border-radius: var(--radius-l);
+  padding: 15px 16px; box-shadow: var(--shadow-1);
+  transition: transform .14s, border-color var(--dur);
+}
+.challenge-tile:hover { border-color: rgba(255,180,84,.55); transform: translateY(-2px); }
+.challenge-tile:active { transform: scale(.98); }
+.challenge-tile .c-ico {
+  width: 46px; height: 46px; border-radius: 15px; flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center;
+  background: rgba(255,180,84,.16); color: var(--warning);
+  animation: cShake 2.4s ease-in-out infinite;
+}
+@keyframes cShake { 0%,88%,100% { transform: rotate(0); } 90%,94%,98% { transform: rotate(-8deg); } 92%,96% { transform: rotate(8deg); } }
+.challenge-tile .c-body { flex: 1; min-width: 0; }
+.challenge-tile .c-title { font-weight: 800; font-size: .92rem; color: var(--warning); }
+.challenge-tile .c-desc { font-size: .76rem; color: var(--text-2); margin-top: 2px; line-height: 1.4; }
+.challenge-tile.done { border-color: var(--success); background: linear-gradient(135deg, rgba(45,212,139,.12), rgba(45,212,139,.04)), var(--surface-1); }
+.challenge-tile.done .c-title { color: var(--success); }
+.challenge-tile.done .c-ico { background: rgba(45,212,139,.16); color: var(--success); animation: none; }
+
+/* ---- Takvim + haftalık özet (stats) ---- */
+.cal-wrap { margin-top: 4px; }
+.cal-legend { display: flex; align-items: center; gap: 4px; margin-top: 8px; font-size: .62rem; color: var(--text-3); font-weight: 700; justify-content: flex-end; }
+.cal-legend i { width: 10px; height: 10px; border-radius: 2px; display: inline-block; }
+.cal-mini { text-align: center; background: var(--surface-2); border: 1px solid var(--border); border-radius: 12px; padding: 10px 4px; }
+.cal-mini .cm-num { font-size: 1.15rem; font-weight: 800; }
+.cal-mini .cm-lbl { font-size: .62rem; color: var(--text-3); font-weight: 700; margin-top: 2px; text-transform: uppercase; letter-spacing: .03em; }
+
+/* ---- IPA Rehberi + kelime notu ---- */
+.ipa-table { display: flex; flex-direction: column; gap: 4px; }
+.ipa-row { display: flex; align-items: center; gap: 12px; padding: 8px 10px; border-radius: 10px; background: var(--surface-2); border: 1px solid var(--border); }
+.ipa-row > span:first-child { font-weight: 800; font-size: .95rem; color: var(--accent-2); min-width: 34px; text-align: center; font-family: ui-monospace, monospace; }
+.ipa-row > span:last-child { font-size: .76rem; color: var(--text-2); line-height: 1.4; }
+.w-note { font-size: .7rem; color: var(--warning); margin-top: 2px; }
+
 
 /* ===== screens.css ===== */
 /* ============================================================
@@ -1228,6 +1269,15 @@ a { color: var(--accent); text-decoration: none; }
       </div>
     </div>
 
+    <div class="challenge-tile" id="challengeTile" style="display:none;">
+      <span class="c-ico"><span data-icon="flame" data-size="22"></span></span>
+      <div class="c-body">
+        <div class="c-title">Bugünün Meydan Okuması</div>
+        <div class="c-desc" id="challengeDesc">…</div>
+      </div>
+      <span style="color:var(--warning);"><span data-icon="chevron-right" data-size="18"></span></span>
+    </div>
+
     <div class="duetile" id="dueTile" style="display:none;">
       <span class="d-ring" id="dueRing"></span>
       <div class="d-body">
@@ -1262,33 +1312,25 @@ a { color: var(--accent); text-decoration: none; }
       <div class="sec-title">Çalışma Modları</div>
     </div>
 
-    <button class="mode-tile" id="tQuiz">
-      <span class="m-ico"><span data-icon="target" data-size="21"></span></span>
-      <span class="m-body"><span class="m-title">Çoktan Seçmeli</span>
-      </span>
-      <span class="m-chev"><span data-icon="chevron-right" data-size="18"></span></span>
-    </button>
+    <div class="mode-grid">
+      <button class="mode-card" id="tQuiz">
+        <span class="mc-ico"><span data-icon="target" data-size="24"></span></span>
+        <span class="mc-name">Çoktan Seçmeli</span>
+      </button>
+      <button class="mode-card" id="tCard">
+        <span class="mc-ico alt3"><span data-icon="layers" data-size="24"></span></span>
+        <span class="mc-name">Hafıza Kartları</span>
+      </button>
+      <button class="mode-card" id="tMatch">
+        <span class="mc-ico alt2"><span data-icon="puzzle" data-size="24"></span></span>
+        <span class="mc-name">Kelime Eşleştirme</span>
+      </button>
+      <button class="mode-card" id="tMarathon">
+        <span class="mc-ico alt4"><span data-icon="bolt" data-size="24"></span></span>
+        <span class="mc-name">Maraton</span>
+      </button>
+    </div>
 
-    <button class="mode-tile" id="tCard">
-      <span class="m-ico alt3"><span data-icon="layers" data-size="21"></span></span>
-      <span class="m-body"><span class="m-title">Hafıza Kartları</span>
-      </span>
-      <span class="m-chev"><span data-icon="chevron-right" data-size="18"></span></span>
-    </button>
-
-    <button class="mode-tile" id="tMatch">
-      <span class="m-ico alt2"><span data-icon="puzzle" data-size="21"></span></span>
-      <span class="m-body"><span class="m-title">Kelime Eşleştirme</span>
-      </span>
-      <span class="m-chev"><span data-icon="chevron-right" data-size="18"></span></span>
-    </button>
-
-    <button class="mode-tile" id="tLearn">
-      <span class="m-ico alt4"><span data-icon="book-open" data-size="21"></span></span>
-      <span class="m-body"><span class="m-title">Öğrenme / Göz At</span>
-      </span>
-      <span class="m-chev"><span data-icon="chevron-right" data-size="18"></span></span>
-    </button>
 
     <div class="sec-head desktop-only">
       <div class="sec-title">Keşfet</div>
@@ -1340,6 +1382,8 @@ a { color: var(--accent); text-decoration: none; }
       <div style="font-size:.8rem;font-weight:800;color:var(--text-2);letter-spacing:.06em;text-transform:uppercase;">Oturum Özeti · <span id="sumModeName">Test</span></div>
       <div class="sum-score-big" id="sumAcc" style="margin:14px 0 2px;">0%</div>
       <div class="sum-score-lbl">Doğruluk Oranı</div>
+      <div class="sum-tag" id="sumTag" style="display:none;"></div>
+      <div class="sum-best" id="sumBest" style="display:none;"></div>
     </div>
     <div class="summary-grid">
       <div class="sum-item"><div class="si-num" style="color:var(--success)" id="sumOk">0</div><div class="si-lbl">Doğru</div></div>
@@ -1351,6 +1395,7 @@ a { color: var(--accent); text-decoration: none; }
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
       <button class="btn btn-success" id="sumAgain"><span data-icon="refresh" data-size="17"></span> Tekrar</button>
       <button class="btn btn-primary" id="sumHome"><span data-icon="check" data-size="17"></span> Ana Menü</button>
+      <button class="btn btn-block" id="sumShare" style="margin-top:4px;"><span data-icon="upload" data-size="16"></span> Skor Kartını Paylaş</button>
     </div>
   </section>
 
@@ -1379,7 +1424,6 @@ VS.icons = (function () {
     check: '<path d="M20 6 9 17l-5-5"/>',
     x: '<path d="M18 6 6 18M6 6l12 12"/>',
     'chevron-right': '<path d="m9 18 6-6-6-6"/>',
-    'chevron-left': '<path d="m15 18-6-6 6-6"/>',
     'arrow-left': '<path d="M19 12H5m7 7-7-7 7-7"/>',
     'arrow-right': '<path d="M5 12h14m-7-7 7 7-7 7"/>',
     refresh: '<path d="M21 12a9 9 0 1 1-2.64-6.36L21 8"/><path d="M21 3v5h-5"/>',
@@ -1399,6 +1443,7 @@ VS.icons = (function () {
     calendar: '<rect x="3" y="4" width="18" height="18" rx="2"/><path d="M8 2v4M16 2v4M3 10h18"/>',
     shield: '<path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"/>',
     info: '<circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/>',
+    pencil: '<path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/><path d="m15 5 4 4"/>',
     eye: '<path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/>',
     trash: '<path d="M3 6h18"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><path d="M10 11v6M14 11v6"/>',
     download: '<path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="m7 10 5 5 5-5"/><path d="M12 15V3"/>',
@@ -1427,7 +1472,7 @@ VS.icons = (function () {
       .replace('<svg viewBox="0 0 100 100"', '<svg viewBox="0 0 100 100" width="' + s + '" height="' + s + '"')
       .replace(/GID/g, gid);
   }
-  return { svg, mark, has: n => !!P[n] };
+  return { svg, mark };
 })();
 
 /* ===== storage.js ===== */
@@ -1503,7 +1548,7 @@ VS.storage = (function () {
     };
   }
 
-  return { get, set, del, has, migrate, backupPayload, SCHEMA, P };
+  return { get, set, migrate, backupPayload };
 })();
 
 /* ===== words.js ===== */
@@ -2026,7 +2071,7 @@ VS.srs = (function () {
     return { box: boxOf(rec), due: rec ? rec.due : null, seen: rec ? rec.seen : 0 };
   }
 
-  return { dueAt, isDue, boxOf, review, learned, dueList, newList, mastered, progressFor, INTERVALS };
+  return { dueList, newList, mastered, progressFor, review, boxOf };
 })();
 
 /* ===== gamification.js ===== */
@@ -2154,7 +2199,7 @@ VS.game = (function () {
     return { level: state.level, xp: state.xp, need: g, pct: Math.min(state.xp / g * 100, 100) };
   }
 
-  return { todayStr, dayDiff, needFor, addXp, dailyTick, dailyAdd, streakTouch, BADGES, checkBadges, buildStats, progress };
+  return { todayStr, addXp, dailyTick, dailyAdd, streakTouch, BADGES, checkBadges, buildStats, progress };
 })();
 
 /* ===== sounds.js ===== */
@@ -2187,7 +2232,6 @@ VS.sounds = (function () {
   const sfx = {
     correct() { tone([523.25, 659.25, 783.99], 0.42, 'sine', 0.08); },
     wrong() { tone([200, 150], 0.32, 'sawtooth', 0.05); },
-    combo() { tone([587.33, 783.99, 987.77, 1174.66], 0.5, 'sine', 0.08); },
     levelup() { tone([523.25, 659.25, 783.99, 1046.5], 0.72, 'sine', 0.09); },
     badge() { tone([659.25, 783.99, 987.77, 1174.66, 1318.51], 0.85, 'triangle', 0.08); },
     tap() { tone([880], 0.08, 'sine', 0.03); },
@@ -2335,7 +2379,7 @@ VS.ui = (function () {
     tick();
   }
 
-  return { $, $$, esc, fmtTime, show, updateNav, toast, haptic, openSheet, fxFloat, fxBadge, fxLevel, confetti };
+  return { $, $$, esc, fmtTime, show, toast, haptic, openSheet, fxFloat, fxBadge, fxLevel, confetti };
 })();
 
 /* ===== wordinfo.js ===== */
@@ -2369,15 +2413,18 @@ VS.wordinfo = (function () {
       if (!res.ok) return null;
       const data = await res.json();
       if (!Array.isArray(data) || !data.length) return null;
-      let ipa = '', definition = '';
+      let ipa = '', definition = '', example = '';
       const entry = data[0];
       if (entry.phonetic) ipa = entry.phonetic;
       if (Array.isArray(entry.phonetics)) {
         if (!ipa) { const p = entry.phonetics.find(x => x.text); if (p) ipa = p.text; }
       }
       const mean = entry.meanings && entry.meanings[0];
-      if (mean && mean.definitions && mean.definitions[0]) definition = mean.definitions[0].definition;
-      const out = { ipa, definition };
+      if (mean && mean.definitions && mean.definitions[0]) {
+        definition = mean.definitions[0].definition;
+        example = mean.definitions[0].example || '';
+      }
+      const out = { ipa, definition, example };
       if (ipa || definition) {
         try {
           cache[key] = out;
@@ -2414,6 +2461,11 @@ VS.wordinfo = (function () {
       const parts = [];
       if (info.ipa) parts.push('<span class="wt-ipa">/' + esc(info.ipa.replace(/^\/|\/$/g, '')) + '/</span>');
       if (info.definition) parts.push('<span class="wt-def">' + esc(info.definition) + '</span>');
+      if (info.example) parts.push('<span class="wt-ex">Örnek: "' + esc(info.example) + '"</span>');
+      // 12) Kişisel not (varsa)
+      const key = VS.words.clean(word).toLowerCase();
+      const note = VS.state.wordNotes && VS.state.wordNotes[key];
+      if (note) parts.push('<span class="wt-note">📝 ' + esc(note) + '</span>');
       tipEl.querySelector('.wt-body').innerHTML = parts.join('') || 'Bilgi bulunamadı';
     });
   }
@@ -2472,7 +2524,7 @@ VS.wordinfo = (function () {
    ============================================================ */
 window.VS = window.VS || {};
 VS.stats = (function () {
-  const MODE_NAMES = { quiz: 'Çoktan Seçmeli', card: 'Hafıza Kartları', match: 'Eşleştirme', learn: 'Öğrenme', review: 'Tekrar' };
+  const MODE_NAMES = { quiz: 'Çoktan Seçmeli', card: 'Hafıza Kartları', match: 'Eşleştirme', marathon: 'Maraton', review: 'Tekrar' };
 
   function chartSVG(days) {
     const st = VS.state;
@@ -2502,6 +2554,59 @@ VS.stats = (function () {
       if (label) bars += '<text x="' + (x + bw / 2) + '" y="' + (H - 2) + '" font-size="8.5" fill="var(--text-3)" text-anchor="middle" font-weight="700">' + label + '</text>';
     });
     return '<svg viewBox="0 0 ' + W + ' ' + H + '" width="100%" height="' + H + '" role="img" aria-label="Son ' + days + ' gün aktivitesi">' + bars + '</svg>';
+  }
+
+  // 15) Çalışma takvimi — GitHub tarzı son 13 hafta (91 gün)
+  function calendarSVG() {
+    const st = VS.state;
+    const act = st.activity || {};
+    const now = new Date();
+    const start = new Date(now); start.setDate(start.getDate() - 90);
+    // Pazartesi'den başlat (hafta hizası)
+    while (start.getDay() !== 1) start.setDate(start.getDate() - 1);
+    const days = [];
+    const d = new Date(start);
+    while (d <= now) {
+      days.push(new Date(d));
+      d.setDate(d.getDate() + 1);
+    }
+    const weeks = Math.ceil(days.length / 7);
+    const cell = 13, gap = 3;
+    const W = weeks * (cell + gap) + 12, H = 7 * (cell + gap) + 8;
+    let out = '';
+    const max = Math.max(1, ...Object.values(act));
+    days.forEach((dd, i) => {
+      const w = Math.floor(i / 7), r = i % 7;
+      const key = VS.game.todayStr(dd);
+      const v = act[key] || 0;
+      let fill = 'var(--surface-3)';
+      if (v > 0) {
+        const lvl = Math.min(4, Math.ceil((v / max) * 4));
+        const op = 0.3 + lvl * 0.17;
+        fill = 'rgba(99,102,241,' + op + ')';
+      }
+      const isToday = key === VS.game.todayStr(now);
+      out += '<rect x="' + (8 + w * (cell + gap)) + '" y="' + (6 + r * (cell + gap)) +
+        '" width="' + cell + '" height="' + cell + '" rx="3" fill="' + fill + '"' +
+        (isToday ? ' stroke="var(--accent-2)" stroke-width="1.5"' : '') + '>' +
+        '<title>' + VS.ui.esc(dd.toLocaleDateString('tr-TR')) + ': ' + v + ' cevap</title></rect>';
+    });
+    return '<div class="cal-wrap"><svg viewBox="0 0 ' + W + ' ' + H + '" width="100%" height="' + H + '" role="img" aria-label="Son 13 hafta çalışma takvimi">' + out + '</svg>' +
+      '<div class="cal-legend"><span>Az</span>' + [1,2,3,4].map(l => '<i style="background:rgba(99,102,241,' + (0.3+l*0.17) + ')"></i>').join('') + '<span>Çok</span></div></div>';
+  }
+
+  // 5) Haftalık özet
+  function weeklySummary() {
+    const st = VS.state;
+    const weekAgo = Date.now() - 7 * 864e5;
+    const sess = (st.sessions || []).filter(x => x.t >= weekAgo);
+    let ok = 0, no = 0, xp = 0, sec = 0;
+    sess.forEach(x => { ok += x.correct; no += x.wrong; xp += x.xp; sec += x.sec; });
+    const t = ok + no;
+    const acc = t > 0 ? Math.round((ok / t) * 100) : 0;
+    // bu hafta ustalaşanlar (son 7 gün içinde 5. kutuya ulaşan — basit: srs'de box 5)
+    const master = Object.keys(st.srs).filter(k => st.srs[k].box >= 5).length;
+    return { ok, no, acc, xp, sec, master, sessN: sess.length };
   }
 
   function heatmap() {
@@ -2563,6 +2668,24 @@ VS.stats = (function () {
         '<div class="st-card"><div class="st-num" style="color:var(--warning)">' + st.bestCombo + '</div><div class="st-lbl">En İyi Kombo</div><div class="st-sub">peş peşe doğru</div></div>' +
         '<div class="st-card"><div class="st-num">' + minutes + 'dk</div><div class="st-lbl">Toplam Süre</div><div class="st-sub">' + mastered + ' kelime usta</div></div>' +
       '</div>' +
+      '<div class="card card-pad"><div class="cc-title">' + VS.icons.svg('chart', 15) + ' BU HAFTA</div>' +
+        (function(){ const w = weeklySummary(); return '<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;">' +
+          '<div class="cal-mini"><div class="cm-num">' + (w.ok + w.no) + '</div><div class="cm-lbl">Cevap</div></div>' +
+          '<div class="cal-mini"><div class="cm-num" style="color:var(--success)">%' + w.acc + '</div><div class="cm-lbl">Doğruluk</div></div>' +
+          '<div class="cal-mini"><div class="cm-num" style="color:var(--warning)">' + w.xp + '</div><div class="cm-lbl">XP</div></div>' +
+          '<div class="cal-mini"><div class="cm-num">' + Math.floor(w.sec/60) + 'dk</div><div class="cm-lbl">Süre</div></div>' +
+          '<div class="cal-mini"><div class="cm-num" style="color:var(--accent)">' + w.master + '</div><div class="cm-lbl">Usta</div></div>' +
+          '<div class="cal-mini"><div class="cm-num">' + w.sessN + '</div><div class="cm-lbl">Oturum</div></div>' +
+        '</div>'; })() + '</div>' +
+      '<div class="card card-pad chart-card"><div class="cc-title">' + VS.icons.svg('calendar', 15) + ' ÇALIŞMA TAKVİMİ <span class="chip" style="margin-left:auto">son 13 hafta</span></div>' + calendarSVG() + '</div>' +
+      '<div class="card card-pad" style="background:linear-gradient(135deg,var(--accent-soft),transparent 60%),var(--surface-1);border-color:var(--accent);">' +
+        '<div class="cc-title">' + VS.icons.svg('trophy', 15) + ' EN İYİ OTURUMUN' + '</div>' +
+        (st.bestSession
+          ? '<div style="display:flex;align-items:center;gap:14px;"><div style="font-size:2.2rem;font-weight:900;color:var(--accent-2)">%' + st.bestSession.acc + '</div>' +
+            '<div style="flex:1;font-size:.8rem;color:var(--text-2);line-height:1.6;">' + st.bestSession.correct + ' doğru · +' + st.bestSession.xp + ' XP · ' +
+            (MODE_NAMES[st.bestSession.mode] || st.bestSession.mode) + '<br><span style="font-size:.68rem;color:var(--text-3)">' +
+            new Date(st.bestSession.date).toLocaleDateString('tr-TR') + '</span></div></div>'
+          : '<div class="empty">Henüz rekor yok — ilk oturumunla kırmaya başla!</div>') + '</div>' +
       '<div class="card card-pad chart-card"><div class="cc-title">' + VS.icons.svg('calendar', 15) + ' SON 7 GÜN</div>' + chartSVG(7) + '</div>' +
       '<div class="card card-pad chart-card"><div class="cc-title">' + VS.icons.svg('calendar', 15) + ' SON 30 GÜN</div>' + chartSVG(30) + '</div>' +
       '<div class="card card-pad"><div class="cc-title">' + VS.icons.svg('layers', 15) + ' KELİME USTALIK HARİTASI <span class="chip accent" style="margin-left:auto">' + mastered + ' / ' + VS.words.list.length + '</span></div>' +
@@ -2632,48 +2755,143 @@ VS.panels = (function () {
   }
 
   // ---- Sözlük ----
-  let dictQ = '', dictType = '';
+  let dictQ = '', dictType = '', dictDurum = '';
 
   function renderDict() {
     const root = VS.ui.$('screenDict');
     const types = VS.words.stats().types;
-    const idx = VS.words.search(dictQ, dictType || null);
     const st = VS.state;
+    let idx = VS.words.search(dictQ, dictType || null);
+
+    // 8) Durum filtresi: öğrenilen / öğrenilenler hariç / zayıf
+    if (dictDurum === 'mastered') {
+      idx = idx.filter(i => VS.srs.progressFor(st.srs, VS.words.list[i][0]).box >= 5);
+    } else if (dictDurum === 'unmastered') {
+      idx = idx.filter(i => VS.srs.progressFor(st.srs, VS.words.list[i][0]).box < 5);
+    } else if (dictDurum === 'weak') {
+      idx = idx.filter(i => {
+        const p = st.perf[VS.words.list[i][0]];
+        return p && (p.dogru + p.yanlis) >= 3 && (p.yanlis / (p.dogru + p.yanlis)) >= 0.4;
+      });
+    }
 
     const chips = '<button class="' + (dictType === '' ? 'sel' : '') + '" data-t="">Tümü</button>' +
       Object.keys(types).filter(t => t !== '').sort().map(t =>
         '<button class="' + (dictType === t ? 'sel' : '') + '" data-t="' + VS.ui.esc(t) + '">' + VS.ui.esc(t) + ' (' + types[t] + ')</button>'
       ).join('');
 
+    const durumChips =
+      '<button class="' + (dictDurum === '' ? 'sel' : '') + '" data-d="">Hepsi</button>' +
+      '<button class="' + (dictDurum === 'mastered' ? 'sel' : '') + '" data-d="mastered">Öğrenilen</button>' +
+      '<button class="' + (dictDurum === 'unmastered' ? 'sel' : '') + '" data-d="unmastered">Öğrenilenler hariç</button>' +
+      '<button class="' + (dictDurum === 'weak' ? 'sel' : '') + '" data-d="weak">Zayıf</button>';
+
     const items = idx.slice(0, 80).map(i => {
       const w = VS.words.list[i];
       const p = VS.srs.progressFor(st.srs, w[0]);
       const stars = [1, 2, 3, 4, 5].map(n => '<i class="' + (p.box >= n ? 'on' : '') + '"></i>').join('');
+      // 12) Kişisel not
+      const note = st.wordNotes[VS.words.clean(w[0]).toLowerCase()];
       return '<div class="word-item"><div class="w-main"><div class="w-word" data-wordinfo data-word="' + VS.ui.esc(w[0]) + '">' + VS.ui.esc(w[0]) +
           ' <span class="chip" style="margin-left:4px;">' + VS.ui.esc(VS.words.typeOf(w[0])) + '</span></div>' +
-          '<div class="w-tr">' + VS.ui.esc(w[2]) + ' · ' + VS.ui.esc(w[1]) + '</div></div>' +
-          '<div class="w-master" title="Ustalık kutusu: ' + p.box + '">' + stars + '</div></div>';
+          '<div class="w-tr">' + VS.ui.esc(w[2]) + ' · ' + VS.ui.esc(w[1]) + '</div>' +
+          (note ? '<div class="w-note">📝 ' + VS.ui.esc(note) + '</div>' : '') + '</div>' +
+          '<div class="w-master" title="Ustalık kutusu: ' + p.box + '">' + stars + '</div>' +
+          '<button class="icobtn" data-note="' + i + '" style="width:36px;height:36px;flex-shrink:0;" aria-label="Not ekle">' + VS.icons.svg('pencil', 15) + '</button></div>';
     }).join('') || '<div class="empty">Eşleşen kelime yok.</div>';
 
     root.innerHTML =
       '<div class="panel-head"><button class="icobtn" data-back aria-label="Geri">' + VS.icons.svg('arrow-left', 18) + '</button>' +
         '<h2>' + VS.icons.svg('book-open', 19) + ' Sözlük</h2>' +
+        '<button class="icobtn" data-ipa style="width:36px;height:36px;" title="IPA Rehberi" aria-label="IPA Rehberi">' + VS.icons.svg('info', 16) + '</button>' +
         '<span class="chip">' + VS.words.list.length + ' kelime</span></div>' +
       '<div class="card card-pad"><div class="dict-search">' +
         '<input class="field" id="dictQ" placeholder="Kelime veya anlam ara…" value="' + VS.ui.esc(dictQ) + '" aria-label="Ara">' +
         '<button class="icobtn" data-clear aria-label="Temizle">' + VS.icons.svg('x', 16) + '</button></div>' +
-        '<div class="filter-chips" style="margin-top:12px;">' + chips + '</div></div>' +
+        '<div class="filter-chips" style="margin-top:12px;">' + chips + '</div>' +
+        '<div class="filter-chips" style="margin-top:8px;">' + durumChips + '</div></div>' +
       '<div class="card card-pad" style="display:flex;flex-direction:column;gap:8px;">' + items + '</div>' +
       (idx.length > 80 ? '<div class="empty">İlk 80 sonuç gösteriliyor — aramayı daraltın.</div>' : '');
 
     root.querySelector('[data-back]').onclick = () => { VS.ui.show('screenMenu'); };
+    root.querySelector('[data-ipa]').onclick = () => ipaRehber();
     const q = VS.ui.$('dictQ');
     q.addEventListener('input', () => { dictQ = q.value; renderDict(); });
     root.querySelector('[data-clear]').onclick = () => { dictQ = ''; renderDict(); };
-    root.querySelectorAll('.filter-chips button').forEach(b => {
+    root.querySelectorAll('.filter-chips button[data-t]').forEach(b => {
       b.onclick = () => { dictType = b.dataset.t; renderDict(); };
     });
+    root.querySelectorAll('.filter-chips button[data-d]').forEach(b => {
+      b.onclick = () => { dictDurum = b.dataset.d; renderDict(); };
+    });
+    // 12) Not ekleme
+    root.querySelectorAll('[data-note]').forEach(b => {
+      b.onclick = () => {
+        const w = VS.words.list[parseInt(b.dataset.note)];
+        const key = VS.words.clean(w[0]).toLowerCase();
+        notEkle(w[0], key);
+      };
+    });
     VS.wordinfo.scan(root);
+  }
+
+  // 12) Kelime notu ekleme (sheet)
+  function notEkle(kelime, key) {
+    const st = VS.state;
+    const mevcut = (st.wordNotes && st.wordNotes[key]) || '';
+    const s = VS.ui.openSheet(
+      '<div class="sheet-head"><span class="sheet-title">📝 Not — ' + VS.ui.esc(kelime) + '</span>' +
+        '<button class="icobtn" data-close aria-label="Kapat">' + VS.icons.svg('x', 16) + '</button></div>' +
+      '<p style="font-size:.78rem;color:var(--text-3);margin-bottom:10px;">Kendine hatırlatıcı yaz (ör. "ME-jer, ş sesi yok")</p>' +
+      '<textarea class="field" id="noteInput" style="height:90px;resize:vertical;user-select:text;-webkit-user-select:text;">' + VS.ui.esc(mevcut) + '</textarea>' +
+      '<div style="display:flex;gap:8px;margin-top:12px;">' +
+        '<button class="btn btn-danger btn-sm" id="noteDel" style="flex:1;">Sil</button>' +
+        '<button class="btn btn-primary btn-sm" id="noteSave" style="flex:1;">Kaydet</button>' +
+      '</div>'
+    );
+    s.el.querySelector('[data-close]').onclick = () => { s.close(); renderDict(); };
+    const save = () => {
+      const v = s.el.querySelector('#noteInput').value.trim();
+      if (v) { st.wordNotes = st.wordNotes || {}; st.wordNotes[key] = v; }
+      else if (st.wordNotes) { delete st.wordNotes[key]; }
+      VS.persist();
+      s.close(); renderDict();
+      VS.ui.toast(v ? 'Not kaydedildi' : 'Not silindi', 'ok');
+    };
+    s.el.querySelector('#noteSave').onclick = save;
+    s.el.querySelector('#noteDel').onclick = () => { s.el.querySelector('#noteInput').value = ''; save(); };
+  }
+
+  // 20) IPA Rehberi
+  function ipaRehber() {
+    const s = VS.ui.openSheet(
+      '<div class="sheet-head"><span class="sheet-title">' + VS.icons.svg('info', 18) + ' IPA Nasıl Okunur?</span>' +
+        '<button class="icobtn" data-close aria-label="Kapat">' + VS.icons.svg('x', 16) + '</button></div>' +
+      '<div class="ipa-table">' +
+        '<div class="ipa-row"><span>/ə/</span><span>kısa "ı" — <b>about</b> /əˈbaʊt/</span></div>' +
+        '<div class="ipa-row"><span>/æ/</span><span>"e-a" arası — <b>cat</b> /kæt/</span></div>' +
+        '<div class="ipa-row"><span>/ɪ/</span><span>kısa "i" — <b>sit</b> /sɪt/</span></div>' +
+        '<div class="ipa-row"><span>/iː/</span><span>uzun "i" — <b>see</b> /siː/</span></div>' +
+        '<div class="ipa-row"><span>/ʊ/</span><span>kısa "u" — <b>book</b> /bʊk/</span></div>' +
+        '<div class="ipa-row"><span>/uː/</span><span>uzun "u" — <b>food</b> /fuːd/</span></div>' +
+        '<div class="ipa-row"><span>/ɜː/</span><span>"ır" gibi — <b>bird</b> /bɜːd/</span></div>' +
+        '<div class="ipa-row"><span>/ɔː/</span><span>"o" gibi uzun — <b>more</b> /mɔːr/</span></div>' +
+        '<div class="ipa-row"><span>/eɪ/</span><span>"ey" — <b>day</b> /deɪ/</span></div>' +
+        '<div class="ipa-row"><span>/aɪ/</span><span>"ay" — <b>time</b> /taɪm/</span></div>' +
+        '<div class="ipa-row"><span>/oʊ/</span><span>"ou" — <b>go</b> /ɡoʊ/</span></div>' +
+        '<div class="ipa-row"><span>/θ/</span><span>dil ucunu diş arasına alıp "s" — <b>think</b> /θɪŋk/</span></div>' +
+        '<div class="ipa-row"><span>/ð/</span><span>aynı yerden "z" — <b>this</b> /ðɪs/</span></div>' +
+        '<div class="ipa-row"><span>/ʃ/</span><span>"ş" — <b>she</b> /ʃiː/</span></div>' +
+        '<div class="ipa-row"><span>/ʒ/</span><span>"j" (yumuşak) — <b>measure</b> /ˈmeʒər/</span></div>' +
+        '<div class="ipa-row"><span>/tʃ/</span><span>"ç" — <b>chat</b> /tʃæt/</span></div>' +
+        '<div class="ipa-row"><span>/dʒ/</span><span>"c" (yumuşak) — <b>judge</b> /dʒʌdʒ/</span></div>' +
+        '<div class="ipa-row"><span>/ŋ/</span><span>"ng" — <b>sing</b> /sɪŋ/</span></div>' +
+        '<div class="ipa-row"><span>/ʌ/</span><span>kısa "a" — <b>cup</b> /kʌp/</span></div>' +
+        '<div class="ipa-row"><span>/ˈ/</span><span>vurgu işareti — sonraki hece vurgulu</span></div>' +
+      '</div>' +
+      '<p style="font-size:.72rem;color:var(--text-3);margin-top:12px;line-height:1.5;">Kelimenin üzerinde 2 saniye bekleyince okunuşu bu sembollerle gösterilir.</p>'
+    );
+    s.el.querySelector('[data-close]').onclick = s.close;
   }
 
   return { renderBadges, renderDict };
@@ -2881,6 +3099,11 @@ VS.session = (function () {
     const st = VS.state;
     const words = VS.words.list;
     if (cfg.mode === 'match') return null; // eşleştirme kendi setini kurar
+    // Meydan okuma: tek kelime
+    if (cfg.challengeWord) {
+      const i = words.findIndex(w => VS.words.clean(w[0]) === cfg.challengeWord);
+      return i >= 0 ? [i] : words.map((_, k) => k);
+    }
     let idx;
     if (cfg.source === 'review') {
       idx = VS.srs.dueList(st.srs).map(([k]) => words.findIndex(w => w[0] === k)).filter(i => i >= 0);
@@ -2927,7 +3150,10 @@ VS.session = (function () {
     startTimer();
     attachKeys();
     swapIn(); // ilk soru da fade ile gelsin
-    next();
+    // İlk soruyu pos 0'da göster (next() pos++ yapar — tek kelimelik oturumlarda
+    // anında finish olmaması için burada next() çağrılmaz)
+    if (S.cfg.mode === 'match') VS.modes.match.init();
+    else VS.modes[S.cfg.mode].render();
   }
 
   function state() { return S; }
@@ -2983,7 +3209,7 @@ VS.session = (function () {
     els.time.textContent = VS.ui.fmtTime(S.sec);
     const total = S.cfg.goal && S.cfg.goal > 0 ? S.cfg.goal : (S.queue ? S.queue.length : 5);
     els.bar.style.width = Math.min((S.answered / total) * 100, 100) + '%';
-    const names = { quiz: 'Çoktan Seçmeli', card: 'Hafıza Kartları', match: 'Eşleştirme', learn: 'Öğrenme', review: 'Tekrar' };
+    const names = { quiz: 'Çoktan Seçmeli', card: 'Hafıza Kartları', match: 'Eşleştirme', marathon: 'Maraton', review: 'Tekrar' };
     els.mode.textContent = names[S.cfg.mode] || S.cfg.mode;
   }
 
@@ -2999,6 +3225,15 @@ VS.session = (function () {
       if (S.combo > S.best) S.best = S.combo;
       if (S.combo > st.bestCombo) st.bestCombo = S.combo;
       let xp = 10; if (S.combo >= 5) xp += 5; if (S.combo >= 10) xp += 10;
+      // Günlük meydan okuma: o kelime doğruysa 2x XP
+      if (S.cfg.challengeWord && w && VS.words.clean(w[0]) === S.cfg.challengeWord) {
+        xp *= 2;
+        if (!st.challenge || st.challenge.done !== true) {
+          st.challenge = { date: VS.game.todayStr(), word: S.cfg.challengeWord, done: true };
+          st.challengeDone = (st.challengeDone || 0) + 1;
+          VS.ui.toast('Meydan okuma tamamlandı! 2x XP 🎉', 'ok');
+        }
+      }
       addXp(xp);
       VS.sounds.correct(); VS.ui.haptic(14);
       const epic = S.combo > 0 && S.combo % 10 === 0;
@@ -3035,6 +3270,9 @@ VS.session = (function () {
     // günlük + streak + rozet
     VS.game.dailyAdd(st, 1);
     VS.game.streakTouch(st);
+    // Aktivite takvimi (takvim görseli için): gün -> cevap sayısı
+    const bugun = VS.game.todayStr();
+    st.activity[bugun] = (st.activity[bugun] || 0) + 1;
     const won = VS.game.checkBadges(st);
     won.forEach(b => { setTimeout(() => { VS.sounds.badge(); VS.ui.fxBadge(b); }, 700); });
 
@@ -3077,6 +3315,19 @@ VS.session = (function () {
     st.totalTime = (st.totalTime || 0) + S.sec;
     if (S.correct > 0 && S.wrong === 0) st.perfectSessions = (st.perfectSessions || 0) + 1;
     VS.game.checkBadges(st);
+
+    // Kendi rekorunla yarış (6): en iyi oturum (en az 3 cevap)
+    let yeniRekor = false;
+    if (t >= 3) {
+      const acc = Math.round((S.correct / t) * 100);
+      const best = st.bestSession;
+      if (!best || acc > best.acc || (acc === best.acc && S.correct > best.correct)) {
+        st.bestSession = { acc, correct: S.correct, xp: S.xpEarned, date: Date.now(), mode: S.cfg.mode };
+        yeniRekor = true;
+      }
+    }
+    rec.yeniRekor = yeniRekor;
+    sonRec = rec;
     VS.persist();
     VS.ui.$('screenSession').classList.remove('active');
 
@@ -3113,9 +3364,86 @@ VS.session = (function () {
     VS.ui.$('sumCombo').textContent = rec.best;
     VS.ui.$('sumTime').textContent = VS.ui.fmtTime(rec.sec);
     VS.ui.$('sumXp').textContent = '+' + rec.xp + ' XP';
-    VS.ui.$('sumModeName').textContent = ({ quiz: 'Çoktan Seçmeli', card: 'Hafıza Kartları', match: 'Eşleştirme', learn: 'Öğrenme', review: 'Tekrar' })[rec.mode] || rec.mode;
-    if (acc === 100 && t >= 3) { setTimeout(() => VS.ui.confetti(), 250); }
+    const MODE_NAMES = { quiz: 'Çoktan Seçmeli', card: 'Hafıza Kartları', match: 'Eşleştirme', marathon: 'Maraton', review: 'Tekrar' };
+    VS.ui.$('sumModeName').textContent = MODE_NAMES[rec.mode] || rec.mode;
+
+    // 10) Başarı ekranı: başlık + konfeti + rekor rozeti
+    const tag = VS.ui.$('sumTag');
+    let tagHtml = '', tagCls = '';
+    if (t >= 3) {
+      if (acc === 100) { tagHtml = '🏆 Mükemmel!'; tagCls = 'tag-perfect'; setTimeout(() => VS.ui.confetti(), 250); }
+      else if (acc >= 85) { tagHtml = '🌟 Harikasın!'; tagCls = 'tag-great'; setTimeout(() => VS.ui.confetti(), 300); }
+      else if (acc >= 60) { tagHtml = '👍 İyi gidiyorsun!'; tagCls = 'tag-good'; }
+      else { tagHtml = '💪 Pes etme — tekrar tekrar dene!'; tagCls = 'tag-keep'; }
+      if (rec.yeniRekor) { tagHtml = '🎉 YENİ REKOR! ' + tagHtml; tagCls = 'tag-record'; }
+    } else {
+      tagHtml = 'Isınma turu'; tagCls = 'tag-good';
+    }
+    tag.innerHTML = tagHtml;
+    tag.className = 'sum-tag ' + tagCls;
+
+    // 6) Rekor bilgisi
+    const rk = VS.ui.$('sumBest');
+    if (st.bestSession && st.bestSession.date !== rec.t) {
+      rk.textContent = 'Rekorun: %' + st.bestSession.acc + ' · ' + st.bestSession.correct + ' doğru (' + (MODE_NAMES[st.bestSession.mode] || st.bestSession.mode) + ')';
+      rk.style.display = 'block';
+    } else {
+      rk.style.display = 'none';
+    }
+
     VS.ui.show('screenSummary');
+  }
+
+  // 16) Sosyal paylaşım kartı (canvas → PNG)
+  function shareCard(rec) {
+    const t = rec.correct + rec.wrong;
+    const acc = Math.round((rec.correct / t) * 100);
+    const MODE_NAMES = { quiz: 'Çoktan Seçmeli', card: 'Hafıza Kartları', match: 'Eşleştirme', marathon: 'Maraton', review: 'Tekrar' };
+    const cv = document.createElement('canvas');
+    cv.width = 900; cv.height = 1200;
+    const ctx = cv.getContext('2d');
+    // arkaplan
+    const g = ctx.createLinearGradient(0, 0, 900, 1200);
+    g.addColorStop(0, '#4338ca'); g.addColorStop(1, '#0b0a16');
+    ctx.fillStyle = g; ctx.fillRect(0, 0, 900, 1200);
+    // logo kutusu (basit)
+    ctx.fillStyle = 'rgba(255,255,255,.12)'; ctx.beginPath(); ctx.roundRect(60, 60, 120, 120, 30); ctx.fill();
+    ctx.strokeStyle = '#fff'; ctx.lineWidth = 8; ctx.lineCap = 'round';
+    ctx.beginPath(); ctx.moveTo(80, 100); ctx.lineTo(120, 150); ctx.lineTo(160, 100); ctx.stroke();
+    // başlık
+    ctx.fillStyle = '#fff'; ctx.font = '800 64px Inter, Arial'; ctx.textAlign = 'left';
+    ctx.fillText('VocaStride', 200, 130);
+    ctx.font = '400 32px Inter, Arial'; ctx.fillStyle = 'rgba(255,255,255,.75)';
+    ctx.fillText('Aralıklı tekrar ile kelime öğren', 200, 175);
+    // skor
+    ctx.textAlign = 'center';
+    ctx.font = '900 220px Inter, Arial'; ctx.fillStyle = acc >= 70 ? '#2dd48b' : acc >= 40 ? '#ffb454' : '#ff6479';
+    ctx.fillText(acc + '%', 450, 560);
+    ctx.font = '600 40px Inter, Arial'; ctx.fillStyle = 'rgba(255,255,255,.7)';
+    ctx.fillText('Doğruluk', 450, 630);
+    // detaylar
+    ctx.fillStyle = '#fff'; ctx.font = '700 44px Inter, Arial';
+    ctx.fillText('Doğru: ' + rec.correct + '   Yanlış: ' + rec.wrong + '   Kombo: ' + rec.best, 450, 760);
+    ctx.font = '500 34px Inter, Arial'; ctx.fillStyle = 'rgba(255,255,255,.65)';
+    ctx.fillText(MODE_NAMES[rec.mode] || rec.mode + ' · ' + VS.ui.fmtTime(rec.sec) + ' · +' + rec.xp + ' XP', 450, 830);
+    // tarih
+    const d = new Date(rec.t).toLocaleDateString('tr-TR', { day: 'numeric', month: 'long', year: 'numeric' });
+    ctx.font = '400 30px Inter, Arial'; ctx.fillStyle = 'rgba(255,255,255,.5)';
+    ctx.fillText(d, 450, 1100);
+    cv.toBlob(blob => {
+      if (!blob) return;
+      // Web Share API ile dosya paylaş (mobil), yoksa indir
+      if (navigator.canShare && navigator.canShare({ files: [new File([blob], 'vocastride.png', { type: 'image/png' })] })) {
+        navigator.share({ files: [new File([blob], 'vocastride.png', { type: 'image/png' })], title: 'VocaStride' }).catch(() => {});
+      } else {
+        const a = document.createElement('a');
+        a.href = URL.createObjectURL(blob);
+        a.download = 'vocastride-skor.png';
+        a.click();
+        setTimeout(() => URL.revokeObjectURL(a.href), 500);
+      }
+    }, 'image/png');
+    VS.ui.toast('Skor kartı hazırlandı', 'ok');
   }
 
   // ---- Zamanlayıcı ----
@@ -3168,7 +3496,10 @@ VS.session = (function () {
     return ok ? pick(comboMsgs, lastOK).t : pick(wrongMsgs, lastNO).t;
   }
 
-  return { start, answer, next, prev, finish, currentWord, state, perfectMatchBonus, onKey, stopTimer };
+  let sonRec = null;
+  function lastRec() { return sonRec; }
+
+  return { start, answer, next, prev, finish, currentWord, state, perfectMatchBonus, lastRec, shareCard, onKey, stopTimer };
 })();
 
 /* ===== modes/quiz.js ===== */
@@ -3188,16 +3519,37 @@ VS.modes.quiz = (function () {
     return word[2];
   }
 
+  // Son 2 sorunun distractor seti (aynı şık içeriğinin üst üste gelmesini engelle)
+  let sonDistractorSeti = [];
+
   function buildOptions() {
     const words = VS.words.list;
     const correct = valueOf(qType, w);
-    const distractors = [];
+    // Tüm listeden RASTGELE örnekle (baştan sırayla değil → şık içeriği her seferinde değişir)
+    const adaylar = [];
     const seen = new Set([correct]);
-    for (let i = 0; i < words.length && distractors.length < 3; i++) {
+    for (let i = 0; i < words.length; i++) {
       const v = valueOf(qType, words[i]);
       if (words[i] === w || seen.has(v)) continue;
-      seen.add(v); distractors.push(v);
+      seen.add(v); adaylar.push(v);
     }
+    // Fisher-Yates ile karıştır ve ilk 3'ünü al
+    for (let i = adaylar.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [adaylar[i], adaylar[j]] = [adaylar[j], adaylar[i]];
+    }
+    let distractors = adaylar.slice(0, 3);
+    // Aynı set üst üste gelmesin (nadir ama garanti)
+    let deneme = 0;
+    while (distractors.join('|') === sonDistractorSeti && deneme < 5) {
+      for (let i = adaylar.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [adaylar[i], adaylar[j]] = [adaylar[j], adaylar[i]];
+      }
+      distractors = adaylar.slice(0, 3);
+      deneme++;
+    }
+    sonDistractorSeti = distractors.join('|');
     while (distractors.length < 3) distractors.push('—');
     const opts = [correct, ...distractors];
     for (let i = opts.length - 1; i > 0; i--) {
@@ -3365,7 +3717,10 @@ VS.modes.match = (function () {
     return pick;
   }
 
-  function init() {
+  let onRoundDone = null; // maraton gibi dış akışlar için hook
+
+  function init(opts) {
+    onRoundDone = opts && opts.onDone ? opts.onDone : null;
     set = buildSet();
     matched = 0; misses = 0; selW = null; selM = null; locked = false;
     render();
@@ -3490,6 +3845,12 @@ VS.modes.match = (function () {
       VS.sounds.correct();
     }
     status.classList.add('show');
+    if (onRoundDone) {
+      // Maraton gibi akışlarda "Yeni Set" butonu yerine ana akışa dön
+      VS.ui.$('mReset').style.display = 'none';
+      onRoundDone();
+      return;
+    }
     VS.ui.$('mReset').style.display = 'inline-flex';
   }
 
@@ -3498,45 +3859,34 @@ VS.modes.match = (function () {
   return { init, render, reset };
 })();
 
-/* ===== modes/learn.js ===== */
+/* ===== modes/marathon.js ===== */
 /* ============================================================
-   VocaStride — Mod: Öğrenme / Göz At (learn.js)
-   Yeni kelimeleri önce gör, sonra "Öğrendim" ile SRS'ye al
+   VocaStride — Mod: Maraton (marathon.js)
+   Tek oturumda Çoktan Seçmeli + Hafıza Kartları + Eşleştirme
+   karışık sırayla. Her soruda tip rastgele seçilir.
    ============================================================ */
 window.VS = window.VS || {};
 VS.modes = VS.modes || {};
-VS.modes.learn = (function () {
-  let w = null;
+VS.modes.marathon = (function () {
+  let last = '';
+
+  // Eşleştirme turu bittiğinde maraton devam etsin
+  function matchBitti() {
+    setTimeout(() => { VS.session.next(); }, 350);
+  }
 
   function render() {
-    const root = VS.ui.$('modeRoot');
-    w = VS.session.currentWord();
-    if (!w) return;
-    const S = VS.session.state();
-    const total = S.queue.length;
-    const pos = S.pos + 1;
+    // Aynı tipi art arda seçme (çeşitlilik)
+    const tips = ['quiz', 'card', 'match'].filter(t => t !== last);
+    const tip = tips[Math.floor(Math.random() * tips.length)];
+    last = tip;
 
-    root.innerHTML =
-      '<div class="learn-nav" style="margin-bottom:12px;">' +
-        '<button class="btn btn-sm" id="lPrev">' + VS.icons.svg('chevron-left', 16) + ' Önceki</button>' +
-        '<div class="learn-count" style="align-self:center;">' + pos + ' / ' + total + '</div>' +
-        '<button class="btn btn-sm" id="lNext">Sonraki ' + VS.icons.svg('chevron-right', 16) + '</button>' +
-      '</div>' +
-      '<div class="learn-card">' +
-        '<div class="learn-word" data-wordinfo data-word="' + VS.ui.esc(w[0]) + '">' + VS.ui.esc(w[0]) + '</div>' +
-        '<div class="learn-meaning">' + VS.ui.esc(w[2]) + '</div>' +
-        '<div class="learn-syn">Eş anlamlı: ' + VS.ui.esc(w[1]) + '</div>' +
-      '</div>' +
-      '<button class="btn btn-success btn-block" id="lLearned" style="margin-top:12px;">' +
-        VS.icons.svg('check', 18) + ' Öğrendim</button>';
-
-    VS.ui.$('lPrev').onclick = () => VS.session.prev();
-    VS.ui.$('lNext').onclick = () => VS.session.next();
-    VS.ui.$('lLearned').onclick = () => {
-      VS.session.answer(true, w);
-      VS.session.next();
-    };
-    VS.wordinfo.scan(root);
+    if (tip === 'match') {
+      VS.modes.match.init({ onDone: matchBitti });
+      return;
+    }
+    if (tip === 'card') { VS.modes.card.render(); return; }
+    VS.modes.quiz.render();
   }
 
   return { render };
@@ -3560,7 +3910,11 @@ VS.main = (function () {
       lastStudy: null, dailyDate: null, dailyCount: 0,
       totalTime: 0, matchHistory: [], modeCounts: {},
       lastSeen: [],
-      perfectMatches: 0, perfectSessions: 0
+      perfectMatches: 0, perfectSessions: 0,
+      bestSession: null,        // { acc, correct, xp, date, mode }
+      wordNotes: {},            // kelime -> kullanıcı notu
+      challenge: null,          // { date, word, done }
+      challengeDone: 0          // kaç kez tamamlandı (toplam)
     };
   }
 
@@ -3589,6 +3943,10 @@ VS.main = (function () {
     S.lastSeen = st.get('lastSeen', []);
     S.perfectMatches = st.get('perfectMatches', 0);
     S.perfectSessions = st.get('perfectSessions', 0);
+    S.bestSession = st.get('bestSession', null);
+    S.wordNotes = st.get('wordNotes', {});
+    S.challenge = st.get('challenge', null);
+    S.challengeDone = st.get('challengeDone', 0);
     return S;
   }
 
@@ -3608,6 +3966,10 @@ VS.main = (function () {
     st.set('modeCounts', S.modeCounts); st.set('lastSeen', S.lastSeen);
     st.set('perfectMatches', S.perfectMatches);
     st.set('perfectSessions', S.perfectSessions);
+    st.set('bestSession', S.bestSession);
+    st.set('wordNotes', S.wordNotes);
+    st.set('challenge', S.challenge);
+    st.set('challengeDone', S.challengeDone);
   }
 
   // ---- Menü ----
@@ -3638,8 +4000,43 @@ VS.main = (function () {
     VS.ui.$('dailyBox').classList.toggle('done', st.dailyCount >= st.goal);
     streakDots(st);
 
+    // 14) Günlük meydan okuma kartı
+    const ct = VS.ui.$('challengeTile');
+    if (ct) {
+      const bugun = VS.game.todayStr();
+      const ch = st.challenge;
+      if (ch && ch.date === bugun && ch.done) {
+        ct.classList.add('done');
+        VS.ui.$('challengeDesc').textContent = '"' + ch.word + '" tamamlandı — 2x XP kazanıldı! Yarın yenisine.';
+      } else {
+        ct.classList.remove('done');
+        const word = ch && ch.date === bugun ? ch.word : guncelChallengeKelime();
+        VS.ui.$('challengeDesc').textContent = word ? '"' + word + '" kelimesini öğren, 2x XP kazan!' : 'Günlük kelimen hazır';
+      }
+      ct.style.display = 'flex';
+    }
+
     // Günlük sayaç tarihi değiştiyse UI güncellensin
     if (st.dailyDate !== VS.game.todayStr()) { persist(); }
+  }
+
+  // Meydan okuma için günlük rastgele kelime (kararlı: o gün aynı kalır)
+  function guncelChallengeKelime() {
+    const st = VS.state;
+    const bugun = VS.game.todayStr();
+    if (st.challenge && st.challenge.date === bugun) return st.challenge.word;
+    const words = VS.words.list;
+    if (!words.length) return '';
+    // Zor kelimeye yönel: en az 1 yanlışı olanlardan öncelikli, yoksa rastgele
+    const zayif = words.filter(w => { const p = st.perf[w[0]]; return p && p.yanlis >= 1; });
+    const havuz = zayif.length >= 5 ? zayif : words;
+    let seed = 0;
+    for (let i = 0; i < bugun.length; i++) seed = (seed * 31 + bugun.charCodeAt(i)) >>> 0;
+    const secilen = havuz[seed % havuz.length];
+    const word = secilen ? VS.words.clean(secilen[0]) : '';
+    st.challenge = { date: bugun, word, done: false };
+    persist();
+    return word;
   }
 
   function streakDots(st) {
@@ -3671,8 +4068,6 @@ VS.main = (function () {
         '<button data-src="review" class="sel">Vadesi gelenler</button>' +
         '<button data-src="weak">Zayıf kelimeler</button>' +
         '<button data-src="new">Yeni kelimeler</button></div></div>';
-    } else if (mode.id === 'learn') {
-      body += '<p style="font-size:.84rem;color:var(--text-2);margin-bottom:14px;">Kelimeleri önce incele, sonra "Öğrendim" de.</p>';
     } else if (mode.id === 'card') {
       body += '<div class="opt-group"><div class="opt-label">Kaynak</div><div class="seg">' +
         '<button data-src="all" class="sel">Tümü (karışık)</button>' +
@@ -3696,15 +4091,7 @@ VS.main = (function () {
       btn.parentElement.querySelectorAll('button').forEach(x => x.classList.remove('sel'));
       btn.classList.add('sel');
     }
-    s.el.querySelector('#setupGo').onclick = () => {
-      s.close();
-      if (mode.id === 'learn') {
-        const newN = VS.srs.newList(VS.state.srs, VS.words.list).length;
-        if (newN > 0) cfg.source = 'new';
-        VS.ui.toast(newN > 0 ? newN + ' yeni kelime bulundu' : 'Yeni kelime yok — tümüyle göz at', 'ok');
-      }
-      VS.session.start(cfg);
-    };
+    s.el.querySelector('#setupGo').onclick = () => { s.close(); VS.session.start(cfg); };
   }
 
   // ---- Onboarding ----
@@ -3777,13 +4164,15 @@ VS.main = (function () {
     // Özet butonları
     VS.ui.$('sumHome').onclick = () => { VS.ui.show('screenMenu'); renderMenu(); };
     VS.ui.$('sumAgain').onclick = () => { VS.ui.show('screenMenu'); renderMenu(); };
+    const sumShare = VS.ui.$('sumShare');
+    if (sumShare) sumShare.onclick = () => { VS.session.shareCard(VS.session.lastRec()); };
 
     // Mod kutucukları
     const tiles = {
       tQuiz: { id: 'quiz', title: 'Çoktan Seçmeli' },
       tCard: { id: 'card', title: 'Hafıza Kartları' },
       tMatch: { id: 'match', title: 'Kelime Eşleştirme' },
-      tLearn: { id: 'learn', title: 'Öğrenme / Göz At' }
+      tMarathon: { id: 'marathon', title: 'Maraton' },
     };
     Object.keys(tiles).forEach(id => {
       VS.ui.$(id).onclick = () => openSetup(tiles[id]);
@@ -3792,6 +4181,19 @@ VS.main = (function () {
       const dueN = VS.srs.dueList(VS.state.srs).length;
       if (dueN === 0) { VS.ui.toast('Bugün için tekrar yok — tebrikler!', 'ok'); return; }
       VS.session.start({ mode: 'quiz', direction: 'mix', source: 'review', goal: dueN });
+    };
+
+    // Günlük meydan okuma (14)
+    VS.ui.$('challengeTile').onclick = () => {
+      const st = VS.state;
+      const bugun = VS.game.todayStr();
+      if (st.challenge && st.challenge.date === bugun && st.challenge.done) {
+        VS.ui.toast('Bugünün meydan okuması tamamlandı — yarın yenisine!', 'ok');
+        return;
+      }
+      const word = st.challenge && st.challenge.date === bugun ? st.challenge.word : guncelChallengeKelime();
+      if (!word) { VS.ui.toast('Kelime bulunamadı', 'err'); return; }
+      VS.session.start({ mode: 'quiz', direction: 'mix', source: 'all', goal: 1, challengeWord: VS.words.clean(word) });
     };
 
     // Alt aksiyonlar
@@ -3862,8 +4264,6 @@ VS.main = (function () {
   // Diğer modüllerin erişimi için dışa aç
   VS.persist = persist;
   VS.menu = { render: renderMenu };
-
-  return { renderMenu, persist, boot };
 })();
 
 </script>

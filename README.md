@@ -3,14 +3,15 @@
 VocaStride, kelime öğrenmeyi alışkanlık haline getirmek için tasarlanmış, tarayıcı tabanlı bir çalışma aracı. Sunucu gerektirmez, tüm veriler cihazınızda kalır.
 
 
-## Özellikler
+# Özellikler
 
 ### Çalışma Modları
 - **Çoktan Seçmeli** — 4 şık; TR karşılık / Synonym / Ters (TR→EN) / Karışık yön
 - **Hafıza Kartları** — çevir, hatırla, "Tekrar / Bildim" ile ilerle
 - **Kelime Eşleştirme** — 5 kelime ↔ 5 anlam; hatasız tur = **+25 XP bonus**
-- **Öğrenme / Göz At** — yeni kelimeleri sınav öncesi incele, "Öğrendim" ile SRS'ye al
+- **Maraton** — üç modu tek oturumda karışık sırayla
 - **Bugünkü Tekrarlar** — vadesi gelen kelimeler için ana menüden tek tık
+- **Günlük Meydan Okuma** — günde bir kelime, doğru yaparsan 2x XP
 
 ### Öğrenme Motoru
 - **Leitner aralıklı tekrar**: 5 kutu, aralıklar 1-2-4-8-16 gün
@@ -21,9 +22,13 @@ VocaStride, kelime öğrenmeyi alışkanlık haline getirmek için tasarlanmış
 - XP & seviye, kombo sistemi, streak (son 7 gün noktaları)
 - **23 rozet** — ilerleme yüzdeleriyle
 - Günlük hedef (10/20/30/50 + özel), konfeti, haptik titreşim, sakin mod
+- **Kendi rekorunla yarış** — en iyi oturum takibi, yeni rekor kutlaması
+- **Başarı ekranları** — oturum sonunda skora göre konfeti / teşvik kartı
+- **Skor kartı paylaşımı** — oturum sonucunu PNG olarak paylaş/indir
 
 ### Kelime Bilgisi (hover)
-- Kelimenin üzerinde **5 saniye bekleyince** İngilizce anlamı + IPA okunuşu gösterir
+- Kelimenin üzerinde **2 saniye bekleyince** İngilizce anlamı + IPA okunuşu + **örnek cümle** gösterir
+- Kendi hatırlatıcı notunu ekleyebilirsin (sözlükten)
 - Bilgiler cihazda önbelleklenir (tekrar istek yok)
 - Çevrimdışıyken sessizce çalışmayı durdurur
 
@@ -33,8 +38,8 @@ VocaStride, kelime öğrenmeyi alışkanlık haline getirmek için tasarlanmış
 - **PNG ikonlar** (192/512 + maskable) — iOS ana ekran uyumu
 - 5 vurgu rengi × koyu/açık/otomatik tema
 - Onboarding (ilk açılış: hedef + renk seçimi)
-- İstatistik: 7/30 gün grafikleri, oturum geçmişi, ustalık ısı haritası, odak kelimeler → tek tıkla çalışma
-- Sözlük: arama, tür filtresi (v/adj/n/adv), ustalık göstergesi, kelime bilgisi (hover)
+- İstatistik: **haftalık özet**, **çalışma takvimi** (GitHub tarzı), 7/30 gün grafikleri, oturum geçmişi, ustalık ısı haritası, odak kelimeler, en iyi oturum
+- Sözlük: arama, tür filtresi (v/adj/n/adv), **durum filtresi** (öğrenilen/zayıf), ustalık göstergesi, kişisel not, **IPA rehberi**, kelime bilgisi (hover)
 - Klavye kısayolları, erişilebilirlik (yakınlaştırma, focus, reduced-motion)
 - JSON yedekleme / geri yükleme
 
