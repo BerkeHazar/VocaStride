@@ -2,17 +2,34 @@
   "name": "VocaStride — Kelime Öğrenme",
   "short_name": "VocaStride",
   "description": "Aralıklı tekrar (Leitner) ile kelime öğren. Çevrimdışı çalışır, veriler cihazda kalır.",
+  "id": "/VocaStride/",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",
   "orientation": "portrait-primary",
-  "background_color": "#0b0a16",
-  "theme_color": "#4f46e5",
+  "background_color": "#161428",
+  "theme_color": "#6C63FF",
   "categories": ["education", "productivity"],
   "lang": "tr",
+  "dir": "ltr",
   "icons": [
     { "src": "icons/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
     { "src": "icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "icons/maskable-192.png", "sizes": "192x192", "type": "image/png", "purpose": "maskable" },
     { "src": "icons/maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ],
+  "shortcuts": [
+    {
+      "name": "Çoktan Seçmeli",
+      "short_name": "Test",
+      "url": "./?mod=quiz",
+      "icons": [{ "src": "icons/icon-192.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "Bugünkü Tekrarlar",
+      "short_name": "Tekrar",
+      "url": "./?mod=review",
+      "icons": [{ "src": "icons/icon-192.png", "sizes": "192x192" }]
+    }
   ]
 }
