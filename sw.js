@@ -2,7 +2,7 @@
    VocaStride — Service Worker (sw.js)
    App-shell + varlık önbelleği — tam çevrimdışı
    ============================================================ */
-const CACHE = 'vocastride-v11';
+const CACHE = 'vocastride-v12';
 const ASSETS = [
   './',
   './index.html',

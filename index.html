@@ -774,10 +774,11 @@ a { color: var(--accent); text-decoration: none; }
    Ekran dışındaki kart/satırların layout+paint işini tarayıcı atlar.
    contain-intrinsic-size = yer tutucu yükseklik (kaydırma çubuğu zıplamaz). */
 /* Yükseklikler ölçülerek yazıldı (390px genişlik):
-   .word-item 69px · .badge-item 116px. Yanlış değer kaydırma zıplamasına yol açar. */
+   .word-item ort. 79px (anlam satırı 2 satıra sarabildiği için 73–93 arası)
+   · .badge-item 116px. Yanlış değer kaydırma zıplamasına yol açar. */
 .word-item {
   content-visibility: auto;
-  contain-intrinsic-size: auto 69px;
+  contain-intrinsic-size: auto 79px;
 }
 .badge-item {
   content-visibility: auto;
@@ -1078,12 +1079,25 @@ a { color: var(--accent); text-decoration: none; }
   border: 1px solid var(--border); background: var(--surface-2); color: var(--text-2);
 }
 .filter-chips button.sel { border-color: var(--accent); color: var(--accent); background: var(--accent-soft); }
-.word-item { display: flex; align-items: center; gap: 10px; padding: 11px 13px; border-radius: 13px; background: var(--surface-2); border: 1px solid var(--border); }
+.word-item { display: flex; align-items: center; gap: 10px; padding: 12px 13px; border-radius: 13px; background: var(--surface-2); border: 1px solid var(--border); }
 .word-item .w-main { flex: 1; min-width: 0; }
-.word-item .w-word { font-weight: 800; font-size: .9rem; }
-.word-item .w-tr { font-size: .74rem; color: var(--text-2); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.word-item .w-master { display: flex; gap: 2px; }
+.word-item .w-word { font-weight: 800; font-size: .98rem; line-height: 1.35; }
+/* Anlam satırı: .74rem (~11.8px) mobilde küçük kalıyordu ve tek satıra
+   kırpıldığı için uzun çeviriler okunamıyordu. Büyütüldü ve iki satıra
+   kadar sarmasına izin verildi (2 satırdan sonrası yine kırpılır, böylece
+   liste yüksekliği kontrolden çıkmaz). */
+.word-item .w-tr {
+  font-size: .84rem; color: var(--text-2); line-height: 1.45; margin-top: 2px;
+  display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+.word-item .w-master { display: flex; gap: 2px; flex-shrink: 0; }
 .word-item .w-master i { width: 5px; height: 12px; border-radius: 2px; background: var(--surface-3); }
+/* Dar telefonlarda yıldız şeridi yer kaplıyordu — kelime ve anlam öncelikli */
+@media (max-width: 380px) {
+  .word-item { gap: 8px; padding: 12px 11px; }
+  .word-item .w-master { display: none; }
+}
 .word-item .w-master i.on { background: var(--accent); }
 
 /* ---- Ayarlar ---- */
@@ -3959,21 +3973,6 @@ VS.panels = (function () {
   function renderDict() {
     const root = VS.ui.$('screenDict');
     const types = VS.words.stats().types;
-    const st = VS.state;
-    let idx = VS.words.search(dictQ, dictType || null);
-
-    // 8) Durum filtresi: öğrenilen / öğrenilenler hariç / zayıf
-    if (dictDurum === 'mastered') {
-      idx = idx.filter(i => VS.srs.progressFor(st.srs, VS.words.list[i][0]).box >= 5);
-    } else if (dictDurum === 'unmastered') {
-      idx = idx.filter(i => VS.srs.progressFor(st.srs, VS.words.list[i][0]).box < 5);
-    } else if (dictDurum === 'weak') {
-      idx = idx.filter(i => {
-        const p = st.perf[VS.words.list[i][0]];
-        return p && (p.dogru + p.yanlis) >= 3 && (p.yanlis / (p.dogru + p.yanlis)) >= 0.4;
-      });
-    }
-
     const chips = '<button class="' + (dictType === '' ? 'sel' : '') + '" data-t="">Tümü</button>' +
       Object.keys(types).filter(t => t !== '').sort().map(t =>
         '<button class="' + (dictType === t ? 'sel' : '') + '" data-t="' + VS.ui.esc(t) + '">' + VS.ui.esc(t) + ' (' + types[t] + ')</button>'
@@ -3985,20 +3984,6 @@ VS.panels = (function () {
       '<button class="' + (dictDurum === 'unmastered' ? 'sel' : '') + '" data-d="unmastered">Öğrenilenler hariç</button>' +
       '<button class="' + (dictDurum === 'weak' ? 'sel' : '') + '" data-d="weak">Zayıf</button>';
 
-    const items = idx.slice(0, 80).map(i => {
-      const w = VS.words.list[i];
-      const p = VS.srs.progressFor(st.srs, w[0]);
-      const stars = [1, 2, 3, 4, 5].map(n => '<i class="' + (p.box >= n ? 'on' : '') + '"></i>').join('');
-      // 12) Kişisel not
-      const note = st.wordNotes[VS.words.clean(w[0]).toLowerCase()];
-      return '<div class="word-item"><div class="w-main"><div class="w-word" data-wordinfo data-word="' + VS.ui.esc(w[0]) + '">' + VS.ui.esc(w[0]) +
-          ' <span class="chip" style="margin-left:4px;">' + VS.ui.esc(VS.words.typeOf(w[0])) + '</span></div>' +
-          '<div class="w-tr">' + VS.ui.esc(w[2]) + ' · ' + VS.ui.esc(w[1]) + '</div>' +
-          (note ? '<div class="w-note">📝 ' + VS.ui.esc(note) + '</div>' : '') + '</div>' +
-          '<div class="w-master" title="Ustalık kutusu: ' + p.box + '">' + stars + '</div>' +
-          '<button class="icobtn" data-note="' + i + '" style="width:36px;height:36px;flex-shrink:0;" aria-label="Not ekle">' + VS.icons.svg('pencil', 15) + '</button></div>';
-    }).join('') || '<div class="empty">Eşleşen kelime yok.</div>';
-
     root.innerHTML =
       '<div class="panel-head"><button class="icobtn" data-back aria-label="Geri">' + VS.icons.svg('arrow-left', 18) + '</button>' +
         '<h2>' + VS.icons.svg('book-open', 19) + ' Sözlük</h2>' +
@@ -4009,29 +3994,82 @@ VS.panels = (function () {
         '<button class="icobtn" data-clear aria-label="Temizle">' + VS.icons.svg('x', 16) + '</button></div>' +
         '<div class="filter-chips" style="margin-top:12px;">' + chips + '</div>' +
         '<div class="filter-chips" style="margin-top:8px;">' + durumChips + '</div></div>' +
-      '<div class="card card-pad" style="display:flex;flex-direction:column;gap:8px;">' + items + '</div>' +
-      (idx.length > 80 ? '<div class="empty">İlk 80 sonuç gösteriliyor — aramayı daraltın.</div>' : '');
+      '<div class="card card-pad" id="dictList" style="display:flex;flex-direction:column;gap:8px;"></div>' +
+      '<div id="dictMore"></div>';
 
     root.querySelector('[data-back]').onclick = () => { VS.ui.show('screenMenu'); };
     root.querySelector('[data-ipa]').onclick = () => ipaRehber();
+
+    // Arama kutusu: yalnızca liste yeniden çizilir. Eskiden her tuşta
+    // renderDict() çağrılıyordu; input DOM'dan silinip yeniden yaratıldığı
+    // için ODAK KAYBOLUYOR ve ikinci harf yazılamıyordu.
     const q = VS.ui.$('dictQ');
-    q.addEventListener('input', () => { dictQ = q.value; renderDict(); });
-    root.querySelector('[data-clear]').onclick = () => { dictQ = ''; renderDict(); };
+    q.addEventListener('input', () => { dictQ = q.value; paintDictList(); });
+    root.querySelector('[data-clear]').onclick = () => {
+      dictQ = ''; q.value = ''; q.focus(); paintDictList();
+    };
     root.querySelectorAll('.filter-chips button[data-t]').forEach(b => {
-      b.onclick = () => { dictType = b.dataset.t; renderDict(); };
-    });
-    root.querySelectorAll('.filter-chips button[data-d]').forEach(b => {
-      b.onclick = () => { dictDurum = b.dataset.d; renderDict(); };
-    });
-    // 12) Not ekleme
-    root.querySelectorAll('[data-note]').forEach(b => {
       b.onclick = () => {
-        const w = VS.words.list[parseInt(b.dataset.note)];
-        const key = VS.words.clean(w[0]).toLowerCase();
-        notEkle(w[0], key);
+        dictType = b.dataset.t;
+        root.querySelectorAll('.filter-chips button[data-t]').forEach(x =>
+          x.classList.toggle('sel', x === b));
+        paintDictList();
       };
     });
-    VS.wordinfo.scan(root);
+    root.querySelectorAll('.filter-chips button[data-d]').forEach(b => {
+      b.onclick = () => {
+        dictDurum = b.dataset.d;
+        root.querySelectorAll('.filter-chips button[data-d]').forEach(x =>
+          x.classList.toggle('sel', x === b));
+        paintDictList();
+      };
+    });
+    paintDictList();
+  }
+
+  // Yalnızca sonuç listesini çizer — arama kutusuna ve filtrelere dokunmaz.
+  function paintDictList() {
+    const root = VS.ui.$('screenDict');
+    const box = root.querySelector('#dictList');
+    if (!box) return;
+    const st = VS.state;
+    let idx = VS.words.search(dictQ, dictType || null);
+
+    if (dictDurum === 'mastered') {
+      idx = idx.filter(i => VS.srs.progressFor(st.srs, VS.words.list[i][0]).box >= 5);
+    } else if (dictDurum === 'unmastered') {
+      idx = idx.filter(i => VS.srs.progressFor(st.srs, VS.words.list[i][0]).box < 5);
+    } else if (dictDurum === 'weak') {
+      idx = idx.filter(i => {
+        const p = st.perf[VS.words.list[i][0]];
+        return p && (p.dogru + p.yanlis) >= 3 && (p.yanlis / (p.dogru + p.yanlis)) >= 0.4;
+      });
+    }
+
+    box.innerHTML = idx.slice(0, 80).map(i => {
+      const w = VS.words.list[i];
+      const p = VS.srs.progressFor(st.srs, w[0]);
+      const stars = [1, 2, 3, 4, 5].map(n => '<i class="' + (p.box >= n ? 'on' : '') + '"></i>').join('');
+      const note = st.wordNotes[VS.words.clean(w[0]).toLowerCase()];
+      return '<div class="word-item"><div class="w-main"><div class="w-word" data-wordinfo data-word="' + VS.ui.esc(w[0]) + '">' + VS.ui.esc(w[0]) +
+          ' <span class="chip" style="margin-left:4px;">' + VS.ui.esc(VS.words.typeOf(w[0])) + '</span></div>' +
+          '<div class="w-tr">' + VS.ui.esc(w[2]) + ' · ' + VS.ui.esc(w[1]) + '</div>' +
+          (note ? '<div class="w-note">📝 ' + VS.ui.esc(note) + '</div>' : '') + '</div>' +
+          '<div class="w-master" title="Ustalık kutusu: ' + p.box + '">' + stars + '</div>' +
+          '<button class="icobtn" data-note="' + i + '" style="width:36px;height:36px;flex-shrink:0;" aria-label="Not ekle">' + VS.icons.svg('pencil', 15) + '</button></div>';
+    }).join('') || '<div class="empty">Eşleşen kelime yok.</div>';
+
+    const more = root.querySelector('#dictMore');
+    if (more) more.innerHTML = idx.length > 80
+      ? '<div class="empty">İlk 80 sonuç gösteriliyor — aramayı daraltın.</div>' : '';
+
+    box.querySelectorAll('[data-note]').forEach(b => {
+      b.onclick = () => {
+        const w = VS.words.list[parseInt(b.dataset.note)];
+        notEkle(w[0], VS.words.clean(w[0]).toLowerCase());
+      };
+    });
+    VS.wordinfo.scan(box);
   }
 
   // 12) Kelime notu ekleme (sheet)
