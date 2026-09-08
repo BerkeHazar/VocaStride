@@ -6,7 +6,7 @@ VocaStride, kelime öğrenmeyi alışkanlık haline getirmek için tasarlanmış
 # Özellikler
 
 ### Çalışma Modları
-- **Çoktan Seçmeli** — 4 şık; TR karşılık / Synonym / Ters (TR→EN) / Karışık yön
+- **Çoktan Seçmeli** — 4 şık; TR karşılık / Synonym / Ters (TR→EN) / Karışık yön; kaynak: tümü / zayıf / tekrar / yeni
 - **Hafıza Kartları** — çevir, hatırla, "Tekrar / Bildim" ile ilerle
 - **Kelime Eşleştirme** — 5 kelime ↔ 5 anlam; hatasız tur = **+25 XP bonus**
 - **Maraton** — üç modu tek oturumda karışık sırayla
@@ -26,18 +26,21 @@ VocaStride, kelime öğrenmeyi alışkanlık haline getirmek için tasarlanmış
 - **Başarı ekranları** — oturum sonunda skora göre konfeti / teşvik kartı
 - **Skor kartı paylaşımı** — oturum sonucunu PNG olarak paylaş/indir
 
-### Kelime Bilgisi (hover)
-- Kelimenin üzerinde **2 saniye bekleyince** İngilizce anlamı + IPA okunuşu + **örnek cümle** gösterir
+### Kelime Bilgisi (isteğe bağlı)
+- İlk açılışta ve ayarlardan aç/kapa
+- Kelimeye **dokununca** IPA okunuşu + İngilizce tanım
+- Varsayılan 1200 kelime için bilgiler sitede gömülü — internet gerekmez
+- Kendi listenizi kaydederken anlamları indirmeyi seçebilirsiniz
 - Kendi hatırlatıcı notunu ekleyebilirsin (sözlükten)
-- Bilgiler cihazda önbelleklenir (tekrar istek yok)
-- Çevrimdışıyken sessizce çalışmayı durdurur
 
 ### Teknik
 - **Tam çevrimdışı**: tüm CSS/JS/ikonlar/fontlar gömülü — CDN yok
 - **Service worker** (`sw.js`): app-shell önbelleği, cache-first
 - **PNG ikonlar** (192/512 + maskable) — iOS ana ekran uyumu
 - 5 vurgu rengi × koyu/açık/otomatik tema
-- Onboarding (ilk açılış: hedef + renk seçimi)
+- Onboarding (ilk açılış: hedef + renk + kelime bilgisi)
+- Listeler: varsayılan kilitli; kendi listenle geçiş (Ayarlar)
+- Otomatik tema sistem açık/koyu tercihine uyar
 - İstatistik: **haftalık özet**, **çalışma takvimi** (GitHub tarzı), 7/30 gün grafikleri, oturum geçmişi, ustalık ısı haritası, odak kelimeler, en iyi oturum
 - Sözlük: arama, tür filtresi (v/adj/n/adv), **durum filtresi** (öğrenilen/zayıf), ustalık göstergesi, kişisel not, **IPA rehberi**, kelime bilgisi (hover)
 - Klavye kısayolları, erişilebilirlik (yakınlaştırma, focus, reduced-motion)
