@@ -10,7 +10,9 @@ import type { LevelProgress, ListDifficulty, SrsRec } from '../types';
  * Temel kurallar:
  *  - Bölümler zorluk bantlarından (bands.json) sırayla beslenir; bant içinde
  *    kolaydan zora ilerlenir, hiçbir kelime "yeni" olarak iki kez verilmez.
- *  - Her bölüm 15 birimdir: 10 yeni + 5 tekrar (3 ısınma, 1 eski hata, 1 sürpriz).
+ *  - Her bölüm 15 birimdir: 8 yeni + 7 tekrar (5 ısınma, 1 eski hata, 1 sürpriz).
+ *  - Her normal bölümde beş modun da birer tadı var: 3 kart, 3 eşleştirme,
+ *    test, dinleme, yazma.
  *  - Soğuma: geçilen kelime hemen geri gelmez, ama asla da kaybolmaz.
  */
 
@@ -166,73 +168,56 @@ function allocate(total: number, weights: number[]): number[] {
   return out;
 }
 
-/**
- * Normal bölümlerde mod dağılımı: her bölüm aynı değil, sırayla dönen arketipler.
- * 0–2 tanıma (kart, test, eşleştirme, dinleme), 3–4 üretim (yazma, dinleme).
- */
-const ARCHETYPES: { mode: UnitMode; share: number }[][] = [
-  [
-    { mode: 'cards', share: 0.5 },
-    { mode: 'quiz', share: 0.5 },
-  ],
-  [
-    { mode: 'quiz', share: 0.4 },
-    { mode: 'match', share: 0.5 },
-    { mode: 'quiz', share: 0.1 },
-  ],
-  [
-    { mode: 'listen', share: 0.6 },
-    { mode: 'quiz', share: 0.4 },
-  ],
-  [
-    { mode: 'cards', share: 0.4 },
-    { mode: 'type', share: 0.4 },
-    { mode: 'quiz', share: 0.2 },
-  ],
-  [
-    { mode: 'type', share: 0.5 },
-    { mode: 'listen', share: 0.3 },
-    { mode: 'cards', share: 0.2 },
-  ],
-];
-
 interface BandRamp {
-  /** Bölüm içinde sırayla dönen arketipler. */
-  fresh: number[];
-  /** Isınma tekrarının modu: bölüm indeksine göre döner. */
-  warm: UnitMode[];
-  /** Eski hata ve sürpriz tekrarının modu. */
-  callback: UnitMode;
-  surprise: UnitMode;
   /** Boss bölümlerde yeni kelimelerin ne kadarı yazdırılır (0–1). */
   prod: number;
 }
 
 /**
- * Mod rampası: kademe yükseldikçe soru tipi de zorlaşır.
+ * Boss rampası: kademe yükseldikçe sınav daha çok üretim ister.
  *
- * 1–2 yalnızca tanıma (kart/test/eşleştirme, 2'de bir bölüm dinleme), 3–4
- * dinleme düzenli hâle gelir ve yazma başlar, 5–6 üretim ağırlıklıdır. Ramp
- * yalnızca yeni kelimelere değil tekrar yuvalarına ve boss bölümlere de uygulanır:
- * aksi hâlde 6. kademede bile tekrarlar test olarak kalıp üretim payını eziyordu.
+ * Normal bölümlerde artık her mod var (kart, eşleştirme, test, dinleme, yazma);
+ * rampa yalnızca boss'ları etkiliyor. 1. kademedeki bir boss tanımadığı kelimeyi
+ * yazdırmaz, 6. kademe yeni kelimelerin çoğunu yazdırır.
  */
 const RAMP: BandRamp[] = [
-  // kademe 1 — tanışma: kart + test
-  { fresh: [0, 1, 0, 1], warm: ['quiz'], callback: 'quiz', surprise: 'quiz', prod: 0 },
-  // kademe 2 — dinleme ilk kez, beş bölümde bir
-  { fresh: [0, 1, 0, 1, 2], warm: ['quiz'], callback: 'quiz', surprise: 'quiz', prod: 0.1 },
-  // kademe 3 — dinleme düzenli, yazma henüz yok
-  { fresh: [0, 2, 1, 2, 0], warm: ['quiz', 'quiz', 'listen'], callback: 'quiz', surprise: 'quiz', prod: 0.25 },
-  // kademe 4 — yazma girer, tekrarlarda da denenir
-  { fresh: [2, 3, 1, 2, 3], warm: ['quiz', 'quiz', 'listen'], callback: 'type', surprise: 'quiz', prod: 0.45 },
-  // kademe 5 — üretim ağırlıklı
-  { fresh: [3, 4, 2, 3, 4], warm: ['listen', 'quiz'], callback: 'type', surprise: 'listen', prod: 0.7 },
-  // kademe 6 — üretim baskın
-  { fresh: [4, 4, 3, 4, 2], warm: ['type', 'listen', 'quiz'], callback: 'type', surprise: 'type', prod: 0.8 },
+  { prod: 0 },
+  { prod: 0.1 },
+  { prod: 0.25 },
+  { prod: 0.45 },
+  { prod: 0.7 },
+  { prod: 0.8 },
 ];
 
 function rampFor(band: number): BandRamp {
   return RAMP[Math.min(RAMP.length, Math.max(1, band)) - 1];
+}
+
+/*
+ * Normal bölümün mod tarifi.
+ *
+ * Kart 3'e sabit: 8 yeni kelimede 4 kart açılınca bölüm "kart okuma"ya
+ * dönüşüyordu. Eşleştirme tahtası en az 3 çiftle oynanabildiği için taban 3.
+ */
+const CARDS_PER_LEVEL = 3;
+const MATCH_PER_LEVEL = 3;
+const MATCH_MIN = 3;
+
+/** Tekrar yuvalarının mod sırası: dinleme → yazma → test. */
+const REVIEW_ORDER: ('listen' | 'type' | 'quiz')[] = ['listen', 'type', 'quiz'];
+
+/**
+ * Tekrar yuvalarının mod dağılımı.
+ *
+ * Üç yuva varsa üç mod da birer kez girer; tekrar azaldıkça önce yazma, sonra
+ * dinleme düşer, test kalır. Toplam her zaman `review` olur.
+ */
+function reviewModes(review: number): { listen: number; type: number; quiz: number } {
+  if (review <= 0) return { listen: 0, type: 0, quiz: 0 };
+  if (review < 3) return { listen: 0, type: 0, quiz: review };
+  const listen = Math.max(1, Math.round(review * 0.35));
+  const type = Math.max(1, Math.round(review * 0.3));
+  return { listen, type, quiz: Math.max(1, review - listen - type) };
 }
 
 function reviewSplit(review: number): { warm: number; callback: number; surprise: number } {
@@ -241,54 +226,80 @@ function reviewSplit(review: number): { warm: number; callback: number; surprise
   return { warm: Math.max(0, review - surprise - callback), callback, surprise };
 }
 
-function buildUnits(
-  kind: LevelKind,
-  fresh: number,
-  indexInBand: number,
-  questions: number,
-  rampBand = 1,
-): LevelUnit[] {
+/**
+ * Tekrar yuvalarını (ısınma → eski hata → sürpriz) modlara dağıtır.
+ *
+ * Havuzlar sırayla tüketilir; her mod kendi birimini alır. Normal bölüm de
+ * boss da aynı kuralı kullanıyor: tekrar soruları tek tip olmasın.
+ */
+function pushReview(units: LevelUnit[], review: number): void {
+  const split = reviewSplit(review);
+  const want = reviewModes(review);
+  const pools: [Pool, number][] = [
+    ['warm', split.warm],
+    ['callback', split.callback],
+    ['surprise', split.surprise],
+  ];
+  for (const mode of REVIEW_ORDER) {
+    let need = want[mode];
+    while (need > 0) {
+      const target = pools.find(([, n]) => n > 0);
+      if (!target) break;
+      const take = Math.min(need, target[1]);
+      units.push({ mode, pool: target[0], count: take });
+      target[1] -= take;
+      need -= take;
+    }
+  }
+  // Havuzda artan kelime kalırsa test olarak sorulur (toplam şaşmasın).
+  for (const [pool, n] of pools) if (n > 0) units.push({ mode: 'quiz', pool, count: n });
+}
+
+function buildUnits(kind: LevelKind, fresh: number, questions: number, rampBand = 1): LevelUnit[] {
   const units: LevelUnit[] = [];
 
   if (kind === 'normal') {
-    // İlk bölümde tekrar edilecek kelime yok: tanışma bölümü, hepsi yeni.
+    /*
+     * Her bölümde beş modun da birer tadı var: 3 kart → 3 eşleştirme → test →
+     * dinleme → yazma. Kart sayısı sabit, çünkü uzun deste bölümü kart okumaya
+     * çeviriyordu; eşleştirme tahtası da 3 çiftin altında oynanamıyor.
+     */
+    const cards = Math.min(CARDS_PER_LEVEL, fresh);
+    const rest = fresh - cards;
+    const match = rest >= MATCH_MIN ? Math.min(MATCH_PER_LEVEL, rest) : 0;
+    const quizFresh = rest - match;
+
+    if (cards > 0) units.push({ mode: 'cards', pool: 'fresh', count: cards });
+    if (match > 0) units.push({ mode: 'match', pool: 'fresh', count: match });
+
+    /*
+     * 1. bölüm tanışma bölümü: tekrar edilecek kelime yok, o yüzden dinleme ve
+     * yazma da yeni kelimelerden sorulur (yine de her mod bir kez görünür).
+     */
     if (fresh >= questions) {
-      const cards = Math.min(fresh, Math.round(fresh * 0.5));
-      return [
-        { mode: 'cards', pool: 'fresh', count: cards },
-        { mode: 'quiz', pool: 'fresh', count: fresh - cards },
-      ];
+      const listen = quizFresh >= 5 ? Math.max(1, Math.round(quizFresh * 0.28)) : 0;
+      const type = quizFresh - listen >= 3 ? 1 : 0;
+      const quiz = quizFresh - listen - type;
+      if (quiz > 0) units.push({ mode: 'quiz', pool: 'fresh', count: quiz });
+      if (listen > 0) units.push({ mode: 'listen', pool: 'fresh', count: listen });
+      if (type > 0) units.push({ mode: 'type', pool: 'fresh', count: type });
+      return units;
     }
-    const review = Math.max(2, questions - fresh);
-    const ramp = rampFor(rampBand);
-    const arch = ARCHETYPES[ramp.fresh[indexInBand % ramp.fresh.length]];
-    const parts = allocate(fresh, arch.map((a) => a.share));
 
-    arch.forEach((a, i) => {
-      let mode = a.mode;
-      // Eşleştirme 3 kartın altında oynanamaz; o zaman teste dönüşür.
-      if (mode === 'match' && parts[i] < 3) mode = 'quiz';
-      if (parts[i] > 0) units.push({ mode, pool: 'fresh', count: parts[i] });
-    });
+    if (quizFresh > 0) units.push({ mode: 'quiz', pool: 'fresh', count: quizFresh });
 
-    const split = reviewSplit(review);
-    const warmMode = ramp.warm[indexInBand % ramp.warm.length];
-    if (split.warm) units.push({ mode: warmMode, pool: 'warm', count: split.warm });
-    if (split.callback) units.push({ mode: ramp.callback, pool: 'callback', count: split.callback });
-    if (split.surprise) units.push({ mode: ramp.surprise, pool: 'surprise', count: split.surprise });
+    pushReview(units, Math.max(0, questions - fresh));
     return units;
   }
 
   // Boss'lar sınavdır: kart/eşleştirme yok, üretim (yazma/dinleme) ağırlıklı.
   const total = kind === 'final' ? FINAL_QUESTIONS : questions;
   const review = total - fresh;
-  const split = reviewSplit(review);
 
   if (kind === 'final') {
+    // Final sınavı: yeni kelimeler yazdırılır, tekrarlar karışık gelir.
     units.push({ mode: 'type', pool: 'fresh', count: fresh });
-    if (split.warm) units.push({ mode: 'quiz', pool: 'warm', count: split.warm });
-    if (split.callback) units.push({ mode: 'listen', pool: 'callback', count: split.callback });
-    if (split.surprise) units.push({ mode: 'type', pool: 'surprise', count: split.surprise });
+    pushReview(units, review);
     return units;
   }
 
@@ -299,11 +310,7 @@ function buildUnits(
   if (quizzed > 0) units.push({ mode: 'quiz', pool: 'fresh', count: quizzed });
   if (typed > 0) units.push({ mode: 'type', pool: 'fresh', count: typed });
 
-  const listen = kind === 'hard' ? Math.max(1, Math.round(review * 0.25)) : 0;
-  if (split.warm) units.push({ mode: 'quiz', pool: 'warm', count: Math.max(0, split.warm - listen) });
-  if (listen) units.push({ mode: 'listen', pool: 'warm', count: listen });
-  if (split.callback) units.push({ mode: 'quiz', pool: 'callback', count: split.callback });
-  if (split.surprise) units.push({ mode: 'quiz', pool: 'surprise', count: split.surprise });
+  pushReview(units, review);
   return units;
 }
 
@@ -345,7 +352,7 @@ export function campaignPlan(
         indexInBand: i,
         freshStart: start,
         fresh,
-        units: buildUnits(kind, fresh, i, opts.questions, rampBand),
+        units: buildUnits(kind, fresh, opts.questions, rampBand),
         total: kind === 'final' ? FINAL_QUESTIONS : opts.questions,
         passPct: Math.min(0.9, Math.max(0.4, PASS[kind] + delta)),
         relax: kind === 'normal' ? 1 : 0.5,
@@ -475,7 +482,7 @@ export function selectLevel(def: LevelDef, ctx: SelectContext): LevelSelection {
    */
   const fresh = shuffle(freshPicked, Math.random);
 
-  const reviewUnits = buildUnits(def.kind, fresh.length, def.indexInBand, def.total, def.rampBand);
+  const reviewUnits = buildUnits(def.kind, fresh.length, def.total, def.rampBand);
   const want: Record<Pool, number> = { fresh: 0, warm: 0, callback: 0, surprise: 0 };
   for (const u of reviewUnits) want[u.pool] += u.count;
 
@@ -580,7 +587,7 @@ export function expandUnits(def: LevelDef, sel: LevelSelection): PlannedUnit[] {
   const out: PlannedUnit[] = [];
   // Birimler seçimin gerçek sayılarından kurulur: yeni kelime sayısı uyarlamayla
   // değişebilir, plan ise yalnızca hedefi tutar.
-  for (const unit of buildUnits(def.kind, sel.fresh.length, def.indexInBand, def.total, def.rampBand)) {
+  for (const unit of buildUnits(def.kind, sel.fresh.length, def.total, def.rampBand)) {
     const keys = pools[unit.pool].splice(0, unit.count);
     if (keys.length) out.push({ mode: unit.mode, pool: unit.pool, keys });
   }

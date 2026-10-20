@@ -163,8 +163,9 @@ for (const [band, mix] of Object.entries(r.perBand)) {
   console.log(`  kademe ${band}: ${parts.join(' · ')}`);
 }
 
-// Rampa ölçümü: tanıma (kart/test/eşleştirme) → üretim (yazma/dinleme) kayması
-// kademe kademe artmalı. Tek sayı, rampanın gerçekten çalışıp çalışmadığını söyler.
+// Üretim payı: tanıma (kart/test/eşleştirme) yerine yazma/dinleme ne kadar
+// giriyor. Normal bölümlerde artık rampa yok (her mod her bölümde), boss'larda
+// kademe yükseldikçe üretim artıyor.
 console.log('\nÜRETİM PAYI (yazma + dinleme, kademe bazında)');
 const prod = Object.entries(r.perBand).map(([band, mix]) => {
   const total = Object.values(mix).reduce((a, b) => a + b, 0);
@@ -175,8 +176,23 @@ for (const p of prod) {
   const bar = '█'.repeat(Math.round(p.share / 4));
   console.log(`  kademe ${p.band}: ${p.share.toFixed(0).padStart(3)}%  ${bar}`);
 }
-const monotone = prod.every((p, i) => i === 0 || p.share >= prod[i - 1].share - 0.5);
-console.log(`  rampa tek yönlü mü: ${monotone ? 'evet' : 'HAYIR'}`);
+/*
+ * Bölüm tarifi denetimi: her normal bölümde beş modun da birer tadı olmalı ve
+ * kart sayısı 3'te sabit kalmalı. Bu iki satır kırmızıya dönerse "her bölümde
+ * her şeyden olsun" kuralı bozulmuş demektir.
+ */
+const ALL_MODES = ['cards', 'match', 'quiz', 'listen', 'type'];
+const normalDefs = r.plan.filter((d) => d.kind === 'normal');
+const missing = normalDefs.filter((d) => {
+  const have = new Set(d.units.map((u) => u.mode));
+  return ALL_MODES.some((m) => !have.has(m));
+});
+const cardsOff = normalDefs.filter(
+  (d) => (d.units.find((u) => u.mode === 'cards')?.count ?? 0) !== 3,
+);
+console.log('\nBÖLÜM TARİFİ (normal bölümler)');
+console.log(`  beş mod birden  : ${missing.length ? `HAYIR (${missing.length} bölüm)` : `evet (${normalDefs.length} bölüm)`}`);
+console.log(`  kart sayısı     : ${cardsOff.length ? `HAYIR (${cardsOff.length} bölüm)` : 'her bölümde 3'}`);
 console.log('\nMOD DAĞILIMI (toplam)');
 for (const [m, n] of Object.entries(r.modes).sort((a, b) => b[1] - a[1])) {
   console.log(`  ${m.padEnd(7)} ${String(n).padStart(4)}  ${pct(n, r.answered)}`);
