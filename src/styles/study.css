@@ -488,6 +488,16 @@
     color 150ms ease;
 }
 
+/*
+ * Şık numaraları (1–4) yalnızca klavye içindir. Dokunmatikte anlamsız:
+ * seçeneğin solunda boş bir kutu gibi duruyordu.
+ */
+@media (hover: none), (pointer: coarse) {
+  .q-opt .q-key {
+    display: none;
+  }
+}
+
 .q-opt .q-text {
   flex: 1 1 auto;
   min-width: 0;
@@ -899,6 +909,41 @@
   margin-bottom: 16px;
 }
 
+/*
+ * Sürükleme kabuğu.
+ *
+ * Dönüşüm (translateX + hafif dönme) `.flip` yerine buraya uygulanıyor.
+ * Önceden perspektif kapsayıcısının kendisi taşınıyordu; bu, her karede 3B
+ * sahnenin yeniden rasterlenmesi demekti ve mobilde çevirme/sürükleme
+ * sırasında kare düşürüyordu. Artık sahne bir kez çiziliyor, kabuk sadece
+ * kompozit katman olarak kayıyor.
+ *
+ * Kaldırma gölgesi de burada: `.flip-face` içindeki gölgeyi büyütmek yerine
+ * opaklığı değişen bir katman kullanılıyor (gölge bulanıklığı yeniden
+ * hesaplanmıyor).
+ */
+.card-shell {
+  position: absolute;
+  inset: 0;
+  border-radius: var(--r-xl);
+  will-change: transform;
+}
+
+.card-shell::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  box-shadow: var(--shadow-3);
+  opacity: 0;
+  transition: opacity 180ms ease;
+  pointer-events: none;
+}
+
+.card-shell[data-drag='true']::after {
+  opacity: 1;
+}
+
 .flip {
   position: absolute;
   inset: 0;
@@ -916,7 +961,8 @@
   position: absolute;
   inset: 0;
   transform-style: preserve-3d;
-  transition: transform 520ms var(--ease-in-out);
+  will-change: transform;
+  transition: transform 460ms var(--ease-in-out);
   animation: card-in 360ms var(--ease-out) backwards;
 }
 
@@ -952,11 +998,6 @@
   overflow: hidden;
   text-align: left;
   box-shadow: var(--shadow-2);
-  transition: box-shadow 240ms ease;
-}
-
-.flip[data-drag='true'] .flip-face {
-  box-shadow: var(--shadow-3);
 }
 
 .flip-face.back {
@@ -1058,7 +1099,7 @@
 }
 
 /* Dokunmatik cihazda klavye ipuçları anlamsız: yer kaplamasın. */
-@media (hover: none) {
+@media (hover: none), (pointer: coarse) {
   .q-hint,
   .kbd-note {
     display: none;

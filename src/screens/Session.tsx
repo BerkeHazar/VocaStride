@@ -929,8 +929,10 @@ function CardsStep({
   const lang = useLang();
   const [i, setI] = useState(0);
   const [flipped, setFlipped] = useState(false);
-  const [dragX, setDragX] = useState(0);
   const cardRef = useRef<HTMLDivElement>(null);
+  const flipRef = useRef<HTMLDivElement>(null);
+  const hintL = useRef<HTMLSpanElement>(null);
+  const hintR = useRef<HTMLSpanElement>(null);
   const drag = useRef({ x: 0, y: 0, dx: 0, active: false, moved: false });
   const word = byKey.get(keys[i]);
   const info = word ? dict?.[word.key] : undefined;
@@ -986,9 +988,18 @@ function CardsStep({
      */
     if ((e.target as HTMLElement).closest('button, a, input')) return;
     drag.current = { x: e.clientX, y: e.clientY, dx: 0, active: true, moved: false };
-    cardRef.current?.setPointerCapture(e.pointerId);
+    flipRef.current?.setPointerCapture(e.pointerId);
   };
 
+  /*
+   * Sürükleme React state'ine yazmıyor.
+   *
+   * Önce her `pointermove` için setState çağrılıyordu: mobilde saniyede 60–120
+   * kez kartın tamamı (iki yüz, ipuçları, düğmeler) yeniden çiziliyordu.
+   * Artık transform ve ipuçları doğrudan DOM'a yazılıyor; React hiç uyanmıyor.
+   * Dönüşüm de `.flip` yerine dış kabuğa (.card-shell) uygulanıyor: perspektif
+   * sahnesi sabit kalıyor, sadece derlenmiş katman kayıyor.
+   */
   const onPointerMove = (e: React.PointerEvent<HTMLDivElement>) => {
     const d = drag.current;
     if (!d.active) return;
@@ -996,12 +1007,18 @@ function CardsStep({
     const dy = e.clientY - d.y;
     if (Math.abs(dx) > 8 || Math.abs(dy) > 8) d.moved = true;
     d.dx = dx;
+
     const el = cardRef.current;
     if (el) {
       el.style.transition = 'none';
       el.style.transform = `translateX(${dx}px) rotate(${dx * 0.035}deg)`;
+      const lifted = String(Math.abs(dx) > 6);
+      if (el.dataset.drag !== lifted) el.dataset.drag = lifted;
     }
-    setDragX(dx);
+    const left = String(dx < -46);
+    const right = String(dx > 46);
+    if (hintL.current && hintL.current.dataset.on !== left) hintL.current.dataset.on = left;
+    if (hintR.current && hintR.current.dataset.on !== right) hintR.current.dataset.on = right;
   };
 
   const endDrag = () => {
@@ -1018,7 +1035,9 @@ function CardsStep({
         if (el) el.style.transition = '';
       }, 240);
     }
-    setDragX(0);
+    if (el) el.dataset.drag = 'false';
+    if (hintL.current) hintL.current.dataset.on = 'false';
+    if (hintR.current) hintR.current.dataset.on = 'false';
     if (Math.abs(d.dx) > 88) grade(d.dx > 0);
   };
 
@@ -1027,21 +1046,21 @@ function CardsStep({
   return (
     <div className="cards">
       <div className="swipe-hints" aria-hidden="true">
-        <span className="swipe-hint left" data-on={dragX < -46}>
+        <span className="swipe-hint left" ref={hintL} data-on="false">
           tekrar
         </span>
-        <span className="swipe-hint right" data-on={dragX > 46}>
+        <span className="swipe-hint right" ref={hintR} data-on="false">
           biliyorum
         </span>
       </div>
       <div className="deck">
+        <div className="card-shell" ref={cardRef} data-drag="false">
         <div
-          ref={cardRef}
+          ref={flipRef}
           role="button"
           tabIndex={0}
           className="flip"
           data-flipped={flipped}
-          data-drag={Math.abs(dragX) > 6}
           onPointerDown={onPointerDown}
         onPointerMove={onPointerMove}
         onPointerUp={endDrag}
@@ -1097,7 +1116,8 @@ function CardsStep({
             </button>
           </div>
         </div>
-      </div>
+        </div>
+        </div>
       </div>
 
       <div className="card-actions">
