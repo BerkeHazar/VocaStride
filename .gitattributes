@@ -1,0 +1,14 @@
+# Satır sonları: depoda LF, Windows'ta çalışırken otomatik dönüşüm
+* text=auto eol=lf
+
+# İkili dosyalar (dönüşüm yok)
+*.png binary
+*.jpg binary
+*.webp binary
+*.ico binary
+*.woff2 binary
+*.pdf binary
+
+# GitHub dil istatistiklerinde içerik olarak sayılmasın
+docs/screenshots/* linguist-documentation
+brand/*.svg linguist-documentation

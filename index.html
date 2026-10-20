@@ -1,0 +1,193 @@
+<!doctype html>
+<html lang="tr" data-theme="light">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, viewport-fit=cover, interactive-widget=resizes-content"
+    />
+    <title>VocaStride — adım adım kelime öğren</title>
+    <meta
+      name="description"
+      content="VocaStride — aralıklı tekrar ile İngilizce kelime öğrenme. 1200 kelime, gerçek telaffuz, çevrimdışı PWA. Hesap yok, veriler cihazında kalır."
+    />
+    <meta name="color-scheme" content="light dark" />
+    <meta name="theme-color" media="(prefers-color-scheme: light)" content="#F4F1E9" />
+    <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#121110" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+    <meta name="apple-mobile-web-app-title" content="VocaStride" />
+
+    <link rel="canonical" href="https://berkehazar.github.io/VocaStride/" />
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="VocaStride" />
+    <meta property="og:title" content="VocaStride — adım adım kelime öğren" />
+    <meta
+      property="og:description"
+      content="Aralıklı tekrar ile İngilizce kelime öğren. 1200 kelime, 4 çalışma modu, 23 rozet. Çevrimdışı çalışır, veriler cihazında kalır."
+    />
+    <meta property="og:url" content="https://berkehazar.github.io/VocaStride/" />
+    <meta property="og:image" content="https://berkehazar.github.io/VocaStride/og.png" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:locale" content="tr_TR" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="VocaStride — adım adım kelime öğren" />
+    <meta
+      name="twitter:description"
+      content="Aralıklı tekrar ile İngilizce kelime öğren. Çevrimdışı, ücretsiz, hesapsız."
+    />
+    <meta name="twitter:image" content="https://berkehazar.github.io/VocaStride/og.png" />
+
+    <link rel="icon" href="%BASE_URL%favicon.svg" type="image/svg+xml" />
+    <link rel="icon" href="%BASE_URL%icons/favicon-32.png" sizes="32x32" type="image/png" />
+    <link rel="icon" href="%BASE_URL%icons/favicon-16.png" sizes="16x16" type="image/png" />
+    <link rel="apple-touch-icon" sizes="180x180" href="%BASE_URL%icons/apple-180.png" />
+    <link rel="manifest" href="%BASE_URL%manifest.webmanifest" />
+
+    <link
+      rel="preload"
+      href="%BASE_URL%fonts/bricolage-latin.woff2"
+      as="font"
+      type="font/woff2"
+      crossorigin
+    />
+    <link
+      rel="preload"
+      href="%BASE_URL%fonts/instrument-latin.woff2"
+      as="font"
+      type="font/woff2"
+      crossorigin
+    />
+
+    <script>
+      /* Tema, ilk boyadan önce uygulanır: karanlık modda beyaz flaş olmaz. */
+      try {
+        var raw = localStorage.getItem('vs2:state');
+        var st = raw ? JSON.parse(raw) : null;
+        var pref = st && st.settings ? st.settings.theme : 'auto';
+        var dark =
+          pref === 'dark' ||
+          (pref === 'auto' && window.matchMedia('(prefers-color-scheme: dark)').matches);
+        var el = document.documentElement;
+        el.dataset.theme = dark ? 'dark' : 'light';
+        el.dataset.accent = (st && st.settings && st.settings.accent) || 'marker';
+        el.dataset.calm = String(!!(st && st.settings && st.settings.calm));
+      } catch (e) {}
+    </script>
+
+    <style>
+      /* İlk boya: JS yüklenirken beyaz flaş yok, iskelet hazır. */
+      :root {
+        --boot-bg: #f4f1e9;
+        --boot-ink: #17150f;
+        --boot-mark: #1b3a63;
+        --boot-word: #1b3a63;
+        --boot-accent: #1b3a63;
+      }
+      @media (prefers-color-scheme: dark) {
+        :root {
+          --boot-bg: #121110;
+          --boot-ink: #f3efe4;
+          --boot-mark: #a3b9e6;
+          --boot-word: #f3efe4;
+          --boot-accent: #a3b9e6;
+        }
+      }
+      /* Tema tercihi (yerel ayar) sisteminkini ezer: açılış ekranı uygulamayla aynı. */
+      html[data-theme='light'] {
+        --boot-bg: #f4f1e9;
+        --boot-ink: #17150f;
+        --boot-mark: #1b3a63;
+        --boot-word: #1b3a63;
+        --boot-accent: #1b3a63;
+      }
+      html[data-theme='dark'] {
+        --boot-bg: #121110;
+        --boot-ink: #f3efe4;
+        --boot-mark: #a3b9e6;
+        --boot-word: #f3efe4;
+        --boot-accent: #a3b9e6;
+      }
+      html,
+      body {
+        margin: 0;
+        background: var(--boot-bg);
+        color: var(--boot-ink);
+      }
+      #boot {
+        position: fixed;
+        inset: 0;
+        display: grid;
+        place-content: center;
+        justify-items: center;
+        gap: 22px;
+        background: var(--boot-bg);
+        z-index: 999;
+        transition: opacity 0.32s ease-out, visibility 0.32s;
+      }
+      #boot[data-done='1'] {
+        opacity: 0;
+        visibility: hidden;
+      }
+      /* Logo tek parça: karo + wordmark aynı geometriden (brand/mark.json). */
+      #boot .lockup {
+        display: block;
+        max-width: min(78vw, 260px);
+        height: auto;
+        animation: boot-pop 0.42s cubic-bezier(0.23, 1, 0.32, 1) both;
+      }
+      #boot .bl {
+        width: 132px;
+        height: 2px;
+        background: color-mix(in srgb, var(--boot-ink) 14%, transparent);
+        overflow: hidden;
+      }
+      #boot .bl i {
+        display: block;
+        height: 100%;
+        width: 40%;
+        background: var(--boot-accent);
+        animation: boot-slide 1.1s ease-in-out infinite;
+      }
+      @keyframes boot-pop {
+        from {
+          opacity: 0;
+          transform: scale(0.96);
+        }
+        to {
+          opacity: 1;
+          transform: none;
+        }
+      }
+      @keyframes boot-slide {
+        0% {
+          transform: translateX(-100%);
+        }
+        100% {
+          transform: translateX(350%);
+        }
+      }
+      @media (prefers-reduced-motion: reduce) {
+        #boot .lockup,
+        #boot .bl i {
+          animation: none;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div id="boot" role="status" aria-label="VocaStride yükleniyor">
+      <!-- Marka: brand/build.py üretir, vite buraya aynı geometriyi yazar -->
+      <!--brand-lockup-->
+      <div class="bl"><i></i></div>
+    </div>
+    <div id="root"></div>
+    <noscript>
+      <p style="padding: 24px; font-family: system-ui, sans-serif">
+        VocaStride'ı kullanmak için tarayıcında JavaScript'i etkinleştirmen gerekiyor.
+      </p>
+    </noscript>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>

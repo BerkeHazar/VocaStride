@@ -1,0 +1,25 @@
+# Bağımlılıklar ve derleme çıktısı
+node_modules/
+dist/
+.vite/
+coverage/
+
+# Tip kontrolü ara çıktısı
+*.tsbuildinfo
+
+# Yerel ayar ve sırlar
+.env
+.env.*
+!.env.example
+*.local
+
+# Geliştirme çıktıları (yeniden üretilebilir)
+brand/renders/
+public/__seed.html
+
+# İşletim sistemi / editör
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+*.log

@@ -1,0 +1,983 @@
+/* ============================================================
+   Bileşenler: buton, etiket, çip, ilerleme, sheet, bildirim.
+   Yüzeyler düz; yükselti yalnızca gerçekten üstte duran şeylerde.
+   ============================================================ */
+
+/* ------------------------------- buton ------------------------------- */
+
+.btn {
+  --btn-bg: var(--surface);
+  --btn-fg: var(--ink);
+  --btn-line: var(--line-2);
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 44px;
+  padding: 0 16px;
+  border: 1px solid var(--btn-line);
+  border-radius: var(--r-md);
+  background: var(--btn-bg);
+  color: var(--btn-fg);
+  font-family: var(--font-ui);
+  font-size: var(--fs-base);
+  font-weight: 560;
+  letter-spacing: -0.008em;
+  white-space: nowrap;
+  transition:
+    background-color 140ms ease,
+    border-color 140ms ease,
+    color 140ms ease,
+    box-shadow 180ms ease,
+    transform 110ms var(--ease-out);
+}
+
+.btn svg {
+  opacity: 0.9;
+}
+
+/*
+ * Basış: parmağın altında gerçekten bir şey var.
+ *
+ * Ölçek yok. Küçülme, geniş bir düğmede kenarları içeri çekiyor ama
+ * ortalanmış yazı yerinde kalıyor: "düğme göçtü, yazı inmedi" hissi.
+ * Basış artık yalnızca 1 px'lik ortak iniş (base.css) + iç gölge:
+ * yazı, ikon ve kenarlık tek parça hâlinde iner.
+ */
+.btn:active {
+  box-shadow: inset 0 1px 2px rgba(15, 16, 18, 0.12);
+}
+
+/*
+ * Pasif düğme. Saydamlıkla soluklaştırmak, koyu dolgulu birincil düğmeyi
+ * kağıdın üstünde çamurumsu bir bloğa çeviriyordu. Pasif hâl artık kendi
+ * yüzeyi: düz kağıt, soluk yazı, gölge yok.
+ */
+.btn[disabled],
+.btn[aria-disabled='true'] {
+  --btn-bg: var(--surface-2);
+  --btn-fg: var(--ink-3);
+  --btn-line: transparent;
+  box-shadow: none;
+  pointer-events: none;
+}
+
+.btn-primary {
+  --btn-bg: var(--ink);
+  --btn-fg: var(--bg);
+  --btn-line: var(--ink);
+  box-shadow: 0 1px 2px rgba(23, 21, 15, 0.18);
+}
+
+.btn-accent {
+  --btn-bg: var(--accent);
+  --btn-fg: var(--accent-ink);
+  --btn-line: var(--accent);
+  box-shadow: 0 1px 2px rgba(23, 21, 15, 0.16);
+}
+
+.btn-soft {
+  --btn-bg: var(--accent-soft);
+  --btn-fg: var(--accent);
+  --btn-line: transparent;
+}
+
+.btn-ghost {
+  --btn-bg: transparent;
+  --btn-fg: var(--ink-2);
+  --btn-line: transparent;
+}
+
+.btn-danger {
+  --btn-bg: var(--danger);
+  --btn-fg: #fff;
+  --btn-line: var(--danger);
+}
+
+.btn-lg {
+  min-height: 52px;
+  padding: 0 22px;
+  font-size: var(--fs-md);
+  font-weight: 600;
+  border-radius: var(--r-lg);
+}
+
+.btn-sm {
+  min-height: 38px;
+  padding: 0 13px;
+  font-size: var(--fs-sm);
+  border-radius: var(--r-sm);
+  gap: 6px;
+}
+
+.btn-block {
+  width: 100%;
+}
+
+.icon-btn {
+  display: inline-grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  border-radius: var(--r-md);
+  color: var(--ink-2);
+  transition:
+    background-color var(--t-fast) ease,
+    color var(--t-fast) ease,
+    transform var(--t-fast) var(--ease-out);
+}
+
+.icon-btn:active {
+  background: var(--surface-2);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .btn:hover {
+    --btn-bg: var(--surface-2);
+  }
+  /*
+   * Hover'da yer değiştirme yok. Düğme imlecin altında 1 px yukarı
+   * kayınca, yanındaki düğmeye geçerken ikisi birden oynuyor gibi
+   * görünüyordu. Renk ve gölge yeterli bir "buradasın" işareti.
+   */
+  .btn-primary:hover {
+    --btn-bg: color-mix(in srgb, var(--ink) 86%, #fff);
+    box-shadow: var(--shadow-lift);
+  }
+  .btn-accent:hover {
+    --btn-bg: color-mix(in srgb, var(--accent) 88%, #000);
+    box-shadow: var(--shadow-lift);
+  }
+  .btn-soft:hover {
+    --btn-bg: color-mix(in srgb, var(--accent-soft) 66%, var(--accent));
+    --btn-fg: var(--accent-ink);
+  }
+  .btn-ghost:hover {
+    --btn-bg: color-mix(in srgb, var(--ink) 5%, transparent);
+    --btn-fg: var(--ink);
+  }
+  .btn-danger:hover {
+    --btn-bg: color-mix(in srgb, var(--danger) 86%, #000);
+  }
+  .icon-btn:hover {
+    background: color-mix(in srgb, var(--ink) 5%, transparent);
+    color: var(--ink);
+  }
+}
+
+/* ------------------------------- etiket ------------------------------ */
+
+.tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  height: 24px;
+  padding: 0 8px;
+  border: 1px solid var(--line-2);
+  border-radius: var(--r-xs);
+  color: var(--ink-2);
+  font-size: var(--fs-xs);
+  font-weight: 550;
+  letter-spacing: 0.01em;
+  line-height: 1;
+  white-space: nowrap;
+}
+
+.tag svg {
+  opacity: 0.75;
+}
+
+.tag-soft {
+  border-color: transparent;
+  background: var(--surface-2);
+  color: var(--ink-2);
+}
+
+.tag-accent {
+  border-color: transparent;
+  background: var(--accent-soft);
+  color: var(--accent);
+}
+
+/* -------------------------------- çip -------------------------------- */
+
+.chip {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  min-height: 40px;
+  padding: 0 14px;
+  border: 1px solid var(--line-2);
+  border-radius: var(--r-sm);
+  background: transparent;
+  color: var(--ink-2);
+  font-size: var(--fs-sm);
+  font-weight: 520;
+  white-space: nowrap;
+  transition:
+    background-color 140ms ease,
+    color 140ms ease,
+    border-color 140ms ease,
+    box-shadow 160ms ease,
+    transform 110ms var(--ease-out);
+}
+
+.chip:active {
+  background: color-mix(in srgb, var(--ink) 6%, transparent);
+}
+
+.chip[aria-pressed='true'],
+.chip.is-on {
+  background: var(--ink);
+  border-color: var(--ink);
+  color: var(--bg);
+  font-weight: 600;
+  box-shadow: 0 1px 2px rgba(23, 21, 15, 0.16);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .chip:not([aria-pressed='true']):hover {
+    border-color: var(--ink-3);
+    color: var(--ink);
+  }
+}
+
+/* ------------------------------ segment ------------------------------ */
+
+.seg {
+  display: inline-flex;
+  padding: 3px;
+  gap: 2px;
+  border: 1px solid var(--line);
+  border-radius: var(--r-md);
+  background: var(--surface-2);
+}
+
+.seg button {
+  min-height: 34px;
+  padding: 0 12px;
+  border-radius: var(--r-sm);
+  color: var(--ink-2);
+  font-size: var(--fs-sm);
+  font-weight: 550;
+  transition:
+    background-color 160ms ease,
+    color 160ms ease,
+    box-shadow 160ms ease,
+    transform 110ms var(--ease-out);
+}
+
+.seg button:active {
+  background: color-mix(in srgb, var(--ink) 6%, transparent);
+}
+
+.seg button[aria-pressed='true'] {
+  background: var(--surface);
+  color: var(--ink);
+  font-weight: 600;
+  box-shadow:
+    0 1px 2px rgba(23, 21, 15, 0.1),
+    inset 0 0 0 1px var(--line);
+}
+
+[data-theme='dark'] .seg button[aria-pressed='true'] {
+  background: var(--surface-3);
+  box-shadow:
+    0 1px 3px rgba(0, 0, 0, 0.5),
+    inset 0 0 0 1px var(--line-2);
+}
+
+/* ----------------------------- ilerleme ------------------------------ */
+
+.bar {
+  position: relative;
+  height: 4px;
+  border-radius: 99px;
+  background: var(--surface-3);
+  overflow: hidden;
+}
+
+.bar > i {
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: var(--accent);
+  transform-origin: left center;
+  transform: scaleX(var(--v, 0));
+  /* Hafif yay: çubuk hedefi bir kere sıyırıp oturur. */
+  transition: transform 480ms cubic-bezier(0.34, 1.24, 0.64, 1);
+}
+
+.bar.thin {
+  height: 3px;
+}
+
+.bar[data-tone='ok'] > i {
+  background: var(--ok);
+}
+
+.ring {
+  display: block;
+  transform: rotate(-90deg);
+}
+
+.ring circle {
+  fill: none;
+}
+
+.ring .track {
+  stroke: var(--surface-3);
+}
+
+.ring .val {
+  stroke: var(--accent);
+  stroke-linecap: round;
+  stroke-dasharray: var(--c);
+  stroke-dashoffset: calc(var(--c) - var(--c) * var(--v, 0));
+  transition: stroke-dashoffset 620ms var(--ease-out);
+}
+
+.ring-wrap {
+  position: relative;
+  display: inline-grid;
+  place-items: center;
+  flex: none;
+}
+
+.ring-wrap > * {
+  grid-area: 1 / 1;
+}
+
+.ring-wrap > *:not(svg) {
+  text-align: center;
+  line-height: 1.1;
+}
+
+/* ------------------------------- form -------------------------------- */
+
+.field {
+  display: grid;
+  gap: 6px;
+}
+
+.field > span {
+  font-size: var(--fs-xs);
+  font-weight: 600;
+  color: var(--ink-2);
+  letter-spacing: 0.01em;
+}
+
+.input {
+  width: 100%;
+  min-height: 44px;
+  padding: 10px 12px;
+  background: var(--surface);
+  border: 1px solid var(--line-2);
+  border-radius: var(--r-md);
+  font-size: 16px;
+  transition:
+    border-color var(--t-fast) ease,
+    box-shadow var(--t-fast) ease;
+}
+
+.input:focus {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 14%, transparent);
+}
+
+.textarea {
+  width: 100%;
+  min-height: 120px;
+  padding: 10px 12px;
+  resize: vertical;
+  background: var(--surface);
+  border: 1px solid var(--line-2);
+  border-radius: var(--r-md);
+  font-size: 16px;
+  line-height: 1.5;
+  transition:
+    border-color var(--t-fast) ease,
+    box-shadow var(--t-fast) ease;
+}
+
+.textarea::placeholder {
+  color: var(--ink-3);
+}
+
+.textarea:focus {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 14%, transparent);
+}
+
+.switch {
+  position: relative;
+  flex: none;
+  width: 46px;
+  height: 28px;
+  touch-action: manipulation;
+  border-radius: 99px;
+  background: var(--surface-3);
+  border: 1px solid var(--line-2);
+  transition:
+    background-color var(--t-base) ease,
+    border-color var(--t-base) ease;
+}
+
+/* Görünür yükseklik 28 px kalsa da dokunma alanı 44 px. */
+.switch::before {
+  content: '';
+  position: absolute;
+  inset: -8px -6px;
+}
+
+.switch::after {
+  content: '';
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: var(--surface);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.25);
+  transition:
+    transform 240ms var(--ease-spring),
+    width 140ms var(--ease-out);
+}
+
+.switch[aria-checked='true'] {
+  background: var(--accent);
+  border-color: var(--accent);
+}
+
+.switch[aria-checked='true']::after {
+  transform: translateX(18px);
+}
+
+.swatch {
+  position: relative;
+  flex: none;
+  width: 38px;
+  height: 38px;
+  border-radius: var(--r-md);
+  background: var(--sw);
+  border: 1px solid var(--line-strong);
+  transition:
+    transform var(--t-fast) var(--ease-out),
+    box-shadow var(--t-base) ease;
+}
+
+.swatch[aria-pressed='true']::after {
+  content: '';
+  position: absolute;
+  inset: -4px;
+  border: 1.5px solid var(--ink);
+  border-radius: calc(var(--r-md) + 4px);
+  animation: swatch-in 220ms var(--ease-spring);
+}
+
+@keyframes swatch-in {
+  from {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* ------------------------------- sheet ------------------------------- */
+
+/*
+ * Perde ve sheet giriş/çıkışı CSS animasyonuyla yapılır.
+ * Geçiş (transition) yalnızca öğenin bir kare "kapalı" hâliyle boyanması
+ * durumunda çalışır; mobil tarayıcılar bu kareyi atlayabildiği için
+ * animasyon zaman zaman hiç oynamıyordu. Animasyon öğe DOM'a girdiği anda
+ * başlar; zamanlama sorunu kalmaz.
+ */
+.backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 120;
+  background: rgba(18, 16, 12, 0.42);
+  backdrop-filter: blur(2px);
+  opacity: 1;
+}
+
+.backdrop[data-open='true'] {
+  animation: backdrop-in 150ms ease backwards;
+}
+
+.backdrop[data-leaving='true'] {
+  animation: backdrop-out 260ms ease forwards;
+}
+
+@keyframes backdrop-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes backdrop-out {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
+
+.sheet {
+  position: fixed;
+  z-index: 130;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  flex-direction: column;
+  max-height: 90dvh;
+  padding-bottom: var(--safe-b);
+  background: var(--surface);
+  border-top: 1px solid var(--line);
+  border-radius: var(--r-2xl) var(--r-2xl) 0 0;
+  box-shadow: var(--shadow-3);
+  transform: none;
+  overscroll-behavior: contain;
+}
+
+.sheet[data-open='true'] {
+  animation: sheet-in 240ms var(--ease-drawer) backwards;
+}
+
+.sheet[data-leaving='true'] {
+  animation: sheet-out 200ms var(--ease-drawer) forwards;
+}
+
+@keyframes sheet-in {
+  from {
+    transform: translateY(100%);
+  }
+  to {
+    transform: none;
+  }
+}
+
+@keyframes sheet-out {
+  from {
+    transform: none;
+  }
+  to {
+    transform: translateY(100%);
+  }
+}
+
+.sheet-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 14px 12px 10px 18px;
+  border-bottom: 1px solid var(--line);
+}
+
+.sheet-head h2 {
+  font-size: var(--fs-md);
+  font-weight: 620;
+  letter-spacing: -0.02em;
+}
+
+.sheet-grip {
+  width: 36px;
+  height: 4px;
+  margin: 8px auto 0;
+  border-radius: 99px;
+  background: var(--line-2);
+  flex: none;
+  touch-action: none;
+}
+
+.sheet-foot {
+  flex: none;
+  padding: 12px 20px calc(14px + var(--safe-b));
+  border-top: 1px solid var(--line);
+  background: var(--surface);
+}
+
+.sheet-body {
+  padding: 20px 20px calc(22px + var(--safe-b));
+  overflow-y: auto;
+  overflow-x: hidden;
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
+}
+
+.sheet-lede {
+  font-size: var(--fs-sm);
+  color: var(--ink-3);
+  line-height: 1.55;
+}
+
+@media (min-width: 760px) {
+  .sheet {
+    left: 50%;
+    right: auto;
+    bottom: auto;
+    top: 50%;
+    width: min(560px, calc(100vw - 48px));
+    max-height: min(84dvh, 760px);
+    border: 1px solid var(--line);
+    border-radius: var(--r-2xl);
+    transform: translate(-50%, -50%);
+    opacity: 1;
+  }
+  .sheet[data-open='true'] {
+    animation: sheet-in-desk 190ms var(--ease-out) backwards;
+  }
+  .sheet[data-leaving='true'] {
+    animation: sheet-out-desk 170ms var(--ease-out) forwards;
+  }
+  @keyframes sheet-in-desk {
+    from {
+      opacity: 0;
+      transform: translate(-50%, calc(-50% + 14px)) scale(0.98);
+    }
+    to {
+      opacity: 1;
+      transform: translate(-50%, -50%);
+    }
+  }
+  @keyframes sheet-out-desk {
+    from {
+      opacity: 1;
+      transform: translate(-50%, -50%);
+    }
+    to {
+      opacity: 0;
+      transform: translate(-50%, calc(-50% + 10px)) scale(0.99);
+    }
+  }
+  .sheet-grip {
+    display: none;
+  }
+  .sheet-head {
+    padding: 18px 18px 12px 22px;
+  }
+  .sheet-body {
+    padding: 22px 24px 26px;
+  }
+  .sheet-foot {
+    padding: 14px 24px 20px;
+  }
+}
+
+/* ----------------------------- bildirim ------------------------------ */
+
+.toasts {
+  position: fixed;
+  z-index: 200;
+  left: 12px;
+  right: 12px;
+  bottom: calc(var(--dock) + var(--safe-b) + 12px);
+  display: grid;
+  gap: 8px;
+  justify-items: center;
+  pointer-events: none;
+}
+
+@media (min-width: 1024px) {
+  .toasts {
+    left: auto;
+    right: 22px;
+    bottom: 22px;
+    justify-items: end;
+  }
+}
+
+.toast {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  max-width: min(440px, 100%);
+  padding: 11px 15px;
+  border-radius: var(--r-md);
+  background: var(--ink);
+  color: var(--bg);
+  font-size: var(--fs-sm);
+  font-weight: 520;
+  box-shadow: var(--shadow-2);
+  pointer-events: auto;
+  animation: toast-in 240ms var(--ease-spring) both;
+}
+
+.toast::before {
+  content: '';
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--mark);
+  flex: none;
+}
+
+.toast[data-kind='ok']::before {
+  background: #7fd0a8;
+}
+.toast[data-kind='bad']::before {
+  background: #ff9a8c;
+}
+.toast[data-kind='badge']::before,
+.toast[data-kind='level']::before {
+  background: var(--mark);
+}
+
+@keyframes toast-in {
+  from {
+    opacity: 0;
+    transform: translateY(12px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* ------------------------------- boş hal ----------------------------- */
+
+.empty {
+  display: grid;
+  justify-items: center;
+  gap: 10px;
+  padding: 40px 20px;
+  text-align: center;
+}
+
+.empty h3 {
+  font-size: var(--fs-lg);
+  font-weight: 620;
+}
+
+.empty p {
+  max-width: 38ch;
+  color: var(--ink-3);
+  font-size: var(--fs-sm);
+  line-height: 1.55;
+}
+
+.empty .btn {
+  margin-top: 6px;
+}
+
+/* ---------------------------- konfeti -------------------------------- */
+
+.confetti-canvas {
+  position: fixed;
+  inset: 0;
+  z-index: 150;
+  pointer-events: none;
+  width: 100%;
+  height: 100%;
+}
+
+/* ---------------------------- girişler ------------------------------- */
+
+/* Ekran geçişi: anlık. Yumuşaklık kısa bir sönümlemeden geliyor. */
+.screen-enter {
+  animation: screen-fade 120ms var(--ease-out) both;
+}
+
+@keyframes screen-fade {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.stagger > * {
+  animation: rise 300ms var(--ease-out) both;
+  animation-delay: calc(var(--i, 0) * 34ms);
+}
+
+@keyframes rise {
+  from {
+    opacity: 0;
+    transform: translateY(7px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+.reveal {
+  opacity: 0;
+  transform: translateY(12px);
+  transition:
+    opacity 520ms var(--ease-out),
+    transform 520ms var(--ease-out);
+}
+
+.reveal.in {
+  opacity: 1;
+  transform: none;
+}
+
+/* ----------------------------- yerleşim ------------------------------ */
+
+.row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+}
+
+.row-between {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  min-width: 0;
+}
+
+.stack {
+  display: grid;
+  gap: 12px;
+}
+
+.grow {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.wrap {
+  flex-wrap: wrap;
+}
+
+.divider {
+  height: 1px;
+  background: var(--line);
+  border: 0;
+  margin: 4px 0;
+}
+
+.hide-mobile {
+  display: none;
+}
+
+@media (min-width: 760px) {
+  .hide-mobile {
+    display: revert;
+  }
+}
+
+/* ----------------------------- iskelet ------------------------------- */
+
+.skeleton {
+  border-radius: var(--r-md);
+  background: linear-gradient(
+    90deg,
+    var(--surface-2) 0%,
+    color-mix(in srgb, var(--surface-2) 60%, var(--surface)) 50%,
+    var(--surface-2) 100%
+  );
+  background-size: 200% 100%;
+  animation: skeleton 1.4s ease-in-out infinite;
+}
+
+@keyframes skeleton {
+  from {
+    background-position: 160% 0;
+  }
+  to {
+    background-position: -60% 0;
+  }
+}
+
+/* ------------------------------ geri bildirim ------------------------ */
+
+@keyframes stamp {
+  0% {
+    opacity: 0;
+    transform: scale(1.3);
+  }
+  40% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(1);
+  }
+}
+
+@keyframes shake {
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+  25% {
+    transform: translateX(-4px);
+  }
+  75% {
+    transform: translateX(4px);
+  }
+}
+
+@keyframes xp-float {
+  0% {
+    opacity: 0;
+    transform: translateY(2px);
+  }
+  25% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(-22px);
+  }
+}
+
+@keyframes shimmer {
+  from {
+    background-position: 180% 0;
+  }
+  to {
+    background-position: -80% 0;
+  }
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes mark-in {
+  from {
+    opacity: 0;
+    transform: scale(0.5);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes pulse-ring {
+  0% {
+    transform: scale(0.9);
+    opacity: 0.6;
+  }
+  100% {
+    transform: scale(1.5);
+    opacity: 0;
+  }
+}

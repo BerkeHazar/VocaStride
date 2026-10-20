@@ -1,0 +1,270 @@
+/* ============================================================
+   VocaStride — tasarım tokenları (v6)
+
+   Yön: **dizgili defter**. Kâğıt, mürekkep, cetvel. Süs yok;
+   hiyerarşi tipografiden, ritim beyaz alandan, renk tek bir
+   mürekkepten gelir. Kâğıdın kendisi hafif bir doku taşır.
+
+   Kurallar:
+   - Tek vurgu rengi. Tonlar yalnızca simge/rozet taşır.
+   - Gölge yalnızca gerçekten yükselen yüzeyde (sheet, kart, dock).
+   - Yarıçap 4–18 px; 22 px yalnızca sheet.
+   - Sınır çizgisi 1 px; hiçbir yerde kalın kontur veya renkli şerit yok.
+   ============================================================ */
+
+@font-face {
+  font-family: 'Bricolage Grotesque';
+  src: url('/fonts/bricolage-latin.woff2') format('woff2');
+  font-weight: 400 800;
+  font-style: normal;
+  font-display: swap;
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC,
+    U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215,
+    U+FEFF, U+FFFD;
+}
+@font-face {
+  font-family: 'Bricolage Grotesque';
+  src: url('/fonts/bricolage-latin-ext.woff2') format('woff2');
+  font-weight: 400 800;
+  font-style: normal;
+  font-display: swap;
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304,
+    U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C4,
+    U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+@font-face {
+  font-family: 'Instrument Sans';
+  src: url('/fonts/instrument-latin.woff2') format('woff2');
+  font-weight: 400 700;
+  font-style: normal;
+  font-display: swap;
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC,
+    U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215,
+    U+FEFF, U+FFFD;
+}
+@font-face {
+  font-family: 'Instrument Sans';
+  src: url('/fonts/instrument-latin-ext.woff2') format('woff2');
+  font-weight: 400 700;
+  font-style: normal;
+  font-display: swap;
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304,
+    U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C4,
+    U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+
+:root {
+  /* kâğıt */
+  --bg: #f4f1e9;
+  --paper: var(--bg);
+  --paper-deep: #ece8dc;
+  --surface: #fcfaf4;
+  --surface-2: #ece8dc;
+  --surface-3: #dfdacb;
+
+  /* mürekkep */
+  --ink: #17150f;
+  --ink-2: #4d4a41;
+  --ink-3: #6f6b5f;
+  --line: #ded8c9;
+  --line-2: #c8c2b1;
+  --line-soft: rgba(23, 21, 15, 0.07);
+  --line-strong: rgba(23, 21, 15, 0.2);
+  --invert-bg: var(--ink);
+  --invert-fg: var(--bg);
+  --invert-muted: rgba(244, 241, 233, 0.66);
+
+  /* vurgu: mürekkep mavisi */
+  --accent: #1b3a63;
+  --accent-soft: #e2e7f0;
+  --accent-ink: #ffffff;
+  --accent-2: #8a6114;
+  /*
+   * Logo renkleri vurgu ayarından bağımsızdır: marka mürekkebi her temada
+   * aynı kalır. Açık temada karo ve wordmark tek renk (mürekkep); koyu temada
+   * karo açık maviye döner, wordmark kâğıt olur. Karo içindeki V her zaman
+   * sayfanın zemini.
+   */
+  --logo-mark: #1b3a63;
+  --logo-word: #1b3a63;
+  --logo-ink: var(--bg);
+
+  /* anlam renkleri */
+  --ok: #2b6a4c;
+  --ok-soft: #dfece3;
+  --danger: #a3382c;
+  --danger-soft: #f6e2dd;
+  --warning: #8a6114;
+  --mark: #e7d469;
+
+  /* eski adlar (bileşenler hâlâ kullanıyor) */
+  --coral: #70304e;
+  --violet: #4a4258;
+  --teal: var(--ok);
+
+  /* tonlar: mod simgeleri ve rozetler */
+  --tone-marker: #1b3a63;
+  --tone-marker-soft: #e2e7f0;
+  --tone-marker-light: #8fa3c9;
+  --tone-pink: #70304e;
+  --tone-pink-soft: #f1e3e9;
+  --tone-pink-light: #b9859d;
+  --tone-mint: #2b6a4c;
+  --tone-mint-soft: #dfece3;
+  --tone-mint-light: #8dc0a7;
+  --tone-sun: #8a6114;
+  --tone-sun-soft: #f3e9d0;
+  --tone-sun-light: #cfae6b;
+  --tone-violet: #4a4258;
+  --tone-violet-soft: #e8e6ec;
+  --tone-violet-light: #a09aad;
+
+  /* tipografi */
+  --font-display: 'Bricolage Grotesque', 'Segoe UI Variable Display', 'Segoe UI', system-ui,
+    sans-serif;
+  --font-ui: 'Instrument Sans', 'Segoe UI', system-ui, -apple-system, sans-serif;
+  --font-ipa: 'Charis SIL', 'Doulos SIL', 'Segoe UI', 'Lucida Sans Unicode', sans-serif;
+
+  /*
+   * Küçük metin bir kademe yukarı çekildi: 12/13 px, özellikle masaüstünde
+   * (sheet, ipucu, açıklama) okunmuyordu. Gövde 15 px'te kalıyor.
+   */
+  --fs-xs: 0.8125rem;
+  --fs-sm: 0.875rem;
+  --fs-base: 0.9375rem;
+  --fs-md: 1.0625rem;
+  --fs-lg: 1.25rem;
+  --fs-xl: 1.5rem;
+  --fs-2xl: clamp(1.75rem, 1.1rem + 2.3vw, 2.5rem);
+  --fs-3xl: clamp(2.15rem, 1.1rem + 4.2vw, 3.5rem);
+
+  /* ölçü */
+  --r-xs: 5px;
+  --r-sm: 7px;
+  --r-md: 10px;
+  --r-lg: 13px;
+  --r-xl: 17px;
+  --r-2xl: 22px;
+  --r-full: 999px;
+
+  /* derinlik: neredeyse yok, ama doğru yerde var */
+  --shadow-1: 0 1px 2px rgba(23, 21, 15, 0.05), 0 1px 1px rgba(23, 21, 15, 0.03);
+  --shadow-2: 0 1px 3px rgba(23, 21, 15, 0.06), 0 12px 28px -16px rgba(23, 21, 15, 0.22);
+  --shadow-3: 0 2px 6px rgba(23, 21, 15, 0.07), 0 30px 60px -28px rgba(23, 21, 15, 0.3);
+  --shadow-lift: 0 2px 4px rgba(23, 21, 15, 0.05), 0 14px 26px -18px rgba(23, 21, 15, 0.28);
+  --shadow-soft: var(--shadow-2);
+
+  /* hareket */
+  --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
+  --ease-in-out: cubic-bezier(0.77, 0, 0.175, 1);
+  --ease-drawer: cubic-bezier(0.32, 0.72, 0, 1);
+  --ease-spring: cubic-bezier(0.34, 1.3, 0.64, 1);
+  --t-fast: 120ms;
+  --t-base: 180ms;
+  --t-slow: 280ms;
+
+  --sidebar: 248px;
+  --dock: 64px;
+  --safe-b: env(safe-area-inset-bottom, 0px);
+  --safe-t: env(safe-area-inset-top, 0px);
+
+  --grid-line: transparent;
+  --halo: rgba(27, 58, 99, 0.1);
+  --grain: 0.035;
+  --dot: rgba(23, 21, 15, 0.055);
+}
+
+[data-theme='dark'] {
+  --bg: #121110;
+  --paper: var(--bg);
+  --paper-deep: #0c0b0a;
+  --surface: #1a1917;
+  --surface-2: #232120;
+  --surface-3: #2e2c29;
+
+  --ink: #f3efe4;
+  --ink-2: #bcb7a9;
+  --ink-3: #8e897b;
+  --line: #2b2926;
+  --line-2: #3d3a36;
+  --line-soft: rgba(243, 239, 228, 0.09);
+  --line-strong: rgba(243, 239, 228, 0.2);
+  --invert-bg: #2a2724;
+  --invert-fg: var(--ink);
+  --invert-muted: rgba(243, 239, 228, 0.64);
+
+  --accent: #a3b9e6;
+  --accent-soft: #1d2432;
+  --accent-ink: #0b0d14;
+  --accent-2: #d9b979;
+
+  --logo-mark: #a3b9e6;
+  --logo-word: #f3efe4;
+
+  --ok: #74c99e;
+  --ok-soft: #16281f;
+  --danger: #ea8d7f;
+  --danger-soft: #2b1a17;
+  --warning: #d9b979;
+  --mark: #c9b94a;
+
+  --coral: #c58ba4;
+  --violet: #a9a2b8;
+  --teal: var(--ok);
+
+  --tone-marker: #a3b9e6;
+  --tone-marker-soft: #1d2432;
+  --tone-marker-light: #6d82b0;
+  --tone-pink: #c58ba4;
+  --tone-pink-soft: #2a1c22;
+  --tone-pink-light: #8d6478;
+  --tone-mint: #74c99e;
+  --tone-mint-soft: #16281f;
+  --tone-mint-light: #4d8f6f;
+  --tone-sun: #d9b979;
+  --tone-sun-soft: #2a2418;
+  --tone-sun-light: #9c8552;
+  --tone-violet: #a9a2b8;
+  --tone-violet-soft: #232129;
+  --tone-violet-light: #77717f;
+
+  --shadow-1: 0 1px 2px rgba(0, 0, 0, 0.5);
+  --shadow-2: 0 1px 3px rgba(0, 0, 0, 0.45), 0 14px 30px -18px rgba(0, 0, 0, 0.85);
+  --shadow-3: 0 24px 50px -24px rgba(0, 0, 0, 0.9);
+  --shadow-lift: 0 2px 6px rgba(0, 0, 0, 0.5), 0 18px 30px -20px rgba(0, 0, 0, 0.9);
+  --shadow-soft: var(--shadow-2);
+
+  --grid-line: transparent;
+  --halo: rgba(163, 185, 230, 0.14);
+  --grain: 0.05;
+  --dot: rgba(243, 239, 228, 0.07);
+}
+
+/* Vurgu seçenekleri: kimlik adları korunur, renkler yeniden yorumlanır. */
+[data-accent='marker'] {
+  --accent: var(--tone-marker);
+  --accent-soft: var(--tone-marker-soft);
+  --accent-ink: #fff;
+}
+[data-accent='pink'] {
+  --accent: var(--tone-pink);
+  --accent-soft: var(--tone-pink-soft);
+  --accent-ink: #fff;
+}
+[data-accent='mint'] {
+  --accent: var(--tone-mint);
+  --accent-soft: var(--tone-mint-soft);
+  --accent-ink: #fff;
+}
+[data-accent='sun'] {
+  --accent: var(--tone-sun);
+  --accent-soft: var(--tone-sun-soft);
+  --accent-ink: #fff;
+}
+
+[data-theme='dark'][data-accent='marker'],
+[data-theme='dark'][data-accent='pink'],
+[data-theme='dark'][data-accent='mint'],
+[data-theme='dark'][data-accent='sun'] {
+  --accent-ink: #0b0d14;
+}

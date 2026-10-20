@@ -1,0 +1,521 @@
+/* ============================================================
+   Kabuk: uygulama iskeleti, kenar çubuğu, üst bar, alt dock.
+   Mobil önce; masaüstü aynı iskeletin geniş hâli.
+   ============================================================ */
+
+.app {
+  display: flex;
+  min-height: 100dvh;
+  background: var(--bg);
+}
+
+.main {
+  flex: 1 1 auto;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  padding-bottom: calc(var(--dock) + var(--safe-b));
+}
+
+.screen-wrap {
+  width: 100%;
+  max-width: 700px;
+  margin: 0 auto;
+  padding: 20px 18px 40px;
+  flex: 1 1 auto;
+}
+
+.screen-wrap.immersive {
+  max-width: none;
+  padding: 0;
+}
+
+@media (min-width: 760px) {
+  .screen-wrap {
+    padding: 32px 34px 56px;
+  }
+}
+
+@media (min-width: 1024px) {
+  .main {
+    margin-left: var(--sidebar);
+    padding-bottom: 0;
+  }
+  .screen-wrap {
+    max-width: 1080px;
+    padding: 44px 52px 80px;
+  }
+  .screen-wrap.immersive {
+    max-width: none;
+    padding: 0;
+  }
+}
+
+/* ------------------------------- marka ------------------------------- */
+
+/*
+ * Logo tek bir <svg>: karo, V ve wordmark arasındaki boşluk geometrinin
+ * içinde. Burada flex boşluğu ya da satır yüksekliği devreye girmediği için
+ * hizalama hiçbir ekranda kaymıyor.
+ */
+.brand {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  text-decoration: none;
+}
+
+.brand:hover {
+  text-decoration: none;
+}
+
+.lockup,
+.logo-tile,
+.logo-mark,
+.wordmark {
+  display: block;
+  flex: 0 0 auto;
+}
+
+.lockup {
+  transition: transform var(--t-base) var(--ease-out);
+}
+
+.brand:hover .lockup {
+  transform: translateY(-1px);
+}
+
+/* ---------------------------- kenar çubuğu --------------------------- */
+
+.sidebar {
+  display: none;
+}
+
+@media (min-width: 1024px) {
+  .sidebar {
+    position: fixed;
+    inset: 0 auto 0 0;
+    z-index: 60;
+    display: flex;
+    flex-direction: column;
+    width: var(--sidebar);
+    padding: 26px 16px 18px;
+    background: color-mix(in srgb, var(--bg) 72%, var(--paper-deep));
+    border-right: 1px solid var(--line);
+  }
+}
+
+.sidebar .brand {
+  padding: 0 10px 26px;
+}
+
+.side-nav {
+  position: relative;
+  display: grid;
+  gap: 2px;
+  flex: 0 0 auto;
+  align-content: start;
+}
+
+.navlink {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  height: 42px;
+  padding: 0 11px;
+  border-radius: var(--r-sm);
+  color: var(--ink-2);
+  font-size: var(--fs-base);
+  font-weight: 500;
+  text-decoration: none;
+  transition:
+    background-color var(--t-base) ease,
+    color var(--t-base) ease,
+    padding-left var(--t-base) var(--ease-out);
+}
+
+.navlink:hover {
+  text-decoration: none;
+  background: color-mix(in srgb, var(--ink) 4%, transparent);
+  color: var(--ink);
+}
+
+.navlink svg {
+  opacity: 0.68;
+  transition:
+    opacity var(--t-base) ease,
+    color var(--t-base) ease,
+    transform var(--t-base) var(--ease-spring);
+}
+
+.navlink:hover svg {
+  opacity: 1;
+}
+
+.navlink[data-active='true'] {
+  background: var(--surface);
+  color: var(--ink);
+  font-weight: 600;
+  box-shadow:
+    inset 0 0 0 1px var(--line),
+    var(--shadow-1);
+}
+
+.navlink[data-active='true'] svg {
+  opacity: 1;
+  color: var(--accent);
+  transform: translateX(1px) scale(1.04);
+}
+
+/* Etkin bağlantının solunda mürekkep çentiği. */
+.navlink::before {
+  content: '';
+  position: absolute;
+  left: 3px;
+  top: 50%;
+  width: 2px;
+  height: 18px;
+  margin-top: -9px;
+  border-radius: 2px;
+  background: var(--accent);
+  transform: scaleY(0);
+  opacity: 0;
+  transition:
+    transform 240ms var(--ease-spring),
+    opacity 160ms ease;
+}
+
+.navlink[data-active='true']::before {
+  transform: scaleY(1);
+  opacity: 1;
+}
+
+/* --- günün özeti --- */
+
+.side-today {
+  display: grid;
+  gap: 12px;
+  margin-top: 26px;
+  padding: 16px 14px 15px;
+  border: 1px solid var(--line);
+  border-radius: var(--r-lg);
+  background: var(--surface);
+}
+
+.st-top {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.st-ring {
+  position: relative;
+  display: grid;
+  place-items: center;
+  flex: none;
+}
+
+.st-ring b {
+  font-family: var(--font-display);
+  font-size: 0.9375rem;
+  font-weight: 650;
+  letter-spacing: -0.03em;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+}
+
+.st-text {
+  display: grid;
+  gap: 1px;
+  min-width: 0;
+}
+
+.st-text b {
+  font-size: var(--fs-sm);
+  font-weight: 620;
+  letter-spacing: -0.01em;
+}
+
+.st-text span {
+  font-size: var(--fs-xs);
+  color: var(--ink-3);
+  font-variant-numeric: tabular-nums;
+}
+
+.st-streak {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding-top: 11px;
+  border-top: 1px solid var(--line);
+  font-size: var(--fs-xs);
+  color: var(--ink-2);
+  font-variant-numeric: tabular-nums;
+}
+
+.st-streak svg {
+  color: var(--tone-sun);
+}
+
+.st-streak .st-days {
+  margin-left: auto;
+  display: inline-flex;
+  gap: 3px;
+}
+
+.st-streak .st-days i {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: color-mix(in srgb, var(--ink) 16%, transparent);
+}
+
+.st-streak .st-days i[data-on='true'] {
+  background: var(--accent);
+}
+
+.side-foot {
+  display: grid;
+  gap: 12px;
+  margin-top: auto;
+  padding-top: 16px;
+  border-top: 1px solid var(--line);
+}
+
+.side-level {
+  display: grid;
+  gap: 7px;
+}
+
+.side-level .sl-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  font-size: var(--fs-xs);
+  color: var(--ink-3);
+  font-variant-numeric: tabular-nums;
+}
+
+.side-level .sl-top b {
+  color: var(--ink-2);
+  font-weight: 600;
+}
+
+.side-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 32px;
+  font-size: var(--fs-xs);
+  color: var(--ink-3);
+  text-decoration: none;
+}
+
+.side-link:hover {
+  color: var(--ink);
+  text-decoration: none;
+}
+
+/* ------------------------------- üst bar ----------------------------- */
+
+.topbar {
+  position: sticky;
+  top: 0;
+  z-index: 70;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  height: calc(56px + var(--safe-t));
+  padding: var(--safe-t) 8px 0 18px;
+  background: color-mix(in srgb, var(--bg) 88%, transparent);
+  backdrop-filter: saturate(180%) blur(14px);
+  border-bottom: 1px solid transparent;
+  transition:
+    border-color var(--t-base) ease,
+    box-shadow var(--t-base) ease,
+    background-color var(--t-base) ease;
+}
+
+.topbar[data-stuck='true'] {
+  border-bottom-color: var(--line);
+  box-shadow: 0 8px 24px -22px rgba(23, 21, 15, 0.5);
+}
+
+@supports not (backdrop-filter: blur(2px)) {
+  .topbar {
+    background: var(--bg);
+  }
+}
+
+.topbar .brand {
+  gap: 7px;
+}
+
+.streak-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  height: 30px;
+  padding: 0 9px;
+  border: 1px solid var(--line);
+  border-radius: var(--r-sm);
+  color: var(--ink-2);
+  font-size: var(--fs-xs);
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  background: var(--surface);
+}
+
+.streak-chip svg {
+  color: var(--tone-sun);
+}
+
+@media (min-width: 1024px) {
+  .topbar {
+    display: none;
+  }
+}
+
+/* -------------------------------- dock ------------------------------- */
+
+.dock {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 80;
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  height: calc(var(--dock) + var(--safe-b));
+  padding-bottom: var(--safe-b);
+  background: color-mix(in srgb, var(--bg) 92%, transparent);
+  backdrop-filter: saturate(180%) blur(16px);
+  border-top: 1px solid var(--line);
+}
+
+@supports not (backdrop-filter: blur(2px)) {
+  .dock {
+    background: var(--bg);
+  }
+}
+
+.dock button {
+  position: relative;
+  display: grid;
+  justify-items: center;
+  align-content: center;
+  gap: 3px;
+  color: var(--ink-3);
+  font-size: 10.5px;
+  font-weight: 550;
+  letter-spacing: 0.005em;
+  transition:
+    color var(--t-base) ease,
+    transform 120ms var(--ease-out);
+}
+
+.dock .dock-ico {
+  display: grid;
+  place-items: center;
+  width: 34px;
+  height: 26px;
+  transition:
+    transform 220ms var(--ease-spring),
+    color var(--t-base) ease;
+}
+
+.dock button[data-active='true'] {
+  color: var(--ink);
+  font-weight: 650;
+}
+
+.dock button[data-active='true'] .dock-ico {
+  color: var(--accent);
+  transform: translateY(-1px) scale(1.06);
+}
+
+/* Etkin sekmenin üstünde kısa mürekkep çizgisi. */
+.dock button::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 50%;
+  width: 22px;
+  height: 2px;
+  margin-left: -11px;
+  border-radius: 0 0 2px 2px;
+  background: var(--accent);
+  transform: scaleX(0);
+  transform-origin: center;
+  transition: transform 260ms var(--ease-spring);
+}
+
+.dock button[data-active='true']::before {
+  transform: scaleX(1);
+}
+
+.dock-lbl {
+  line-height: 1;
+}
+
+@media (min-width: 1024px) {
+  .dock {
+    display: none;
+  }
+}
+
+/* ------------------------------- alt bilgi --------------------------- */
+
+.foot {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-top: 44px;
+  padding-top: 18px;
+  border-top: 1px solid var(--line);
+  font-size: var(--fs-xs);
+  color: var(--ink-3);
+}
+
+.foot a {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  min-height: 32px;
+  color: var(--ink-3);
+  text-decoration: none;
+}
+
+.foot a:hover {
+  color: var(--ink);
+}
+
+/* ----------------------------- kurulum şeridi ------------------------ */
+
+.install-bar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 18px;
+  padding: 9px 10px 9px 12px;
+  border: 1px solid var(--line);
+  border-radius: var(--r-md);
+  background: var(--surface);
+  font-size: var(--fs-sm);
+  color: var(--ink-2);
+  box-shadow: var(--shadow-1);
+}
+
+.install-bar b {
+  color: var(--ink);
+  font-weight: 600;
+}
+
+.install-bar svg {
+  color: var(--accent);
+}

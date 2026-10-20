@@ -1,0 +1,30 @@
+/* ============================================================
+   Geri bildirim: yalnızca yanlış cevabın sarsıntısı.
+
+   Kıvılcım, ışık süpürmesi, ısı halesi ve kenar parlaması kaldırıldı;
+   geri bildirimin ağırlığı artık dokunma hissinde (basma animasyonu) ve
+   ses/titreşimde. Burada tek bir transform animasyonu var.
+   ============================================================ */
+
+.fx-shake {
+  animation: fx-shake 380ms var(--ease-out);
+}
+
+@keyframes fx-shake {
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+  18% {
+    transform: translateX(-5px);
+  }
+  42% {
+    transform: translateX(4px);
+  }
+  66% {
+    transform: translateX(-2px);
+  }
+  85% {
+    transform: translateX(1px);
+  }
+}

@@ -1,0 +1,479 @@
+/* ============================================================
+   Yol — kampanya haritası
+
+   Dil: defter sayfasında ilerleyen bir patika. Düğümler mühür gibi,
+   yol ince bir cetvel çizgisi. Oyun haritası hissi ölçekten ve
+   ritimden geliyor, süslemeden değil.
+   ============================================================ */
+
+.path {
+  max-width: 1000px;
+  margin: 0 auto;
+  padding-bottom: 40px;
+}
+
+.path-head {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 18px;
+  flex-wrap: wrap;
+  padding: 4px 0 18px;
+  border-bottom: 1px solid var(--line);
+  margin-bottom: 22px;
+}
+
+.path-head .display {
+  font-size: var(--fs-2xl);
+  line-height: 1.05;
+}
+
+.path-head .ph-sub {
+  margin-top: 6px;
+  color: var(--ink-2);
+  font-size: var(--fs-sm);
+}
+
+.path-cols {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 26px;
+}
+
+/* ------------------------------------------------------------ patika */
+
+.path-track {
+  position: relative;
+  width: 100%;
+  max-width: 440px;
+  margin: 0 auto;
+}
+
+.path-line {
+  position: absolute;
+  inset: 0;
+  overflow: visible;
+  pointer-events: none;
+}
+
+.pl-base {
+  stroke: var(--line-2);
+  stroke-width: 2.5;
+  stroke-dasharray: 2 9;
+  stroke-linecap: round;
+}
+
+.pl-done {
+  stroke: var(--ink);
+  stroke-width: 3;
+  stroke-linecap: round;
+  opacity: 0.72;
+}
+
+/* kademe başlığı */
+.pband {
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 96px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 0 2px;
+}
+
+.pband-stamp {
+  width: 28px;
+  height: 28px;
+  display: grid;
+  place-items: center;
+  border: 1px solid var(--line-2);
+  border-radius: var(--r-xs);
+  font-size: 11px;
+  letter-spacing: 0.04em;
+  color: var(--ink-2);
+  background: var(--surface);
+}
+
+.pband-main {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  white-space: nowrap;
+}
+
+.pband-main b {
+  font-family: var(--font-display);
+  font-size: var(--fs-lg);
+  font-weight: 600;
+  letter-spacing: -0.02em;
+}
+
+.pband-main .num {
+  font-size: var(--fs-xs);
+  color: var(--ink-3);
+}
+
+.pband-rule {
+  flex: 1;
+  height: 1px;
+  background: var(--line);
+}
+
+/* ------------------------------------------------------------ düğüm */
+
+.pnode {
+  position: absolute;
+  transform: translate(-50%, -50%);
+  display: grid;
+  justify-items: center;
+  gap: 6px;
+  padding: 0;
+  border: 0;
+  background: none;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  animation: pnode-in 380ms var(--ease-out) both;
+  animation-delay: calc(min(var(--i, 0), 12) * 26ms);
+}
+
+.pnode[data-state='locked'] {
+  cursor: default;
+}
+
+@keyframes pnode-in {
+  from {
+    opacity: 0;
+    transform: translate(-50%, calc(-50% + 8px));
+  }
+  to {
+    opacity: 1;
+    transform: translate(-50%, -50%);
+  }
+}
+
+.pnode-disc {
+  position: relative;
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  font-family: var(--font-display);
+  font-size: var(--fs-base);
+  font-weight: 600;
+  border: 1.5px solid var(--line-2);
+  background: var(--surface);
+  color: var(--ink-2);
+  transition:
+    transform var(--t-fast) var(--ease-spring),
+    background var(--t-base) var(--ease-out),
+    border-color var(--t-base) var(--ease-out),
+    color var(--t-base) var(--ease-out);
+}
+
+.pnode:hover .pnode-disc {
+  transform: translateY(-1px);
+}
+
+.pnode:focus-visible .pnode-disc {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+}
+
+/* geçilmiş */
+.pnode[data-state='done'] .pnode-disc {
+  background: var(--ink);
+  border-color: var(--ink);
+  color: var(--bg);
+}
+
+/* sıradaki */
+.pnode[data-state='current'] .pnode-disc {
+  width: 74px;
+  height: 74px;
+  background: var(--accent);
+  border-color: var(--accent);
+  color: var(--accent-ink);
+  font-size: var(--fs-lg);
+  box-shadow:
+    0 0 0 6px var(--halo),
+    0 10px 24px -14px var(--accent);
+}
+
+/* kilitli */
+.pnode[data-state='locked'] .pnode-disc {
+  width: 52px;
+  height: 52px;
+  border-width: 1px;
+  border-style: dashed;
+  border-color: var(--line-2);
+  background: transparent;
+  color: var(--ink-3);
+}
+
+.pnode[data-state='locked'] .pnode-disc {
+  cursor: default;
+}
+
+/* sınav düğümleri kilitliyken de biraz daha büyük dursun */
+.pnode[data-kind='mini'] .pnode-disc,
+.pnode[data-kind='hard'] .pnode-disc,
+.pnode[data-kind='final'] .pnode-disc {
+  width: 58px;
+  height: 58px;
+}
+
+/* boss renkleri */
+.pnode[data-kind='mini'][data-state='done'] .pnode-disc {
+  background: var(--tone-sun);
+  border-color: var(--tone-sun);
+  color: #fff;
+}
+.pnode[data-kind='hard'][data-state='done'] .pnode-disc {
+  background: var(--tone-pink);
+  border-color: var(--tone-pink);
+  color: #fff;
+}
+.pnode[data-kind='final'][data-state='done'] .pnode-disc {
+  background: var(--danger);
+  border-color: var(--danger);
+  color: #fff;
+}
+.pnode[data-kind='mini'][data-state='locked'] .pnode-disc,
+.pnode[data-kind='hard'][data-state='locked'] .pnode-disc,
+.pnode[data-kind='final'][data-state='locked'] .pnode-disc {
+  border-color: var(--line-2);
+}
+.pnode[data-kind='mini'][data-state='current'] .pnode-disc {
+  background: var(--tone-sun);
+  border-color: var(--tone-sun);
+}
+.pnode[data-kind='hard'][data-state='current'] .pnode-disc {
+  background: var(--tone-pink);
+  border-color: var(--tone-pink);
+}
+.pnode[data-kind='final'][data-state='current'] .pnode-disc {
+  background: var(--danger);
+  border-color: var(--danger);
+}
+
+.pnode-crown {
+  position: absolute;
+  top: -5px;
+  right: -5px;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  background: var(--surface);
+  border: 1px solid var(--line-2);
+  color: var(--ink-2);
+}
+
+.pnode[data-state='done'] .pnode-crown,
+.pnode[data-state='current'] .pnode-crown {
+  background: var(--bg);
+}
+
+.pnode-stars {
+  display: flex;
+  gap: 4px;
+  height: 6px;
+}
+
+.pnode-stars i {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--line-2);
+}
+
+.pnode-stars i[data-on='true'] {
+  background: var(--mark);
+}
+
+.pnode-stars.inline {
+  height: auto;
+  gap: 5px;
+}
+.pnode-stars.inline i {
+  width: 8px;
+  height: 8px;
+}
+
+.pnode-now {
+  position: absolute;
+  top: calc(100% + 6px);
+  font-size: 10px;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  font-weight: 600;
+  color: var(--accent);
+  background: var(--bg);
+  padding: 2px 6px;
+  border-radius: var(--r-full);
+  white-space: nowrap;
+}
+
+.pnode-tag {
+  position: absolute;
+  top: calc(100% + 6px);
+  font-size: 9.5px;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  color: var(--ink-3);
+  white-space: nowrap;
+}
+
+/* ------------------------------------------------------------- panel */
+
+.path-rail {
+  display: grid;
+  gap: 18px;
+  align-content: start;
+}
+
+.path-next {
+  border: 1px solid var(--line);
+  border-radius: var(--r-lg);
+  padding: 16px;
+  background: var(--surface);
+}
+
+/*
+ * Kart artık `.sec` taşımıyor: `.sec` bölüm ayracıdır (üst çizgi + 26px
+ * dikey boşluk) ve `.sec:first-child` kuralı kartın kendi padding'ini
+ * 4px'e düşürüp üst kenarlığını siliyordu. Başlık karta yapışıyordu.
+ */
+.path-next .sec-head {
+  margin: 0 0 12px;
+}
+
+.path-next-top {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+/* Sayı bir mühür kutusunda: büyük rakamın taban çizgisi metni kaydırıyordu. */
+.path-next-id {
+  flex: none;
+  width: 48px;
+  height: 48px;
+  display: grid;
+  place-items: center;
+  border: 1px solid var(--line-2);
+  border-radius: var(--r-sm);
+  background: var(--surface-2);
+  font-family: var(--font-display);
+  font-size: var(--fs-lg);
+  line-height: 1;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  color: var(--ink);
+}
+
+.path-next-meta {
+  display: grid;
+  gap: 3px;
+  min-width: 0;
+}
+
+.path-next-meta b {
+  font-size: var(--fs-base);
+  font-weight: 600;
+}
+
+.path-next-meta span {
+  font-size: var(--fs-xs);
+  color: var(--ink-3);
+}
+
+.path-next .btn {
+  margin-top: 14px;
+}
+
+.path-next .sec-head {
+  margin-bottom: 12px;
+}
+
+.path-links {
+  display: flex;
+  gap: 18px;
+  flex-wrap: wrap;
+  padding: 2px 2px 0;
+}
+
+.path-sheet-stats {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+}
+
+.path-sheet-stats > div {
+  display: grid;
+  gap: 2px;
+  padding: 12px;
+  border: 1px solid var(--line);
+  border-radius: var(--r-md);
+  background: var(--surface-2);
+}
+
+.path-sheet-stats b {
+  font-family: var(--font-display);
+  font-size: var(--fs-lg);
+  font-weight: 600;
+  line-height: 1;
+}
+
+.path-sheet-stats span {
+  font-size: var(--fs-xs);
+  color: var(--ink-3);
+}
+
+.path-mode-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+/* ---------------------------------------------------------- masaüstü */
+
+@media (min-width: 980px) {
+  .path-cols {
+    grid-template-columns: minmax(0, 1fr) 296px;
+    align-items: start;
+  }
+
+  .path-rail {
+    position: sticky;
+    top: 84px;
+  }
+
+  .path-track {
+    max-width: 560px;
+  }
+
+  .pnode-disc {
+    width: 64px;
+    height: 64px;
+  }
+
+  .pnode[data-state='current'] .pnode-disc {
+    width: 80px;
+    height: 80px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .pnode {
+    animation: none;
+  }
+}
+
+html[data-calm='true'] .pnode {
+  animation: none;
+}
