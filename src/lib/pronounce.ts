@@ -352,9 +352,70 @@ async function trim(cache: Cache) {
   for (const k of keys.slice(0, keys.length - MAX_AUDIO + 1)) await cache.delete(k);
 }
 
-let current: HTMLAudioElement | null = null;
+/**
+ * Tek bir <audio> öğesi yeniden kullanılır.
+ *
+ * Her okumada `new Audio()` kurulunca mobil tarayıcılar (özellikle iOS)
+ * programatik çalmayı engelliyordu: oturumdaki ilk dinleme sorusunun
+ * otomatik okuması sessiz kalıyor, sonrakiler çalıyordu. Aynı öğe ilk
+ * dokunuşta bir kez "açıldığında" sonraki programatik çalmalara izin verilir.
+ */
+let el: HTMLAudioElement | null = null;
+
+function audioEl(): HTMLAudioElement | null {
+  if (el) return el;
+  if (typeof Audio === 'undefined') return null;
+  el = new Audio();
+  el.preload = 'auto';
+  return el;
+}
+
+/** Sessiz tek örnek — öğeyi kullanıcı hareketinin içinde açar. */
+const SILENT =
+  'data:audio/wav;base64,UklGRiQAAABXQVZFZm10IBAAAAABAAEAgD4AAAB9AAACABAAZGF0YQAAAAA=';
+
+let unlocked = false;
+
+/**
+ * İlk kullanıcı hareketinde çağrılır (bkz. main.tsx).
+ *
+ * iOS'ta bir ses öğesi ancak bir dokunuşun içinde `play()` görürse açılır;
+ * oturumun ilk dokunuşunu buraya bağlayınca dinleme sorularının otomatik
+ * okuması da duyulabiliyor.
+ */
+export function unlockAudio() {
+  if (unlocked) return;
+  const a = audioEl();
+  if (!a) return;
+  unlocked = true;
+  a.src = SILENT;
+  void a
+    .play()
+    .then(() => {
+      // Kaynağı boşaltma: `load()` öğenin kazanılmış iznini sıfırlayabiliyor.
+      // Sıradaki gerçek okuma `src`yi zaten eziyor.
+      a.pause();
+    })
+    .catch(() => {
+      /* hareket sayılmadı: bir sonraki dokunuşta yeniden denenir */
+      unlocked = false;
+    });
+  // Konuşma sentezi de iOS'ta aynı kilide tabi.
+  if (typeof speechSynthesis !== 'undefined') {
+    try {
+      const u = new SpeechSynthesisUtterance(' ');
+      u.volume = 0;
+      speechSynthesis.speak(u);
+    } catch {
+      /* yok say */
+    }
+  }
+}
 
 export type PlayResult = 'audio' | 'device' | 'none';
+
+/** Her yeni okuma öncekini geçersiz kılar; geç kalan ses araya girmez. */
+let token = 0;
 
 /**
  * Kelimeyi çalar. Wikimedia'da dosya yoksa ve cihaz sesi açıksa
@@ -366,20 +427,24 @@ export async function play(
   word: string,
   opts: { device?: boolean; urgent?: boolean } = {},
 ): Promise<PlayResult> {
+  const mine = ++token;
   const rec = await resolve(word, opts.urgent);
+  // Bu arada başka bir okuma başladı: ağdan geç gelen ses araya girmesin.
+  if (mine !== token) return 'none';
   if (rec) {
     const blob = await fetchAudio(rec);
-    if (blob) {
+    if (mine !== token) return 'none';
+    const a = blob ? audioEl() : null;
+    if (blob && a) {
+      const url = URL.createObjectURL(blob);
       try {
-        current?.pause();
-        const url = URL.createObjectURL(blob);
-        const el = new Audio(url);
-        el.preload = 'auto';
-        current = el;
-        el.addEventListener('ended', () => URL.revokeObjectURL(url), { once: true });
-        await el.play();
+        a.pause();
+        a.src = url;
+        a.onended = () => URL.revokeObjectURL(url);
+        await a.play();
         return 'audio';
       } catch (err) {
+        URL.revokeObjectURL(url);
         /*
          * Yeni bir okuma öncekini kesti (art arda iki "dinle"): bu bir hata
          * değil, sıra değişikliği. Cihaz sesine düşmek iki sesi üst üste

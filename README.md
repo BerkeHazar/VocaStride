@@ -11,7 +11,7 @@
 </p>
 
 <p align="center">
-  <img src="https://img.shields.io/badge/s%C3%BCr%C3%BCm-2.3.0-1B3A63?style=flat-square" alt="Sürüm 2.3.0">
+  <img src="https://img.shields.io/badge/s%C3%BCr%C3%BCm-2.3.2-1B3A63?style=flat-square" alt="Sürüm 2.3.2">
   <a href="https://berkehazar.github.io/VocaStride/"><img src="https://img.shields.io/badge/canl%C4%B1%20uygulama-berkehazar.github.io-1B3A63?style=flat-square" alt="Canlı uygulama"></a>
   <img src="https://img.shields.io/badge/PWA-%C3%A7evrimd%C4%B1%C5%9F%C4%B1-2B6A4C?style=flat-square" alt="PWA, çevrimdışı">
   <img src="https://img.shields.io/badge/lisans-MIT-8A6114?style=flat-square" alt="MIT lisansı">

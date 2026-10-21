@@ -2,6 +2,28 @@
 
 Biçim: [Keep a Changelog](https://keepachangelog.com/tr/1.1.0/) · Sürümleme: [SemVer](https://semver.org/lang/tr/).
 
+## [2.3.2] — 2026-10-21
+
+### Düzeltildi
+
+- **Bölümün ilk dinleme sorusunda ses çalmıyordu.** İlk soru sessiz kalıyor,
+  sonrakiler çalıyordu. Üç neden üst üste geliyordu: her okumada yeni bir ses
+  öğesi kuruluyordu (mobil tarayıcılar, özellikle iOS, bunu engelliyor), oturum
+  açılışındaki ön hazırlık ilk altı adımı kapsadığı için dinleme kelimelerini
+  hiç hazırlamıyordu ve otomatik okuma arka plan kuyruğunda bekliyordu. Ses
+  öğesi artık tek ve ilk dokunuşta açılıyor; ön hazırlık dinleme kelimeleriyle
+  başlıyor; otomatik okuma acil sırada gidiyor. Ağdan geç gelen ses de yeni bir
+  okumayı kesmiyor.
+- **Ayarlar → Hakkında** güncel sürümü göstermiyordu (derlemeye 2.3.0
+  gömülüydü).
+
+## [2.3.1] — 2026-10-21
+
+### Değişti
+
+- **Logo vurgu rengini izler.** Karo ve wordmark artık `--accent` kullanıyor;
+  ayarlarda vurgu değişince logo da değişiyor. Açılış ekranı aynı rengi izler.
+
 ## [2.3.0] — 2026-10-21
 
 ### Eklendi

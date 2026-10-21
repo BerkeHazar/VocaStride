@@ -207,7 +207,8 @@ export default function Session() {
   const [left, setLeft] = useState(limit);
 
   const sayWord = useCallback(
-    // `urgent`: otomatik okuma arka planda kalır, tıklama sıraya girmez.
+    // `urgent`: arka plan kuyruğunu atla. Dinleme sorusunun otomatik okuması
+    // da acildir — ses sorunun kendisi, gecikirse soru sessiz kalıyor.
     (text: string, urgent = true) => {
       void say(text, pronMode, urgent);
     },
@@ -227,12 +228,23 @@ export default function Session() {
     startSession();
   }, [mode]);
 
-  // Dinleme ve kart modlarında ses gecikmesi olmasın: sıradaki kelimeler önden hazırlanır.
+  /*
+   * Dinleme ve kart modlarında ses gecikmesi olmasın: sıradaki kelimeler
+   * önden hazırlanır.
+   *
+   * Sıra `plan.steps` sırasıyla alındığında bölümlerde ilk altı adım kart ve
+   * test oluyordu; dinleme kelimeleri pencerenin dışında kalıyor, mobil ağda
+   * ilk dinleme sorusunun sesi soru geçildikten sonra geliyordu. Artık
+   * dinleme kelimeleri önce hazırlanır.
+   */
   useEffect(() => {
-    const keys = plan.steps
-      .flatMap((s) => (s.kind === 'quiz' || s.kind === 'listen' ? [s.q.wordKey] : s.kind === 'cards' ? s.keys : []))
-      .slice(0, 6);
-    const list = keys.map((k) => byKey.get(k)?.w).filter(Boolean) as string[];
+    const keys = plan.steps.flatMap((s) =>
+      s.kind === 'quiz' || s.kind === 'listen' ? [s.q.wordKey] : s.kind === 'cards' ? s.keys : [],
+    );
+    const listen = plan.steps.flatMap((s) => (s.kind === 'listen' ? [s.q.wordKey] : []));
+    const list = [...new Set([...listen, ...keys])]
+      .map((k) => byKey.get(k)?.w)
+      .filter(Boolean) as string[];
     if (list.length) void prefetch(list, 6);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -676,10 +688,11 @@ function QuizStep({
     [picked, q, onAnswer],
   );
 
-  // Dinleme modunda kelime bir kez otomatik okunur.
+  // Dinleme modunda kelime bir kez otomatik okunur. Acil sırada gider:
+  // ses bu sorunun kendisi, arka plan hazırlığının arkasında beklememeli.
   useEffect(() => {
     if (variant !== 'listen') return;
-    const id = window.setTimeout(() => onSay(q.prompt, false), 240);
+    const id = window.setTimeout(() => onSay(q.prompt, true), 240);
     return () => window.clearTimeout(id);
   }, [variant, q.prompt, onSay]);
 

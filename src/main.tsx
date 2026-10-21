@@ -10,6 +10,7 @@ import './styles/path.css';
 import './styles/fx.css';
 import App from './App';
 import { applyTheme } from './lib/theme';
+import { unlockAudio } from './lib/pronounce';
 import { getState } from './lib/store';
 
 const rootEl = document.getElementById('root');
@@ -18,6 +19,16 @@ if (!rootEl) throw new Error('root bulunamadı');
 const { settings } = getState();
 applyTheme(settings.theme, settings.accent);
 document.documentElement.dataset.calm = String(settings.calm);
+
+/*
+ * iOS'ta bir ses öğesi ancak bir dokunuşun içinde `play()` görürse açılır.
+ * Oturumun ilk dokunuşlarını buraya bağlıyoruz; dinleme sorularının otomatik
+ * okuması böylece ilk sorudan itibaren duyuluyor. Açıldıktan sonra çağrı
+ * anında döner, dinleyiciler kalabilir.
+ */
+const unlock = () => unlockAudio();
+window.addEventListener('pointerdown', unlock, { capture: true, passive: true });
+window.addEventListener('keydown', unlock, { capture: true });
 
 createRoot(rootEl).render(
   <StrictMode>
