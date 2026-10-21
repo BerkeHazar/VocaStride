@@ -314,11 +314,34 @@ function buildUnits(kind: LevelKind, fresh: number, questions: number, rampBand 
   return units;
 }
 
+/**
+ * Plan önbelleği.
+ *
+ * `campaignPlan` yalnızca bant **boylarına** ve kampanya ayarlarına bakıyor
+ * (kelimelerin kendisine değil). 150 bölümün birimlerini her seferinde yeniden
+ * kurmak yol ekranının açılışında ve her oturum planında boşuna iş çıkarıyordu.
+ * Aynı imza için aynı plan döner; dönen nesneler yalnızca okunur.
+ */
+let planCache: { key: string; plan: LevelDef[] } | null = null;
+
+function planKey(bands: string[][], opts: CampaignOptions): string {
+  return [
+    opts.questions,
+    opts.freshPerLevel,
+    opts.rampShift ?? 0,
+    opts.passDelta ?? 0,
+    bands.map((b) => b.length).join('.'),
+  ].join('|');
+}
+
 /** Bantlardan bölüm listesi. Kelime sayısı azsa kampanya kendiliğinden kısalır. */
 export function campaignPlan(
   bands: string[][],
   opts: CampaignOptions = DEFAULT_CAMPAIGN,
 ): LevelDef[] {
+  const key = planKey(bands, opts);
+  if (planCache && planCache.key === key) return planCache.plan;
+
   const levels: LevelDef[] = [];
   const shift = opts.rampShift ?? 0;
   const delta = opts.passDelta ?? 0;
@@ -362,6 +385,7 @@ export function campaignPlan(
     });
   });
 
+  planCache = { key, plan: levels };
   return levels;
 }
 
