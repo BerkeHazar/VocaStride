@@ -706,7 +706,7 @@
 /* -------------------------------- dinle ------------------------------- */
 
 /*
- * "Dinleyemiyorum": sesin yerine kelimenin yazılışını açar.
+ * "Dinleyemiyorum": soruyu değerlendirmeden geçer.
  * Bağlantı gibi davranır (altı çizili, küçük) — düğme gibi göçmesin.
  */
 .q-skip {

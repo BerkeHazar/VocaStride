@@ -54,10 +54,21 @@ interface Tally {
   combo: number;
   best: number;
   units: number;
+  /** Atlanan sorular: doğru/yanlış sayılmaz, yalnızca "soru görüldü" sayılır. */
+  skipped: number;
   wrongKeys: string[];
 }
 
-const ZERO: Tally = { correct: 0, wrong: 0, xp: 0, combo: 0, best: 0, units: 0, wrongKeys: [] };
+const ZERO: Tally = {
+  correct: 0,
+  wrong: 0,
+  xp: 0,
+  combo: 0,
+  best: 0,
+  units: 0,
+  skipped: 0,
+  wrongKeys: [],
+};
 
 /**
  * Seri kutlamasının eşikleri.
@@ -272,6 +283,7 @@ export default function Session() {
         combo: nextCombo,
         best: Math.max(x.best, nextCombo),
         units: x.units + (countUnit ? 1 : 0),
+        skipped: x.skipped,
         wrongKeys: ok ? x.wrongKeys : [...new Set([...x.wrongKeys, key])],
       }));
       if (ok) {
@@ -309,7 +321,14 @@ export default function Session() {
     if (finished.current) return;
     finished.current = true;
     const fin = tallyRef.current;
-    const total = fin.correct + fin.wrong;
+    /*
+     * Atlanan sorular (dinleyemiyorum) ne doğru ne yanlış: doğruluk yalnızca
+     * cevaplananlar üzerinden hesaplanıyor. Bölümün "tamamlandı" sayılması için
+     * ise atlananlar da sayılıyor; aksi hâlde 3 dinleme sorusu atlayan biri
+     * %100 doğrulukla bölümü geçemiyordu.
+     */
+    const answered = fin.correct + fin.wrong;
+    const total = answered + fin.skipped;
     /*
      * Bölüm sonucu yalnızca bölüm oturumunda yazılır. Eskiden işaret ne
      * olursa olsun okunuyordu; yarım kalmış bir bölümden sonra açılan normal
@@ -317,16 +336,17 @@ export default function Session() {
      */
     const lvl = mode === 'level' ? getActiveLevel() : null;
     setActiveLevel(null);
-    if (total === 0) {
+    // Hiç cevap yoksa (hepsi atlandıysa) özet ekranı anlamsız: doğrudan çık.
+    if (answered === 0) {
       navigate('/', { replace: true });
       return;
     }
-    const perfect = fin.wrong === 0;
+    const perfect = fin.wrong === 0 && answered > 0;
     const timeSec = Math.max(1, Math.round((Date.now() - started.current) / 1000));
 
     // Bölüm oturumuysa yıldızı yaz. Yarıda bırakılan oturum geçilmiş sayılmaz.
     if (lvl) {
-      const acc = total ? fin.correct / total : 0;
+      const acc = answered ? fin.correct / answered : 0;
       if (total >= Math.min(lvl.total, plan.units) && acc >= lvl.passPct) {
         recordLevelResult(
           getState().activeList,
@@ -347,7 +367,7 @@ export default function Session() {
       xp: fin.xp,
       combo: fin.best,
       perfect,
-      accuracy: total ? fin.correct / total : 0,
+      accuracy: answered ? fin.correct / answered : 0,
       wrongKeys: fin.wrongKeys,
     });
     if (perfect) {
@@ -394,6 +414,20 @@ export default function Session() {
       finish();
     }, 70);
   }, [idx, steps.length, endless, nextBatch, finish]);
+
+  /**
+   * Dinleyemiyorum: soru değerlendirilmeden geçilir.
+   *
+   * Doğru/yanlış sayacına dokunmaz, XP vermez, kelimeyi SRS'e işlemez; yalnızca
+   * ilerlemeyi bir adım artırıp sıradaki soruya geçer. Böylece sessiz ortamda
+   * bölüm tıkanmıyor, ama atlayarak yıldız toplamak da mümkün değil (doğruluk
+   * yalnızca cevaplanan sorular üzerinden hesaplanıyor).
+   */
+  const skipQuestion = useCallback(() => {
+    update((x) => ({ ...x, skipped: x.skipped + 1, units: x.units + 1, combo: 0 }));
+    advance();
+  }, [update, advance]);
+
 
   // Hız turu: süre bitince oturum kendiliğinden kapanır.
   useEffect(() => {
@@ -506,6 +540,7 @@ export default function Session() {
             q={step.q}
             variant={step.kind === 'listen' ? 'listen' : 'text'}
             allowListenSkip={mode === 'level'}
+            onSkip={skipQuestion}
             byKey={byKey}
             dict={dict}
             onSay={sayWord}
@@ -609,6 +644,7 @@ function QuizStep({
   onNext,
   last,
   allowListenSkip = false,
+  onSkip,
 }: {
   q: QuizQuestion;
   variant?: 'text' | 'listen';
@@ -618,18 +654,13 @@ function QuizStep({
   onAnswer: (key: string, ok: boolean, dir: QuizQuestion['direction']) => void;
   onNext: () => void;
   last: boolean;
-  /** Bölümlerde: "dinleyemiyorum" deyip kelimenin yazılışını görebilme. */
+  /** Bölümlerde: "dinleyemiyorum" ile soruyu değerlendirmeden geçme. */
   allowListenSkip?: boolean;
+  onSkip?: () => void;
 }) {
   const t = useT();
   const lang = useLang();
   const [picked, setPicked] = useState<string | null>(null);
-  /*
-   * Dinleyemiyorum: ses yerine kelimenin yazılışı açılır, soru yine cevaplanır.
-   * Soruyu tümden atlamak yerine metni göstermek daha dürüst: kelime yine
-   * görülüyor ve doğru/yanlış sayılıyor (Duolingo'nun yaptığı da bu).
-   */
-  const [revealed, setRevealed] = useState(false);
   const answered = picked !== null;
   const ok = picked === q.answerKey;
   const word = byKey.get(q.wordKey);
@@ -705,14 +736,16 @@ function QuizStep({
             {q.prompt}
           </div>
         )}
-        {variant === 'listen' && !answered && allowListenSkip && !revealed ? (
-          <button type="button" className="q-skip" onClick={() => setRevealed(true)}>
+        {/*
+          * Dinleyemiyorum: soru değerlendirilmeden geçilir. Ne doğru ne yanlış
+          * sayılır, kelime SRS'e işlenmez; ileride yine karşısına çıkar.
+          */}
+        {variant === 'listen' && !answered && allowListenSkip && onSkip ? (
+          <button type="button" className="q-skip" onClick={onSkip}>
             {t('session.cantListen')}
           </button>
         ) : null}
-        {variant === 'listen' && (answered || revealed) ? (
-          <div className="q-word small">{q.prompt}</div>
-        ) : null}
+        {variant === 'listen' && answered ? <div className="q-word small">{q.prompt}</div> : null}
         {info?.ipa && answered ? <div className="q-ipa ipa">/{info.ipa}/</div> : null}
         <p className="q-sub">{q.sub}</p>
         {answered && info?.def ? (
