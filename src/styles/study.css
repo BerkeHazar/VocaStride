@@ -705,6 +705,29 @@
 
 /* -------------------------------- dinle ------------------------------- */
 
+/*
+ * "Dinleyemiyorum": sesin yerine kelimenin yazılışını açar.
+ * Bağlantı gibi davranır (altı çizili, küçük) — düğme gibi göçmesin.
+ */
+.q-skip {
+  align-self: flex-start;
+  min-height: 36px;
+  margin-top: -2px;
+  padding: 6px 2px;
+  font-size: var(--fs-xs);
+  font-weight: 550;
+  color: var(--ink-3);
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 3px;
+  text-decoration-color: color-mix(in srgb, var(--ink-3) 45%, transparent);
+}
+
+.q-skip:active {
+  translate: none;
+  color: var(--ink-2);
+}
+
 .q-speak {
   position: relative;
   display: grid;

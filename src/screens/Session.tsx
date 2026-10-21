@@ -505,6 +505,7 @@ export default function Session() {
             key={idx}
             q={step.q}
             variant={step.kind === 'listen' ? 'listen' : 'text'}
+            allowListenSkip={mode === 'level'}
             byKey={byKey}
             dict={dict}
             onSay={sayWord}
@@ -607,6 +608,7 @@ function QuizStep({
   onAnswer,
   onNext,
   last,
+  allowListenSkip = false,
 }: {
   q: QuizQuestion;
   variant?: 'text' | 'listen';
@@ -616,10 +618,18 @@ function QuizStep({
   onAnswer: (key: string, ok: boolean, dir: QuizQuestion['direction']) => void;
   onNext: () => void;
   last: boolean;
+  /** Bölümlerde: "dinleyemiyorum" deyip kelimenin yazılışını görebilme. */
+  allowListenSkip?: boolean;
 }) {
   const t = useT();
   const lang = useLang();
   const [picked, setPicked] = useState<string | null>(null);
+  /*
+   * Dinleyemiyorum: ses yerine kelimenin yazılışı açılır, soru yine cevaplanır.
+   * Soruyu tümden atlamak yerine metni göstermek daha dürüst: kelime yine
+   * görülüyor ve doğru/yanlış sayılıyor (Duolingo'nun yaptığı da bu).
+   */
+  const [revealed, setRevealed] = useState(false);
   const answered = picked !== null;
   const ok = picked === q.answerKey;
   const word = byKey.get(q.wordKey);
@@ -695,7 +705,14 @@ function QuizStep({
             {q.prompt}
           </div>
         )}
-        {variant === 'listen' && answered ? <div className="q-word small">{q.prompt}</div> : null}
+        {variant === 'listen' && !answered && allowListenSkip && !revealed ? (
+          <button type="button" className="q-skip" onClick={() => setRevealed(true)}>
+            {t('session.cantListen')}
+          </button>
+        ) : null}
+        {variant === 'listen' && (answered || revealed) ? (
+          <div className="q-word small">{q.prompt}</div>
+        ) : null}
         {info?.ipa && answered ? <div className="q-ipa ipa">/{info.ipa}/</div> : null}
         <p className="q-sub">{q.sub}</p>
         {answered && info?.def ? (

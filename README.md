@@ -131,7 +131,7 @@ yüzen rozet yok. Sayfanın tek renkli yüzeyi bugünün sırası; geri kalan he
 | **Hafıza kartları** | Çevir, hatırla, "Tekrar / Biliyorum" | 3D çevirme, sürükle-bırak, tam klavye kontrolü |
 | **Eşleştirme** | 5 kelime ↔ 5 anlam | Kademeli giriş, kilit animasyonu, hatasız tur **+25 XP** |
 | **Hız turu** | 60 saniyede kaç kelime? | Geri sayım çubuğu, süre bitince otomatik özet |
-| **Dinleme** | Kelime okunur, Türkçe karşılığını seç | Wikimedia Commons kaydı, tekrar dinleme |
+| **Dinleme** | Kelime okunur, Türkçe karşılığını seç | Wikimedia Commons kaydı, tekrar dinleme; bölümlerde "dinleyemiyorum" ile metne geçiş |
 | **Yazma** | Türkçesi verilir, İngilizcesini yaz | Harf harf açılan şerit, harf ipucu, `Enter` ile kontrol |
 | **Maraton** | Test + kart + eşleştirme, tek oturumda | 9 bölüm, karışık ritim |
 

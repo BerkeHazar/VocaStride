@@ -247,6 +247,8 @@ const S = {
   'session.wrong': ['Doğrusu', 'Answer'],
   'session.replay': ['Kelimeyi yeniden dinle', 'Play the word again'],
   'session.listenTag': ['DİNLE', 'LISTEN'],
+  // Dinleyemiyorum: ses yerine kelimenin yazılışı gösterilir (Duolingo'daki gibi).
+  'session.cantListen': ['Dinleyemiyorum', "I can't listen"],
   'session.credit': ['ses · Wikimedia Commons', 'audio · Wikimedia Commons'],
   'session.noWords': ['Bu kaynakta kelime kalmadı', 'No words left in this source'],
   'session.noWordsText': [
