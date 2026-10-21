@@ -509,6 +509,12 @@
   opacity: 1;
 }
 
+@media (hover: none), (pointer: coarse) {
+  .backdrop {
+    backdrop-filter: none;
+  }
+}
+
 .backdrop[data-open='true'] {
   animation: backdrop-in 150ms ease backwards;
 }

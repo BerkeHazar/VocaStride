@@ -402,6 +402,21 @@
   }
 }
 
+/*
+ * Dokunmatikte bulanıklık yok.
+ *
+ * `backdrop-filter` sabit bir çubuğun arkasındaki kayan içeriği her karede
+ * yeniden bulanıklaştırıyor; orta seviye Android'de kaydırmayı 20–30 fps'e
+ * düşürüyordu. Mobilde çubuk opak: aynı görünüm, bulanıklık maliyeti yok.
+ */
+@media (hover: none), (pointer: coarse) {
+  .topbar,
+  .dock {
+    backdrop-filter: none;
+    background: var(--bg);
+  }
+}
+
 .dock button {
   position: relative;
   display: grid;
