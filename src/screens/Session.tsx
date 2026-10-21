@@ -401,7 +401,9 @@ export default function Session() {
     const end = Date.now() + limit * 1000;
     const id = window.setInterval(() => {
       const rest = Math.max(0, Math.ceil((end - Date.now()) / 1000));
-      setLeft(rest);
+      // Sayaç saniyede bir değişiyor: aynı değeri tekrar yazıp ekranı
+      // saniyede dört kez yeniden çizdirmiyoruz.
+      setLeft((prev) => (prev === rest ? prev : rest));
       if (rest <= 0) {
         window.clearInterval(id);
         finish();
@@ -958,22 +960,6 @@ function CardsStep({
     [word, flipped, i, keys.length, onAnswer, onDone],
   );
 
-  /*
-   * Çevirme sırasında kabuğun gölgesi sönüyor.
-   *
-   * Gölge 3B dönen yüzlerin üstünde olsaydı, her çevirmede iki bulanık gölge
-   * yeniden rasterleniyordu — mobilde takılmanın asıl sebebi buydu. Gölge artık
-   * dönmeyen kabukta ve yalnızca çevirme boyunca kapanıyor.
-   */
-  const markFlip = useCallback(() => {
-    const el = cardRef.current;
-    if (!el) return;
-    el.dataset.flip = '1';
-    window.setTimeout(() => {
-      if (el.dataset.flip) delete el.dataset.flip;
-    }, 440);
-  }, []);
-
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       const tag = (e.target as HTMLElement | null)?.tagName;
@@ -981,7 +967,6 @@ function CardsStep({
       if (tag === 'BUTTON' && (e.key === 'Enter' || e.code === 'Space')) return;
       if (e.code === 'Space') {
         e.preventDefault();
-        markFlip();
         setFlipped((f) => !f);
       } else if (e.key === 'ArrowLeft') {
         e.preventDefault();
@@ -993,7 +978,7 @@ function CardsStep({
     };
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);
-  }, [grade, markFlip]);
+  }, [grade]);
 
   // Kaydırma: karta tutup sürüklemek, mobildeki deste hissini verir.
   const onPointerDown = (e: React.PointerEvent<HTMLDivElement>) => {
@@ -1087,14 +1072,12 @@ function CardsStep({
             drag.current.moved = false;
             return;
           }
-          markFlip();
           setFlipped((f) => !f);
           sfx('flip');
         }}
         onKeyDown={(e) => {
           if (e.key === 'Enter') {
             e.preventDefault();
-            markFlip();
             setFlipped((f) => !f);
             sfx('flip');
           }
