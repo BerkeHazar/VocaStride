@@ -958,6 +958,22 @@ function CardsStep({
     [word, flipped, i, keys.length, onAnswer, onDone],
   );
 
+  /*
+   * Çevirme sırasında kabuğun gölgesi sönüyor.
+   *
+   * Gölge 3B dönen yüzlerin üstünde olsaydı, her çevirmede iki bulanık gölge
+   * yeniden rasterleniyordu — mobilde takılmanın asıl sebebi buydu. Gölge artık
+   * dönmeyen kabukta ve yalnızca çevirme boyunca kapanıyor.
+   */
+  const markFlip = useCallback(() => {
+    const el = cardRef.current;
+    if (!el) return;
+    el.dataset.flip = '1';
+    window.setTimeout(() => {
+      if (el.dataset.flip) delete el.dataset.flip;
+    }, 440);
+  }, []);
+
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       const tag = (e.target as HTMLElement | null)?.tagName;
@@ -965,6 +981,7 @@ function CardsStep({
       if (tag === 'BUTTON' && (e.key === 'Enter' || e.code === 'Space')) return;
       if (e.code === 'Space') {
         e.preventDefault();
+        markFlip();
         setFlipped((f) => !f);
       } else if (e.key === 'ArrowLeft') {
         e.preventDefault();
@@ -976,7 +993,7 @@ function CardsStep({
     };
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);
-  }, [grade]);
+  }, [grade, markFlip]);
 
   // Kaydırma: karta tutup sürüklemek, mobildeki deste hissini verir.
   const onPointerDown = (e: React.PointerEvent<HTMLDivElement>) => {
@@ -1070,19 +1087,26 @@ function CardsStep({
             drag.current.moved = false;
             return;
           }
+          markFlip();
           setFlipped((f) => !f);
           sfx('flip');
         }}
         onKeyDown={(e) => {
           if (e.key === 'Enter') {
             e.preventDefault();
+            markFlip();
             setFlipped((f) => !f);
             sfx('flip');
           }
         }}
         aria-label={flipped ? t('session.cardBack') : t('session.cardFront')}
       >
-        <div className="flip-inner">
+        {/*
+          * `key={i}`: sonraki karta geçerken iç kart sıfırdan kurulur.
+          * Aksi hâlde `setFlipped(false)` geri dönüş animasyonunu başlatıyor,
+          * o 420 ms boyunca *yeni* kelimenin arka yüzü görünüyordu.
+          */}
+        <div className="flip-inner" key={i}>
           <div className="flip-face front">
             <span className="tag">
               {posLabel(word.pos, lang)} · <span className="num">{i + 1}/{keys.length}</span>
