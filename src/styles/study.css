@@ -1082,25 +1082,32 @@
   transition: transform 180ms var(--ease-out) 180ms;
 }
 
-/* Ön yüz: giderken gecikmesiz, geri gelirken gecikmeli. */
+/*
+ * Ön yüz: giderken gecikmesiz, geri gelirken gecikmeli.
+ *
+ * Uç nokta tam olarak `scaleX(0)`: 0.02 bırakıldığında kartın kenarı 4-8 px'lik
+ * dikey bir çubuk olarak görünüyordu ("ortada çubuk var" hissi). Sıfırda hiçbir
+ * şey çizilmiyor; arka yüz 160 ms'de açılmaya başladığı için arada boş kare
+ * kalmıyor.
+ */
 .flip[data-flipped='true'] .flip-face.front {
-  transform: scaleX(0.02);
+  transform: scaleX(0);
   pointer-events: none;
-  transition: transform 180ms var(--ease-in);
+  transition: transform 170ms var(--ease-in);
 }
 
-/* Arka yüz kapalı başlar (kenar hâlinde), çevrilince açılır. */
+/* Arka yüz kapalı başlar (sıfır genişlik), çevrilince açılır. */
 .flip-face.back {
-  transform: scaleX(0.02);
+  transform: scaleX(0);
   background: var(--surface-2);
   pointer-events: none;
-  transition: transform 180ms var(--ease-in);
+  transition: transform 170ms var(--ease-in);
 }
 
 .flip[data-flipped='true'] .flip-face.back {
   transform: none;
   pointer-events: auto;
-  transition: transform 180ms var(--ease-out) 180ms;
+  transition: transform 180ms var(--ease-out) 160ms;
 }
 
 .flip-face.back .tag {
