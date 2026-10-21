@@ -452,6 +452,23 @@
   transform: translateY(-1px) scale(1.06);
 }
 
+/*
+ * Alt gezinme bir düğme değil, sekme çubuğu.
+ *
+ * Genel kural (`button:active { translate: 0 1px }`) burada da çalışıyordu:
+ * sekmeye dokununca düğme basılmış gibi 1 px göçüyordu. Dokunmatikte bu
+ * hareket ve ikonun zıplaması kapatıldı; seçim yalnızca renk ve üst çizgiyle
+ * anlatılıyor.
+ */
+@media (hover: none), (pointer: coarse) {
+  .dock button:active {
+    translate: none;
+  }
+  .dock button[data-active='true'] .dock-ico {
+    transform: none;
+  }
+}
+
 /* Etkin sekmenin üstünde kısa mürekkep çizgisi. */
 .dock button::before {
   content: '';
