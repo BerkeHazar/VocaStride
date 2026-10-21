@@ -85,8 +85,13 @@
    * karo açık maviye döner, wordmark kâğıt olur. Karo içindeki V her zaman
    * sayfanın zemini.
    */
-  --logo-mark: #1b3a63;
-  --logo-word: #1b3a63;
+  /*
+   * Logo rengi vurgu rengini izler: ayarlarda vurgu değişince karo ve wordmark
+   * da değişir. V (--logo-ink) her zaman sayfa zemini; vurguların hepsi koyu
+   * olduğu için açık temada, karanlık temada da tersi okunaklı kalıyor.
+   */
+  --logo-mark: var(--accent);
+  --logo-word: var(--accent);
   --logo-ink: var(--bg);
 
   /* anlam renkleri */
@@ -199,8 +204,6 @@
   --accent-ink: #0b0d14;
   --accent-2: #d9b979;
 
-  --logo-mark: #a3b9e6;
-  --logo-word: #f3efe4;
 
   --ok: #74c99e;
   --ok-soft: #16281f;

@@ -109,6 +109,42 @@
         --boot-word: #f3efe4;
         --boot-accent: #a3b9e6;
       }
+
+      /*
+       * Açılış ekranı da vurgu rengini izler (uygulamadaki --logo-mark /
+       * --logo-word ile aynı). Renkler tokens.css'teki koyu vurguların
+       * (açık tema) ve açık vurguların (karanlık tema) eşleri.
+       */
+      html[data-theme='light'][data-accent='pink'] {
+        --boot-mark: #70304e;
+        --boot-word: #70304e;
+        --boot-accent: #70304e;
+      }
+      html[data-theme='light'][data-accent='mint'] {
+        --boot-mark: #2b6a4c;
+        --boot-word: #2b6a4c;
+        --boot-accent: #2b6a4c;
+      }
+      html[data-theme='light'][data-accent='sun'] {
+        --boot-mark: #8a6114;
+        --boot-word: #8a6114;
+        --boot-accent: #8a6114;
+      }
+      html[data-theme='dark'][data-accent='pink'] {
+        --boot-mark: #c58ba4;
+        --boot-word: #c58ba4;
+        --boot-accent: #c58ba4;
+      }
+      html[data-theme='dark'][data-accent='mint'] {
+        --boot-mark: #74c99e;
+        --boot-word: #74c99e;
+        --boot-accent: #74c99e;
+      }
+      html[data-theme='dark'][data-accent='sun'] {
+        --boot-mark: #d9b979;
+        --boot-word: #d9b979;
+        --boot-accent: #d9b979;
+      }
       html,
       body {
         margin: 0;
