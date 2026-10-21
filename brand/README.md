@@ -37,6 +37,17 @@ Eski %58 ölçek karoyu dolduruyor, V'nin uçları köşe yuvarlaklığına yakl
 **Uygulamadaki boylar** (`mark.json → ui`): kenar çubuğu 30 · kurulum 28 ·
 üst bar 26 · açılış ekranı 44 px. Hepsi aynı lockup'ın ölçeklenmiş hâli.
 
+**Optik ölçek (V'nin karo genişliğine oranı).** Tek çizim, üç boy:
+
+| Yüzey | V | Neden |
+| --- | --- | --- |
+| Sekme ikonu (16–32 px) | %60 | 16 px'te bacaklar 2,3 px'e düşüp bulanıyordu |
+| Ana ekran / PWA (180–512 px) | %50 | ikon tek başına duruyor, karo dolu ve ağır görünüyordu |
+| Uygulama içi lockup | %55 | yazıyla yan yana dengeli |
+
+Üçü de `scripts/icons.mjs` içinde `markWidth` olarak veriliyor; çizim aynı,
+yalnızca ölçek değişiyor.
+
 ## 3. Dosyalar
 
 | Dosya | Ne için |
