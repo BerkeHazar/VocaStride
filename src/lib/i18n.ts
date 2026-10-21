@@ -625,6 +625,7 @@ const S = {
     'Vocabulary learning with spaced repetition. No server, no account — just you and the words.',
   ],
   'set.sourceCode': ['Kaynak kod', 'Source code'],
+  'set.version': ['Sürüm {v}', 'Version {v}'],
   'set.license': ['MIT lisansı · Berke Hazar · Telaffuz kayıtları CC BY-SA', 'MIT licence · Berke Hazar · Audio recordings CC BY-SA'],
   'set.online': ['çevrimiçi', 'online'],
   'set.offline': ['çevrimdışı', 'offline'],

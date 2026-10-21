@@ -589,6 +589,7 @@ export default function Settings() {
           </a>
           <span className="tag">{navigator.onLine ? t('set.online') : t('set.offline')}</span>
         </div>
+        <p className="tiny dim">{t('set.version', { v: __APP_VERSION__ })}</p>
         <p className="tiny dim">{t('set.license')}</p>
       </section>
 

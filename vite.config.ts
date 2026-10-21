@@ -10,6 +10,7 @@ import { lockupSvg } from './brand/lockup.mjs';
  * tema (açık/koyu) ilk boyada da doğru.
  */
 const brand = JSON.parse(readFileSync(new URL('./brand/mark.json', import.meta.url), 'utf8'));
+const pkg = JSON.parse(readFileSync(new URL('./package.json', import.meta.url), 'utf8'));
 
 function brandBoot(): Plugin {
   return {
@@ -41,6 +42,8 @@ export default defineConfig(({ mode }) => {
   return {
     base,
     plugins: [react(), brandBoot()],
+    // Sürüm tek yerden: package.json. Uygulamada "Sürüm 2.3.0" olarak görünür.
+    define: { __APP_VERSION__: JSON.stringify(pkg.version) },
     build: {
       target: 'es2020',
       cssCodeSplit: true,
