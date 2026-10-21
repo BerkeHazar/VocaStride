@@ -327,6 +327,12 @@
   overflow-x: hidden;
   overscroll-behavior: contain;
   -webkit-overflow-scrolling: touch;
+  /*
+   * Uzun bir soruda gövde birkaç piksel taşarsa tarayıcı ince bir kaydırma
+   * çubuğu çıkarıyordu; cevap gelince yanıp sönen bu çubuk dikkat dağıtıyordu.
+   * Kaydırma davranışı aynı, yalnızca çubuk gizli.
+   */
+  scrollbar-width: none;
   padding: 0 18px calc(18px + var(--safe-b));
   transition:
     opacity 90ms linear,
@@ -338,6 +344,10 @@
  * "soldan geliyor" hissi veriyordu. Kısa bir sönümleme + 6px yukarı kayma
  * hem daha sakin hem daha hızlı.
  */
+.sess-body::-webkit-scrollbar {
+  display: none;
+}
+
 .sess-body > * {
   animation: step-in 165ms var(--ease-out) both;
 }
@@ -658,6 +668,41 @@
   color: var(--ink-3);
 }
 
+/*
+ * Kısa ekranlarda tanım iki satıra kırpılıyor.
+ *
+ * Cevap açıklaması gelince soru bloğu ~86 px büyüyor; 667 px yüksekliğindeki
+ * telefonlarda bu, gövdeyi 29 px taşırıp dikey kaydırma çubuğu çıkarıyordu.
+ * Tanım zaten yardımcı bilgi: iki satır yeter, taşma kalmıyor.
+ */
+@media (max-height: 720px) {
+  .q-def {
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+    line-clamp: 2;
+    overflow: hidden;
+  }
+
+  /* Şıklar bir tık alçalır: kısa ekranda dört şık + açıklama birlikte sığsın. */
+  .q-opt {
+    min-height: 50px;
+    padding: 9px 14px;
+  }
+
+  /*
+   * 640 px yüksekliğinde içerik yine birkaç piksel taşabiliyor. "Sonraki"
+   * düğmesi kaydırma alanının içinde olduğu için altta kalmasın: kısa ekranda
+   * cevap şeridi yapışkan.
+   */
+  .q-foot:not([data-empty='true']) {
+    position: sticky;
+    bottom: 0;
+    z-index: 2;
+    background: var(--bg);
+  }
+}
+
 /* -------------------------------- dinle ------------------------------- */
 
 .q-speak {
@@ -935,8 +980,6 @@
   inset: 0;
   border-radius: var(--r-xl);
   will-change: transform;
-  /* Taban gölge dönmeyen kabukta: yüzler yalnızca zemin + yazı taşıyor. */
-  box-shadow: var(--shadow-2);
 }
 
 .card-shell::after {
@@ -967,12 +1010,13 @@
 }
 
 /*
- * Kart çevirme: 3B döndürme yok.
+ * Kart çevirme: 2B "kart kırılması".
  *
- * `rotateY` + `preserve-3d` + `backface-visibility` üçlüsü mobilde pahalı:
- * tarayıcı iki yüzü ayrı 3B katman olarak tutup dönerken yeniden rasterliyor.
- * Artık ön yüz yukarı sönümleniyor, arka yüz aşağıdan yerine geliyor; ikisi de
- * yalnızca opacity + transform (kompozit iş, boyama yok).
+ * Gerçek 3B döndürme (rotateY + preserve-3d + backface-visibility) mobilde
+ * pahalı: tarayıcı iki yüzü ayrı 3B katman olarak tutup dönüş boyunca yeniden
+ * rasterliyor. Aynı hissi 2B ile veriyoruz: kart kenarına gelene kadar
+ * yassılıyor (scaleX 1 → 0), sonra diğer yüz açılıyor (scaleX 0 → 1).
+ * Perspektif yok, iki düz katman var; ikisi de kompozit transform.
  */
 .flip-inner {
   position: absolute;
@@ -1005,50 +1049,35 @@
   background: var(--surface);
   overflow: hidden;
   text-align: left;
+  box-shadow: var(--shadow-2);
+  transform-origin: 50% 50%;
   /*
-   * Sönümleme iki yönlü el sıkışmayla çalışıyor: giden yüz hızlı sönüyor,
-   * gelen yüz kısa bir gecikmeyle geliyor. İkisi aynı anda yarı saydam
-   * kalırsa iki yüzün yazıları üst üste biniyor.
+   * Gelen yüz gecikmeyle açılır: kart önce kenarına kadar yassılır, sonra
+   * diğer yüz açılır. İki yarı üst üste binmez, arada tek karelik bir "kenar"
+   * kalır (gerçek bir kart çevirmesinde olduğu gibi).
    */
-  transition:
-    opacity 110ms var(--ease-out),
-    transform 220ms var(--ease-out);
+  transition: transform 180ms var(--ease-out) 180ms;
 }
 
 /* Ön yüz: giderken gecikmesiz, geri gelirken gecikmeli. */
-.flip-face.front {
-  transition:
-    opacity 120ms var(--ease-out) 90ms,
-    transform 220ms var(--ease-out) 80ms;
-}
-
 .flip[data-flipped='true'] .flip-face.front {
-  opacity: 0;
-  transform: translateY(-8px) scale(0.986);
+  transform: scaleX(0.02);
   pointer-events: none;
-  transition:
-    opacity 100ms var(--ease-out),
-    transform 200ms var(--ease-out);
+  transition: transform 180ms var(--ease-in);
 }
 
-/* Arka yüz kapalı başlar; ön yüz sönerken aşağıdan yerine gelir. */
+/* Arka yüz kapalı başlar (kenar hâlinde), çevrilince açılır. */
 .flip-face.back {
-  opacity: 0;
-  transform: translateY(12px) scale(1.012);
+  transform: scaleX(0.02);
   background: var(--surface-2);
   pointer-events: none;
-  transition:
-    opacity 100ms var(--ease-out),
-    transform 200ms var(--ease-out);
+  transition: transform 180ms var(--ease-in);
 }
 
 .flip[data-flipped='true'] .flip-face.back {
-  opacity: 1;
   transform: none;
   pointer-events: auto;
-  transition:
-    opacity 130ms var(--ease-out) 80ms,
-    transform 240ms var(--ease-out) 70ms;
+  transition: transform 180ms var(--ease-out) 180ms;
 }
 
 .flip-face.back .tag {
